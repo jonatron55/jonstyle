@@ -1,0 +1,39 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+$x-narrow-breakpoint: 512px;
+$narrow-breakpoint: 1024px;
+$wide-breakpoint: 1920px;
+
+$control-shadow-x: 0px;
+$control-shadow-y: 1.5px;
+$control-shadow-blur: 3px;
+
+// Base theme
+:root {
+  --base-line-height: 1.19;
+  --ui-border-width: 2px;
+  --ui-border-radius: 3px;
+  --button-border-radius: 3px;
+  --panel-border-width: 3px 1px 3px 1px;
+  --panel-border-style: solid;
+  --panel-border-radius: 0px;
+  --vertical-gap: 0.25rem;
+  --horizontal-gap: 0.25rem;
+
+  --ui-hydrate-time: 180ms;
+  --ui-transition-time: 60ms;
+
+  --sidebar-width: 24rem;
+
+  // Overridden by platform (Android and Apple reverse this order)
+  --primary-button-order: 1;
+  --secondary-button-order: 2;
+  --cancel-button-order: 3;
+}
+
+@property --chrome {
+  syntax: '<color>';
+  initial-value: #888888;
+  inherits: true;
+}

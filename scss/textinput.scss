@@ -1,0 +1,60 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+input[type=text],
+input[type=email],
+input[type=password],
+input[type=tel],
+input[type=number],
+textarea {
+  font: inherit;
+  color: var(--primary-foreground);
+  border-color: var(--input-border);
+  border-style: solid;
+  border-width: 1px 1px 2px 1px;
+  padding: 0.5em 0.5em calc(0.5em - 1px) 0.5em;
+  background-color: var(--input-background);
+  border-radius: 4px;
+  margin: var(--vertical-gap) 0;
+
+  &:hover:enabled {
+    border-color: var(--input-hover-border);
+    border-bottom-width: 3px;
+    padding-bottom: calc(0.5em - 2px);
+    background-color: var(--input-hover-background);
+  }
+
+  &:focus:enabled,
+  &:active:enabled {
+    border-color: var(--input-active-border);
+    border-bottom-width: 4px;
+    padding-bottom: calc(0.5em - 3px);
+    background-color: var(--input-active-background);
+    outline: none;
+  }
+
+  &:disabled {
+    border-color: var(--control-disabled-foreground);
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+  }
+}
+
+textarea {
+  resize: none;
+  height: calc(var(--base-font-size) * var(--base-line-height) * 4 + 1em + 5px);
+
+  &::-webkit-resizer {
+    display: none;
+  }
+}
+
+::placeholder {
+  color: var(--input-border);
+  font-style: italic;
+}
+
+input[type=file] {
+  font-family: inherit;
+  font-size: var(--base-font-size);
+}

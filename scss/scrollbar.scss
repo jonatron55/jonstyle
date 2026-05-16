@@ -1,0 +1,29 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+::-webkit-scrollbar {
+  width: var(--horizontal-gap);
+  height: var(--vertical-gap);
+  background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--control-background);
+  border-radius: var(--panel-border-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--control-hover-background);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--control-active-background);
+}
+
+::-webkit-scrollbar-thumb:disabled {
+  background: var(--control-disabled-background);
+}

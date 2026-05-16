@@ -1,0 +1,39 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+@keyframes menu-hydrate {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotateX(90deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+.dropdown-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 10rem;
+  max-width: 24rem;
+  padding: var(--vertical-gap) 0;
+
+  &.card {
+    animation: menu-hydrate calc(var(--ui-transition-time) * 2) ease-out;
+  }
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdown-menu hr {
+  border: none;
+  border-top: 1px solid var(--chrome);
+  margin: var(--vertical-gap) 0;
+  width: 100%;
+}

@@ -1,0 +1,189 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+@use "globals.scss";
+
+// Regular checkbox
+input[type=checkbox]:not(.button) {
+  appearance: none;
+  font: inherit;
+
+  &+label::before {
+    content: "\A0\A0";
+    border: var(--control-foreground) solid var(--ui-border-width);
+    background-color: var(--control-background);
+    color: var(--control-foreground);
+    display: inline-block;
+    font-size: var(--base-font-size);
+    border-radius: var(--ui-border-radius);
+    margin-right: 1em;
+    transition: var(--ui-transition-time) ease-in-out;
+    transform: scale(1);
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
+  }
+
+  &:hover+label::before,
+  &:focus-visible:not(:active)+label::before {
+    background-color: var(--control-hover-background);
+    border-color: var(--control-hover-foreground);
+    color: var(--control-hover-foreground);
+    transform: scale(1.02);
+  }
+
+  &:active+label::before {
+    background-color: var(--control-active-background);
+    border-color: var(--control-active-foreground);
+    color: var(--control-active-foreground);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:checked+label::before {
+    content: "\2714"; // Heavy Check Mark
+  }
+
+  &:disabled+label::before {
+    border-color: var(--control-disabled-foreground);
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+  }
+}
+
+// Toggle switch style
+input[type=checkbox].toggle-switch {
+  &+label::before {
+    content: "\25CF\A0\A0";
+    border-color: var(--control-foreground);
+    color: var(--control-foreground);
+    background-color: var(--control-background);
+    display: inline-block;
+    font-size: var(--base-font-size);
+    margin-right: 1em;
+    border-radius: 1em;
+    font-weight: normal;
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
+  }
+
+  &:hover+label::before,
+  &:focus-visible:not(:active)+label::before {
+    border: var(--control-hover-foreground) solid var(--ui-border-width);
+    color: var(--control-hover-foreground);
+    background-color: var(--control-hover-background);
+    transform: scale(1.02);
+  }
+
+  &:active:enabled+label::before {
+    content: "\A0\25CF\A0";
+    border-color: var(--control-active-foreground);
+    background-color: var(--control-active-background);
+    color: var(--control-active-foreground);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:checked+label::before {
+    content: "\A0\A0\25CF";
+    color: var(--control-background);
+    background-color: var(--control-foreground);
+  }
+
+  &:checked:hover+label::before,
+  &:checked:focus-visible {
+    color: var(--control-hover-background);
+    background-color: var(--control-hover-foreground);
+    transform: scale(1.02);
+  }
+
+  &:checked:active:enabled+label::before {
+    content: "\A0\25CF\A0";
+    border-color: var(--control-active-foreground);
+    background-color: var(--control-active-foreground);
+    color: var(--control-active-background);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:disabled+label::before {
+    border-color: var(--control-disabled-foreground);
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+  }
+
+  &:checked:disabled+label::before {
+    border-color: var(--control-disabled-background);
+    background-color: var(--control-disabled-foreground);
+    color: var(--control-disabled-background);
+  }
+}
+
+// Radio button
+input[type=radio]:not(.button) {
+  appearance: none;
+  font: inherit;
+
+  &+label::before {
+    content: "\A0\A0";
+    border: var(--control-foreground) solid var(--ui-border-width);
+    background-color: var(--control-background);
+    color: var(--control-foreground);
+    display: inline-block;
+    font-size: var(--base-font-size);
+    margin-right: 1em;
+    border-radius: 50%;
+    transition: var(--ui-transition-time) ease-in-out;
+    transform: scale(1);
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
+  }
+
+  &:hover:enabled+label::before,
+  &:focus-visible:enabled+label::before {
+    border: var(--control-hover-foreground) solid var(--ui-border-width);
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    transform: scale(1.02);
+  }
+
+  &:active:enabled+label::before {
+    border: var(--control-active-foreground) solid var(--ui-border-width);
+    background-color: var(--control-active-background);
+    color: var(--control-active-foreground);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:checked+label::before {
+    content: "\25CF";
+  }
+
+  &:disabled+label::before {
+    border: var(--control-disabled-foreground) solid var(--ui-border-width);
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+  }
+}
+
+// Label styles
+input[type=radio]+label,
+input[type=checkbox]+label {
+  color: var(--label);
+  display: inline-block;
+
+  &:hover {
+    color: var(--label-hover);
+  }
+
+  &:active {
+    color: var(--label-active);
+  }
+
+  &:disabled {
+    color: var(--label-disabled);
+  }
+
+  &:focus-visible {
+    color: var(--label-hover);
+    outline: solid var(--ui-border-width) var(--control-hover-foreground);
+    outline-offset: var(--ui-border-width);
+    border-radius: var(--ui-border-radius);
+  }
+}

@@ -1,0 +1,227 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+@use "globals.scss";
+
+button,
+a.button,
+input[type="checkbox"].button+label,
+input[type="radio"].button+label,
+input[type="file"].button+label {
+  display: inline-block;
+  padding: 0.25rem 1.5rem;
+  font-size: var(--base-font-size);
+  font-family: inherit;
+  font-weight: normal;
+  border-radius: var(--button-border-radius);
+  background-color: var(--control-background);
+  color: var(--control-foreground);
+  border: var(--control-foreground) solid var(--ui-border-width);
+  transition-property: background-color, color, border-color, transform, box-shadow;
+  transition: var(--ui-transition-time) ease-in-out;
+  transform: scale(1);
+  box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    border-color: var(--control-hover-foreground);
+    transform: scale(1.02);
+  }
+
+  &:active {
+    background-color: var(--control-active-background);
+    color: var(--control-active-foreground);
+    border-color: var(--control-active-foreground);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:disabled {
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+    border-color: var(--control-disabled-foreground);
+  }
+
+  &:focus-visible:not(:active) {
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    border-color: var(--control-hover-foreground);
+    box-shadow: 0px 0px 16px var(--control-hover-foreground);
+    outline: solid var(--ui-border-width) var(--control-hover-foreground);
+    outline-offset: var(--ui-border-width);
+    transform: scale(1.02);
+  }
+
+  &.secondary {
+    background-color: var(--secondary-control-background);
+    color: var(--secondary-control-foreground);
+    border-color: var(--secondary-control-foreground);
+
+    &:hover {
+      background-color: var(--secondary-control-hover-background);
+      color: var(--secondary-control-hover-foreground);
+      border-color: var(--secondary-control-hover-foreground);
+    }
+
+    &:active {
+      background-color: var(--secondary-control-active-background);
+      color: var(--secondary-control-active-foreground);
+      border-color: var(--secondary-control-active-foreground);
+    }
+
+    &:disabled {
+      background-color: var(--secondary-control-disabled-background);
+      color: var(--secondary-control-disabled-foreground);
+      border-color: var(--secondary-control-disabled-foreground);
+    }
+
+    &:focus-visible {
+      background-color: var(--secondary-control-hover-background);
+      color: var(--secondary-control-hover-foreground);
+      border-color: var(--secondary-control-hover-foreground);
+      box-shadow: 0px 0px 16px var(--secondary-control-control-foreground);
+      outline-color: var(--secondary-control-control-foreground);
+    }
+  }
+
+  &.ok {
+    background-color: var(--ok-control-background);
+    color: var(--ok-control-foreground);
+    border-color: var(--ok-control-foreground);
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--ok-shadow);
+
+    &:hover {
+      background-color: var(--ok-control-hover-background);
+      color: var(--ok-control-hover-foreground);
+      border-color: var(--ok-control-hover-foreground);
+    }
+
+    &:active {
+      background-color: var(--ok-control-active-background);
+      color: var(--ok-control-active-foreground);
+      border-color: var(--ok-control-active-foreground);
+      box-shadow: 0 0 0 var(--ok-shadow);
+    }
+
+    &:disabled {
+      background-color: var(--ok-control-disabled-background);
+      color: var(--ok-control-disabled-foreground);
+      border-color: var(--ok-control-disabled-foreground);
+    }
+
+    &:focus-visible {
+      background-color: var(--ok-control-hover-background);
+      color: var(--ok-control-hover-foreground);
+      border-color: var(--ok-control-hover-foreground);
+      box-shadow: 0px 0px 16px var(--ok-control-foreground);
+      outline-color: var(--ok-control-foreground);
+    }
+  }
+
+  &.danger {
+    background-color: var(--danger-control-background);
+    color: var(--danger-control-foreground);
+    border-color: var(--danger-control-foreground);
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--error-shadow);
+
+    &:hover {
+      background-color: var(--danger-control-hover-background);
+      color: var(--danger-control-hover-foreground);
+      border-color: var(--danger-control-hover-foreground);
+    }
+
+    &:active {
+      background-color: var(--danger-control-active-background);
+      color: var(--danger-control-active-foreground);
+      border-color: var(--danger-control-active-foreground);
+      box-shadow: 0 0 0 var(--error-shadow);
+    }
+
+    &:disabled {
+      background-color: var(--danger-control-disabled-background);
+      color: var(--danger-control-disabled-foreground);
+      border-color: var(--danger-control-disabled-foreground);
+    }
+
+    &:focus-visible {
+      background-color: var(--danger-control-hover-background);
+      color: var(--danger-control-hover-foreground);
+      border-color: var(--danger-control-hover-foreground);
+      box-shadow: 0px 0px 16px var(--danger-control-hover-foreground);
+      outline-color: var(--danger-control-hover-foreground);
+    }
+  }
+
+  &.caution {
+    background-color: var(--caution-control-background);
+    color: var(--caution-control-foreground);
+    border-color: var(--caution-control-foreground);
+    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--warning-shadow);
+
+    &:hover {
+      background-color: var(--caution-control-hover-background);
+      color: var(--caution-control-hover-foreground);
+      border-color: var(--caution-control-hover-foreground);
+    }
+
+    &:active {
+      background-color: var(--caution-control-active-background);
+      color: var(--caution-control-active-foreground);
+      border-color: var(--caution-control-active-foreground);
+      box-shadow: 0 0 0 var(--caution-shadow);
+    }
+
+    &:disabled {
+      background-color: var(--caution-control-disabled-background);
+      color: var(--caution-control-disabled-foreground);
+      border-color: var(--caution-control-disabled-foreground);
+    }
+
+    &:focus-visible {
+      background-color: var(--caution-control-hover-background);
+      color: var(--caution-control-hover-foreground);
+      border-color: var(--caution-control-hover-foreground);
+      box-shadow: 0px 0px 16px var(--caution-control-hover-foreground);
+      outline: solid var(--ui-border-width) var(--caution-control-hover-foreground);
+    }
+  }
+}
+
+input[type="file"].button {
+  display: none;
+}
+
+::file-selector-button {
+  margin-right: 1em;
+}
+
+.buttons-container {
+  display: flex;
+  justify-content: right;
+  margin: var(--vertical-gap) var(--horizontal-gap);
+
+  button {
+    margin-left: var(--horizontal-gap);
+    min-width: 8em;
+    max-width: 12em;
+
+    .primary {
+      order: var(--primary-button-order);
+    }
+
+    .secondary {
+      order: var(--secondary-button-order);
+    }
+
+    .cancel {
+      order: var(--cancel-button-order);
+    }
+  }
+}
+
+a.button input[type="checkbox"].button,
+input[type="radio"].button {
+  appearance: none;
+}

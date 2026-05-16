@@ -1,0 +1,68 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+@use "globals.scss";
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  min-width: 8rem;
+  height: 1.0rex;
+  background: var(--input-background);
+  border-radius: var(--button-border-radius);
+  outline: none;
+  border: var(--control-background) solid calc(var(--ui-border-width) / 2);
+
+  transition: background-color border-color var(--ui-transition-time) ease-in-out;
+
+  &:hover {
+    background: var(--input-hover-background);
+    border-color: var(--control-hover-background);
+  }
+
+  &:active {
+    background: var(--input-active-background);
+    border-color: var(--control-active-background);
+  }
+
+  &:disabled {
+    background: var(--input-disabled-background);
+    border-color: var(--control-disabled-background);
+  }
+}
+
+::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 2rem;
+  background: var(--control-background);
+  border: var(--control-foreground) solid var(--ui-border-width);
+  border-radius: var(--button-border-radius);
+  box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
+
+  transition-property: background-color, color, border-color, transform, box-shadow;
+  transition: var(--ui-transition-time) ease-in-out;
+  transform: scale(1);
+
+  &:hover {
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    border-color: var(--control-hover-foreground);
+    transform: scale(1.02);
+  }
+
+  &:active {
+    background-color: var(--control-active-background);
+    color: var(--control-active-foreground);
+    border-color: var(--control-active-foreground);
+    transform: scale(0.98);
+    box-shadow: 0 0 0 var(--chrome-shadow);
+  }
+
+  &:disabled {
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+    border-color: var(--control-disabled-foreground);
+  }
+}

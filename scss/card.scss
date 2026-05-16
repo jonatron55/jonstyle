@@ -1,0 +1,152 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+$panel-shadow-x: 0px;
+$panel-shadow-y: 2px;
+$panel-shadow-blur: 8px;
+$tooltip-delay: 500ms;
+
+.panel {
+  background-color: var(--content-background-transparent);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  color: var(--primary-foreground);
+  border-color: var(--chrome);
+  border-style: var(--panel-border-style);
+  border-width: var(--panel-border-width);
+  border-radius: var(--panel-border-radius);
+  padding: 0;
+  background-clip: border-box;
+  overflow: clip;
+  box-shadow: $panel-shadow-x $panel-shadow-y $panel-shadow-blur var(--chrome-shadow);
+  --inner-border-color: var(--chrome);
+}
+
+@keyframes card-hydrate {
+  0% {
+    opacity: 0;
+    transform: rotateX(45deg) scale(0.9);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg) scale(1);
+  }
+}
+
+.card {
+  animation: card-hydrate calc(var(--ui-hydrate-time) * 2) ease-out;
+  background-color: var(--card-background-transparent);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  color: var(--primary-foreground);
+  border-color: var(--chrome);
+  border-style: solid;
+  border-width: var(--panel-border-width);
+  border-radius: var(--panel-border-radius);
+  margin: 0 auto;
+  background-clip: border-box;
+  overflow: clip;
+  box-shadow: $panel-shadow-x $panel-shadow-y $panel-shadow-blur var(--chrome-shadow);
+  max-width: 56rem;
+  --inner-border-color: var(--chrome);
+}
+
+.tooltip {
+  background-color: var(--chrome-background);
+  color: var(--primary-foreground);
+  border-color: var(--chrome);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: var(--ui-border-radius);
+  margin: 0;
+  padding: 0;
+  background-clip: border-box;
+  overflow: clip;
+  box-shadow: $panel-shadow-x $panel-shadow-y $panel-shadow-blur var(--chrome-shadow);
+  --inner-border-color: var(--chrome);
+  position: fixed;
+  z-index: 200;
+  opacity: 0;
+  display: none;
+  max-width: 30rem;
+
+  &.show {
+    display: grid;
+    animation: tooltip-hydrate var(--ui-hydrate-time) ease-out $tooltip-delay forwards;
+  }
+
+  &.hide {
+    animation: tooltip-dehydrate var(--ui-hydrate-time) ease-in forwards;
+  }
+}
+
+.panel>.caption,
+.card>.caption,
+.tooltip>.caption {
+  background-color: var(--chrome);
+  color: var(--caption-foreground);
+  padding: var(--vertical-gap) var(--horizontal-gap);
+  background-clip: border-box;
+  margin-top: 0px;
+  text-transform: uppercase;
+  font-weight: bold;
+
+  &.toolbar {
+    padding: 0 var(--horizontal-gap);
+    margin: 0;
+    min-height: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+
+    label {
+      color: var(--caption-foreground);
+    }
+
+    h1,
+    h2 {
+      color: var(--caption-foreground);
+      margin: var(--vertical-gap) var(--horizontal-gap);
+      flex: 1;
+    }
+
+    h1 {
+      text-align: left;
+    }
+  }
+}
+
+.panel>.content,
+.card>.content,
+.tooltip>.content {
+  margin: var(--vertical-gap) var(--horizontal-gap);
+}
+
+@keyframes tooltip-hydrate {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0rem) scale(1.0);
+  }
+}
+
+@keyframes tooltip-dehydrate {
+  0% {
+    opacity: 1;
+    transform: translateY(0rem) scale(1.0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.9);
+  }
+}

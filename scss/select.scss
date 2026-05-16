@@ -1,0 +1,74 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+select {
+  padding: 0.25rem 0.25rem;
+  min-width: 8rem;
+  font-size: var(--base-font-size);
+  font-family: inherit;
+  border-radius: var(--ui-border-radius);
+  background-color: var(--control-background);
+  color: var(--control-foreground);
+  border: var(--control-foreground) solid var(--ui-border-width);
+  transition-property: background-color, color, border-color;
+  transition: var(--ui-transition-time) ease-in-out;
+
+  &:hover {
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    border-color: var(--control-hover-foreground);
+  }
+
+  &:active {
+    background-color: var(--control-active-background);
+    color: var(--control-active-foreground);
+    border-color: var(--control-active-foreground);
+  }
+
+  &:disabled {
+    background-color: var(--control-disabled-background);
+    color: var(--control-disabled-foreground);
+    border-color: var(--control-disabled-foreground);
+  }
+
+  &:focus-visible:not(:active) {
+    background-color: var(--control-hover-background);
+    color: var(--control-hover-foreground);
+    border-color: var(--control-hover-foreground);
+    box-shadow: 0px 0px 16px var(--control-hover-foreground);
+    outline: solid var(--ui-border-width) var(--control-hover-foreground);
+    outline-offset: var(--ui-border-width);
+  }
+
+  &.secondary {
+    background-color: var(--secondary-control-background);
+    color: var(--secondary-control-foreground);
+    border-color: var(--secondary-control-foreground);
+
+    &:hover {
+      background-color: var(--secondary-control-hover-background);
+      color: var(--secondary-control-hover-foreground);
+      border-color: var(--secondary-control-hover-foreground);
+    }
+
+    &:active {
+      background-color: var(--secondary-control-active-background);
+      color: var(--secondary-control-active-foreground);
+      border-color: var(--secondary-control-active-foreground);
+    }
+
+    &:disabled {
+      background-color: var(--secondary-control-disabled-background);
+      color: var(--secondary-control-disabled-foreground);
+      border-color: var(--secondary-control-disabled-foreground);
+    }
+
+    &:focus-visible {
+      background-color: var(--secondary-control-hover-background);
+      color: var(--secondary-control-hover-foreground);
+      border-color: var(--secondary-control-hover-foreground);
+      box-shadow: 0px 0px 16px var(--secondary-control-control-foreground);
+      outline-color: var(--secondary-control-control-foreground);
+    }
+  }
+}

@@ -1,0 +1,22 @@
+// Copyright (c) 2025 Jonathon B. Cobb
+// Licensed under the MIT License
+
+.secondary {
+  --chrome: var(--secondary-control-background);
+  --chrome-shadow: mix(var(--secondary-control-background), transparent, 50%);
+}
+
+.ok {
+  --chrome: var(--ok-foreground);
+  --chrome-shadow: var(--ok-shadow);
+}
+
+.caution {
+  --chrome: var(--caution-foreground);
+  --chrome-shadow: var(--caution-shadow);
+}
+
+.danger {
+  --chrome: var(--danger-foreground);
+  --chrome-shadow: var(--danger-shadow);
+}
