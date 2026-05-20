@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Jonathon B. Cobb
 // Licensed under the MIT License
 
-.mystic-dawn {
+@mixin theme {
   --muted-cold-bright-high: #EFEEEB;
   --muted-cold-bright-medium: #E8E6E2;
   --muted-cold-bright-low: #E1DFD9;

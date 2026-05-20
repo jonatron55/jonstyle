@@ -4,19 +4,51 @@
 .secondary {
   --chrome: var(--secondary-control-background);
   --chrome-shadow: mix(var(--secondary-control-background), transparent, 50%);
+  --control-background: var(--secondary-control-background);
+  --control-foreground: var(--secondary-control-foreground);
+  --control-hover-background: var(--secondary-control-hover-background);
+  --control-hover-foreground: var(--secondary-control-hover-foreground);
+  --control-active-background: var(--secondary-control-active-background);
+  --control-active-foreground: var(--secondary-control-active-foreground);
+  --control-disabled-background: var(--secondary-control-disabled-background);
+  --control-disabled-foreground: var(--secondary-control-disabled-foreground);
 }
 
 .ok {
   --chrome: var(--ok-foreground);
   --chrome-shadow: var(--ok-shadow);
+  --control-background: var(--ok-control-background);
+  --control-foreground: var(--ok-control-foreground);
+  --control-hover-background: var(--ok-control-hover-background);
+  --control-hover-foreground: var(--ok-control-hover-foreground);
+  --control-active-background: var(--ok-control-active-background);
+  --control-active-foreground: var(--ok-control-active-foreground);
+  --control-disabled-background: var(--ok-control-disabled-background);
+  --control-disabled-foreground: var(--ok-control-disabled-foreground);
 }
 
 .caution {
   --chrome: var(--caution-foreground);
   --chrome-shadow: var(--caution-shadow);
+  --control-background: var(--caution-control-background);
+  --control-foreground: var(--caution-control-foreground);
+  --control-hover-background: var(--caution-control-hover-background);
+  --control-hover-foreground: var(--caution-control-hover-foreground);
+  --control-active-background: var(--caution-control-active-background);
+  --control-active-foreground: var(--caution-control-active-foreground);
+  --control-disabled-background: var(--caution-control-disabled-background);
+  --control-disabled-foreground: var(--caution-control-disabled-foreground);
 }
 
 .danger {
   --chrome: var(--danger-foreground);
   --chrome-shadow: var(--danger-shadow);
+  --control-background: var(--danger-control-background);
+  --control-foreground: var(--danger-control-foreground);
+  --control-hover-background: var(--danger-control-hover-background);
+  --control-hover-foreground: var(--danger-control-hover-foreground);
+  --control-active-background: var(--danger-control-active-background);
+  --control-active-foreground: var(--danger-control-active-foreground);
+  --control-disabled-background: var(--danger-control-disabled-background);
+  --control-disabled-foreground: var(--danger-control-disabled-foreground);
 }

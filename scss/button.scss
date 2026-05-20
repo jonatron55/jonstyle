@@ -13,6 +13,7 @@ input[type="file"].button+label {
   font-size: var(--base-font-size);
   font-family: inherit;
   font-weight: normal;
+  font-stretch: var(--base-font-stretch);
   border-radius: var(--button-border-radius);
   background-color: var(--control-background);
   color: var(--control-foreground);
@@ -52,140 +53,6 @@ input[type="file"].button+label {
     outline: solid var(--ui-border-width) var(--control-hover-foreground);
     outline-offset: var(--ui-border-width);
     transform: scale(1.02);
-  }
-
-  &.secondary {
-    background-color: var(--secondary-control-background);
-    color: var(--secondary-control-foreground);
-    border-color: var(--secondary-control-foreground);
-
-    &:hover {
-      background-color: var(--secondary-control-hover-background);
-      color: var(--secondary-control-hover-foreground);
-      border-color: var(--secondary-control-hover-foreground);
-    }
-
-    &:active {
-      background-color: var(--secondary-control-active-background);
-      color: var(--secondary-control-active-foreground);
-      border-color: var(--secondary-control-active-foreground);
-    }
-
-    &:disabled {
-      background-color: var(--secondary-control-disabled-background);
-      color: var(--secondary-control-disabled-foreground);
-      border-color: var(--secondary-control-disabled-foreground);
-    }
-
-    &:focus-visible {
-      background-color: var(--secondary-control-hover-background);
-      color: var(--secondary-control-hover-foreground);
-      border-color: var(--secondary-control-hover-foreground);
-      box-shadow: 0px 0px 16px var(--secondary-control-control-foreground);
-      outline-color: var(--secondary-control-control-foreground);
-    }
-  }
-
-  &.ok {
-    background-color: var(--ok-control-background);
-    color: var(--ok-control-foreground);
-    border-color: var(--ok-control-foreground);
-    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--ok-shadow);
-
-    &:hover {
-      background-color: var(--ok-control-hover-background);
-      color: var(--ok-control-hover-foreground);
-      border-color: var(--ok-control-hover-foreground);
-    }
-
-    &:active {
-      background-color: var(--ok-control-active-background);
-      color: var(--ok-control-active-foreground);
-      border-color: var(--ok-control-active-foreground);
-      box-shadow: 0 0 0 var(--ok-shadow);
-    }
-
-    &:disabled {
-      background-color: var(--ok-control-disabled-background);
-      color: var(--ok-control-disabled-foreground);
-      border-color: var(--ok-control-disabled-foreground);
-    }
-
-    &:focus-visible {
-      background-color: var(--ok-control-hover-background);
-      color: var(--ok-control-hover-foreground);
-      border-color: var(--ok-control-hover-foreground);
-      box-shadow: 0px 0px 16px var(--ok-control-foreground);
-      outline-color: var(--ok-control-foreground);
-    }
-  }
-
-  &.danger {
-    background-color: var(--danger-control-background);
-    color: var(--danger-control-foreground);
-    border-color: var(--danger-control-foreground);
-    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--error-shadow);
-
-    &:hover {
-      background-color: var(--danger-control-hover-background);
-      color: var(--danger-control-hover-foreground);
-      border-color: var(--danger-control-hover-foreground);
-    }
-
-    &:active {
-      background-color: var(--danger-control-active-background);
-      color: var(--danger-control-active-foreground);
-      border-color: var(--danger-control-active-foreground);
-      box-shadow: 0 0 0 var(--error-shadow);
-    }
-
-    &:disabled {
-      background-color: var(--danger-control-disabled-background);
-      color: var(--danger-control-disabled-foreground);
-      border-color: var(--danger-control-disabled-foreground);
-    }
-
-    &:focus-visible {
-      background-color: var(--danger-control-hover-background);
-      color: var(--danger-control-hover-foreground);
-      border-color: var(--danger-control-hover-foreground);
-      box-shadow: 0px 0px 16px var(--danger-control-hover-foreground);
-      outline-color: var(--danger-control-hover-foreground);
-    }
-  }
-
-  &.caution {
-    background-color: var(--caution-control-background);
-    color: var(--caution-control-foreground);
-    border-color: var(--caution-control-foreground);
-    box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--warning-shadow);
-
-    &:hover {
-      background-color: var(--caution-control-hover-background);
-      color: var(--caution-control-hover-foreground);
-      border-color: var(--caution-control-hover-foreground);
-    }
-
-    &:active {
-      background-color: var(--caution-control-active-background);
-      color: var(--caution-control-active-foreground);
-      border-color: var(--caution-control-active-foreground);
-      box-shadow: 0 0 0 var(--caution-shadow);
-    }
-
-    &:disabled {
-      background-color: var(--caution-control-disabled-background);
-      color: var(--caution-control-disabled-foreground);
-      border-color: var(--caution-control-disabled-foreground);
-    }
-
-    &:focus-visible {
-      background-color: var(--caution-control-hover-background);
-      color: var(--caution-control-hover-foreground);
-      border-color: var(--caution-control-hover-foreground);
-      box-shadow: 0px 0px 16px var(--caution-control-hover-foreground);
-      outline: solid var(--ui-border-width) var(--caution-control-hover-foreground);
-    }
   }
 }
 

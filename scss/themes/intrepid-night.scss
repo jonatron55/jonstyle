@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Jonathon B. Cobb
 // Licensed under the MIT License
 
-.intrepid-night {
+@mixin theme {
   --muted-cold-bright-high: #F3ECE8;
   --muted-cold-bright-medium: #E5D7CE;
   --muted-cold-bright-low: #D6C2B5;

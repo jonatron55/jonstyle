@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Jonathon B. Cobb
 // Licensed under the MIT License
 
-.dungeoneer-noon {
+@mixin theme {
   --muted-cold-bright-high: #F0EBEA;
   --muted-cold-bright-medium: #DFD4D2;
   --muted-cold-bright-low: #CEBEBB;

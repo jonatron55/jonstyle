@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Jonathon B. Cobb
 // Licensed under the MIT License
 
-.arcane-night {
+@mixin theme {
   --muted-cold-bright-high: #F4ECE9;
   --muted-cold-bright-medium: #E6D6D0;
   --muted-cold-bright-low: #D8C1B8;
