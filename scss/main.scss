@@ -93,6 +93,13 @@ h5,
 h6 {
   font-size: var(--base-font-size);
   font-weight: bold;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--dim-foreground);
 }
 
@@ -105,7 +112,9 @@ h3 {
 
 h1 {
   text-align: center;
+  &:not(.caption) {
   color: var(--chrome-foreground);
+  }
 }
 
 p {
