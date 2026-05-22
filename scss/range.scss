@@ -49,14 +49,14 @@ input[type="range"] {
     background-color: var(--control-hover-background);
     color: var(--control-hover-foreground);
     border-color: var(--control-hover-foreground);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:active {
     background-color: var(--control-active-background);
     color: var(--control-active-foreground);
     border-color: var(--control-active-foreground);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 
