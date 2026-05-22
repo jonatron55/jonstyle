@@ -6,6 +6,7 @@ select {
   min-width: 8rem;
   font-size: var(--base-font-size);
   font-family: inherit;
+  font-stretch: var(--base-font-stretch);
   border-radius: var(--ui-border-radius);
   background-color: var(--control-background);
   color: var(--control-foreground);

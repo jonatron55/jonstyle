@@ -96,6 +96,17 @@ $tooltip-delay: 500ms;
   text-transform: uppercase;
   font-weight: bold;
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--caption-foreground);
+    padding: 0;
+    margin: 0;
+  }
+
   &.toolbar {
     padding: 0 var(--horizontal-gap);
     margin: 0;
