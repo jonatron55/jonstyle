@@ -28,14 +28,14 @@ input[type=checkbox]:not(.button) {
     background-color: var(--control-hover-background);
     border-color: var(--control-hover-foreground);
     color: var(--control-hover-foreground);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:active+label::before {
     background-color: var(--control-active-background);
     border-color: var(--control-active-foreground);
     color: var(--control-active-foreground);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 
@@ -71,7 +71,7 @@ input[type=checkbox].toggle-switch {
     border: var(--control-hover-foreground) solid var(--ui-border-width);
     color: var(--control-hover-foreground);
     background-color: var(--control-hover-background);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:active:enabled+label::before {
@@ -79,7 +79,7 @@ input[type=checkbox].toggle-switch {
     border-color: var(--control-active-foreground);
     background-color: var(--control-active-background);
     color: var(--control-active-foreground);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 
@@ -93,7 +93,7 @@ input[type=checkbox].toggle-switch {
   &:checked:focus-visible {
     color: var(--control-hover-background);
     background-color: var(--control-hover-foreground);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:checked:active:enabled+label::before {
@@ -101,7 +101,7 @@ input[type=checkbox].toggle-switch {
     border-color: var(--control-active-foreground);
     background-color: var(--control-active-foreground);
     color: var(--control-active-background);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 
@@ -143,14 +143,14 @@ input[type=radio]:not(.button) {
     border: var(--control-hover-foreground) solid var(--ui-border-width);
     background-color: var(--control-hover-background);
     color: var(--control-hover-foreground);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:active:enabled+label::before {
     border: var(--control-active-foreground) solid var(--ui-border-width);
     background-color: var(--control-active-background);
     color: var(--control-active-foreground);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 

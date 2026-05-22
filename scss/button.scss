@@ -28,14 +28,14 @@ input[type="file"].button+label {
     background-color: var(--control-hover-background);
     color: var(--control-hover-foreground);
     border-color: var(--control-hover-foreground);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 
   &:active {
     background-color: var(--control-active-background);
     color: var(--control-active-foreground);
     border-color: var(--control-active-foreground);
-    transform: scale(0.98);
+    transform: scale(globals.$control-active-scale);
     box-shadow: 0 0 0 var(--chrome-shadow);
   }
 
@@ -52,7 +52,7 @@ input[type="file"].button+label {
     box-shadow: 0px 0px 16px var(--control-hover-foreground);
     outline: solid var(--ui-border-width) var(--control-hover-foreground);
     outline-offset: var(--ui-border-width);
-    transform: scale(1.02);
+    transform: scale(globals.$control-hover-scale);
   }
 }
 

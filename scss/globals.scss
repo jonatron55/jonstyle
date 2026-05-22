@@ -9,6 +9,9 @@ $control-shadow-x: 0px;
 $control-shadow-y: 1.5px;
 $control-shadow-blur: 3px;
 
+$control-hover-scale: 1.02;
+$control-active-scale: 0.98;
+
 // Base theme
 :root {
   --base-font-size: 13px;
