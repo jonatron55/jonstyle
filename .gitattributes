@@ -1,1 +1,6 @@
 * text=auto eol=lf
+
+*.ttf filter=lfs -text
+*.otf filter=lfs -text
+*.woff filter=lfs -text
+*.woff2 filter=lfs -text
