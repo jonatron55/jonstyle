@@ -1,0 +1,12 @@
+[package]
+name = "theme-designer"
+edition = "2024"
+authors.workspace = true
+version.workspace = true
+
+[dependencies]
+leptos = { workspace = true, features = ["csr"] }
+semver.workspace = true
+themelib = { path = "../mktheme" }
+wasm-bindgen.workspace = true
+web-sys = { workspace = true, features = ["HtmlInputElement"] }

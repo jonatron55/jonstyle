@@ -1,0 +1,29 @@
+@use "../../scss/globals.scss";
+
+.value-slider {
+  display: grid;
+  grid-template-columns: auto 1fr 5rem;
+  margin: 0.25rem 1.5rem;
+  align-items: center;
+  column-gap: var(--horizontal-gap);
+
+  input:first-child {
+    grid-column: span 2;
+  }
+
+  label {
+    min-width: 8rem;
+  }
+}
+
+.range-slider {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 5rem 5rem;
+  margin: 0.25rem 1.5rem;
+  align-items: center;
+  column-gap: var(--horizontal-gap);
+
+  label {
+    min-width: 8rem;
+  }
+}

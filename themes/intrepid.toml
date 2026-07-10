@@ -1,0 +1,14 @@
+name = "Intrepid"
+version = "3.0.0"
+author = "Jonathon Cobb"
+cool_range = [216.6666666666667, 283.3333333333333]
+warm_range = [-56.66666666666667, 123.33333333333333]
+offset = 0.0
+dark_range = [0.1, 0.18]
+mid_range = [0.45, 0.65]
+bright_range = [0.8, 0.94]
+luminance_power = 1.0
+luminance_gamma = 1.0
+muted_sat_range = [0.1, 0.25]
+base_sat_range = [0.55, 0.65]
+intense_sat_range = [0.8, 0.9]

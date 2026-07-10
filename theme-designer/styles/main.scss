@@ -1,0 +1,80 @@
+@use "../../scss/main.scss";
+@use "../../scss/globals.scss";
+@use "../../scss/themes/system.scss";
+@use  "./sliders.scss";
+
+:root {
+  font-family: Intrepid, monospace;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: clip;
+
+  @include system.theme;
+}
+
+body {
+  padding: var(--vertical-gap) var(--horizontal-gap);
+  margin: 0;
+  width: 100%;
+
+  background-size: cover;
+  background-attachment: fixed;
+
+  width: 100vw;
+  height: 100vh;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: minmax(60rem, 64rem) minmax(49rem, 56rem);
+  height: calc(100vh - var(--vertical-gap) * 2);
+
+  margin: var(--vertical-gap) auto;
+  column-gap: var(--horizontal-gap);
+  row-gap: var(--vertical-gap);
+  justify-content: center;
+
+  .top {
+    grid-column: span 2;
+  }
+
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--horizontal-gap);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .right {
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--horizontal-gap);
+  }
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  padding: var(--vertical-gap) var(--horizontal-gap);
+  column-gap: var(--horizontal-gap);
+  align-items: center;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  margin: var(--vertical-gap) var(--horizontal-gap);
+  column-gap: var(--horizontal-gap);
+}
+
+.swatch {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--panel-border-radius);
+  border: none;
+  display: inline-block;
+  background-color: magenta;
+}
