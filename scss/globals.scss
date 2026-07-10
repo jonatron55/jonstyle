@@ -15,6 +15,7 @@ $control-active-scale: 0.98;
 // Base theme
 :root {
   --base-font-size: 13px;
+  --base-font-stretch: normal;
   --base-line-height: 1.19;
   --ui-border-width: 2px;
   --ui-border-radius: 3px;
@@ -27,8 +28,6 @@ $control-active-scale: 0.98;
 
   --ui-hydrate-time: 180ms;
   --ui-transition-time: 60ms;
-
-  --sidebar-width: 24rem;
 
   --primary-button-order: 1;
   --secondary-button-order: 2;

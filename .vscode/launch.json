@@ -1,0 +1,45 @@
+{
+  "configurations": [
+    {
+      "args": [
+        "${workspaceFolder}/themes/arcane.toml",
+        "apply",
+        "--force",
+        "${workspaceFolder}/templates/vscode-theme.json",
+        "--output=${workspaceFolder}/out/"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "RUST_BACKTRACE",
+          "value": "1"
+        }
+      ],
+      "name": "cppvsdbg",
+      "preLaunchTask": "cargo build",
+      "program": "${workspaceFolder}/target/debug/mktheme.exe",
+      "request": "launch",
+      "stopAtEntry": false,
+      "type": "cppvsdbg"
+    },
+    {
+      "args": [
+        "test"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "RUST_BACKTRACE",
+          "value": "1"
+        }
+      ],
+      "name": "cppvsdbg tests",
+      "program": "cargo",
+      "request": "launch",
+      "stopAtEntry": false,
+      "type": "cppvsdbg"
+    }
+  ]
+}

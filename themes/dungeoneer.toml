@@ -1,0 +1,14 @@
+name = "Dungeoneer"
+version = "2.0.0"
+author = "Jonathon Cobb"
+cool_range = [135, 285]
+warm_range = [30, 90]
+offset = 0.0
+dark_range = [0.1, 0.18]
+mid_range = [0.45, 0.65]
+bright_range = [0.8, 0.94]
+luminance_power = 1.1
+luminance_gamma = 1.1
+muted_sat_range = [0.1, 0.15]
+base_sat_range = [0.65, 0.8]
+intense_sat_range = [0.88, 0.96]

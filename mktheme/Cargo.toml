@@ -1,0 +1,26 @@
+[package]
+name = "themelib"
+version.workspace = true
+authors.workspace = true
+edition = "2024"
+
+[lib]
+name = "themelib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mktheme"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+byteorder.workspace = true
+clap = { workspace = true, features = ["derive"] }
+glam.workspace = true
+itertools.workspace = true
+lazy_static.workspace = true
+regex.workspace = true
+semver = { workspace = true, features = ["serde"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = "1.0.150"
+toml.workspace = true

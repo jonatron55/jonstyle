@@ -20,14 +20,6 @@
 }
 
 :root {
-  --vertical-gap: 0.5rem;
-  --horizontal-gap: 0.5rem;
-  --base-font-stretch: normal;
-
-  --primary-button-order: 1;
-  --secondary-button-order: 2;
-  --cancel-button-order: 3;
-
   font-size: var(--base-font-size);
   font-stretch: var(--base-font-stretch);
   transition: background-color 0.1s, color 0.1s, border-color 0.1s, box-shadow 0.1s;
@@ -52,19 +44,6 @@ body {
   color: var(--primary-foreground);
   line-height: var(--base-line-height);
   background-color: var(--page-background);
-
-  &.dark:not(.high-contrast) {
-    -webkit-backdrop-filter: grayscale(100%) contrast(80%) brightness(33%);
-    backdrop-filter: grayscale(100%) contrast(80%) brightness(33%);
-  }
-
-  &.light:not(.high-contrast) {
-    -webkit-backdrop-filter: grayscale(100%) contrast(33%) brightness(180%);
-    backdrop-filter: grayscale(100%) contrast(33%) brightness(180%);
-  }
-
-  width: 100vw;
-  height: 100vh;
 }
 
 div {
@@ -361,8 +340,8 @@ table.banded-rows {
   color: var(--intense-cyan-low-foreground);
 }
 
-.purple {
-  color: var(--intense-purple-low-foreground);
+.magenta {
+  color: var(--intense-magenta-low-foreground);
 }
 
 .yellow {
@@ -385,8 +364,8 @@ table.banded-rows {
   background-color: var(--intense-cyan-high-background);
 }
 
-.purple-background {
-  background-color: var(--intense-purple-high-background);
+.magenta-background {
+  background-color: var(--intense-magenta-high-background);
 }
 
 .yellow-background {
