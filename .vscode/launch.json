@@ -3,10 +3,11 @@
     {
       "args": [
         "${workspaceFolder}/themes/arcane.toml",
-        "apply",
+        "vscode",
         "--force",
-        "${workspaceFolder}/templates/vscode-theme.json",
-        "--output=${workspaceFolder}/out/"
+        "--output=${workspaceFolder}/out/",
+        "--license=${workspaceFolder}/License.txt",
+        "--repository=https://github.com/jonatron55/jonstyle.git"
       ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",

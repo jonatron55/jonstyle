@@ -235,6 +235,45 @@ impl Indexer {
             Err(anyhow!("{s} is not a valid indexer name"))
         }
     }
+
+    pub fn iter_base() -> impl Iterator<Item = Self> {
+        Sat::iter().flat_map(|sat| {
+            Temp::iter().flat_map(move |temp| Lum::iter().map(move |lum| Indexer::Base(sat, temp, lum)))
+        })
+    }
+
+    pub fn iter_themed(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+        Sat::iter().flat_map(move |sat| {
+            ThemeHue::iter()
+                .flat_map(move |hue| Level::iter().map(move |level| Indexer::Themed(variant, sat, hue, level)))
+        })
+    }
+
+    pub fn iter_primary() -> impl Iterator<Item = Self> {
+        Sat::iter().flat_map(|sat| {
+            Primary::iter().flat_map(move |primary| Lum::iter().map(move |lum| Indexer::Primary(sat, primary, lum)))
+        })
+    }
+
+    pub fn iter_themed_primary(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+        Sat::iter().flat_map(move |sat| {
+            Primary::iter().flat_map(move |primary| {
+                Level::iter().map(move |level| Indexer::ThemedPrimary(variant, sat, primary, level))
+            })
+        })
+    }
+
+    pub fn iter_semantic(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+        KNOWN_SEMANTICS.iter().map(move |name| Indexer::Semantic(variant, name.clone()))
+    }
+
+    pub fn iter(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+        Self::iter_base()
+            .chain(Self::iter_themed(variant))
+            .chain(Self::iter_primary())
+            .chain(Self::iter_themed_primary(variant))
+            .chain(Self::iter_semantic(variant))
+    }
 }
 
 impl Temp {
@@ -502,6 +541,12 @@ impl Level {
             Level::Background => Level::LowBackground,
             Level::LowBackground => Level::LowBackground,
         }
+    }
+}
+
+impl Sat {
+    pub fn iter() -> impl Iterator<Item = Self> {
+        [Sat::Muted, Sat::Base, Sat::Intense].into_iter()
     }
 }
 

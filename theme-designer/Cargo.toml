@@ -6,7 +6,14 @@ version.workspace = true
 
 [dependencies]
 leptos = { workspace = true, features = ["csr"] }
+leptos-use.workspace = true
 semver.workspace = true
 themelib = { path = "../mktheme" }
 wasm-bindgen.workspace = true
-web-sys = { workspace = true, features = ["HtmlInputElement"] }
+web-sys = { workspace = true, features = [
+    "HtmlInputElement",
+    "HtmlElement",
+    "Element",
+    "CssStyleDeclaration",
+] }
+glam.workspace = true

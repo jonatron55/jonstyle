@@ -116,7 +116,6 @@
     "tab.activeBackground": "#{{content-background.rgb:X}}",
     "tab.activeBorderTop": "#{{chrome.rgb:X}}",
     "tab.activeForeground": "#{{primary-foreground.rgb:X}}",
-    "tab.background": "#{{page-background.rgb:X}}",
     "tab.border": "#{{chrome-background.rgb:X}}",
     "tab.inactiveBackground": "#{{page-background.rgb:X}}",
     "tab.inactiveForeground": "#{{dim-foreground.rgb:X}}",
@@ -146,5 +145,327 @@
     "window.activeBorder": "#{{chrome-foreground.rgb:X}}",
     "window.inactiveBorder": "#{{chrome-background.rgb:X}}"
   },
-  "name": "{{name:T}} {{mode:T}}"
+  "name": "{{name:T}} {{mode:T}}",
+  "semanticHighlighting": true,
+  "tokenColors": [
+    {
+      "name": "Foreground",
+      "scope": [
+        "textmeta.jsx.children",
+        "meta.jsx.children.tsx",
+        "meta.tag.tsx"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#D8DDE2"
+      }
+    },
+    {
+      "name": "Comment",
+      "scope": [
+        "comment"
+      ],
+      "settings": {
+        "fontStyle": "italic",
+        "foreground": "#3EB592"
+      }
+    },
+    {
+      "name": "Comment Symbol",
+      "scope": [
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#3EB592"
+      }
+    },
+    {
+      "name": "Keyword, Storage, Tag",
+      "scope": [
+        "keyword",
+        "storage.type",
+        "storage.modifier",
+        "support.type",
+        "variable.language.self",
+        "entity.name.tag",
+        "markdown.heading",
+        "markup.heading | markup.heading entity.name",
+        "entity.name.section.markdown",
+        "markup.heading.markdown punctuation.definition.heading.markdown",
+        "markup.heading.setext",
+        "punctuation.definition.lifetime.rust",
+        "entity.name.type.lifetime.rust"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#34AFC2"
+      }
+    },
+    {
+      "name": "Control Keyword",
+      "scope": [
+        "keyword.control",
+        "keyword.other.substitution"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#58A2EC"
+      }
+    },
+    {
+      "name": "Preprocessor Keyword, Directive",
+      "scope": [
+        "keyword.other.preprocessor",
+        "keyword.other.directive",
+        "keyword.control.directive",
+        "meta.preprocessor",
+        "punctuation.definition.directive",
+        "entity.name.function.macro"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#8CA0B5"
+      }
+    },
+    {
+      "name": "Punctuation, Operator",
+      "scope": [
+        "punctuation",
+        "meta.tag",
+        "punctuation.definition.tag",
+        "punctuation.separator.inheritance.php",
+        "punctuation.definition.tag.html",
+        "punctuation.definition.tag.begin.html",
+        "punctuation.definition.tag.end.html",
+        "punctuation.section.embedded",
+        "meta.separator",
+        "keyword.operator",
+        "punctuation.definition.table.markdown",
+        "punctuation.separator.table.markdown"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#B39788"
+      }
+    },
+    {
+      "name": "Variable, Property, Attribute",
+      "scope": [
+        "variable",
+        "variable.other",
+        "entity.other.attribute-name",
+        "support.type.property-name",
+        "support.type.vendored.property-name",
+        "string constant.other.placeholder",
+        "meta.interpolation"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#CBDFF4"
+      }
+    },
+    {
+      "name": "Invalid, Deleted",
+      "scope": [
+        "invalid",
+        "invalid.illegal",
+        "markup.deleted.git_gutter"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#F06C86"
+      }
+    },
+    {
+      "name": "Inserted, Added",
+      "scope": [
+        "markup.inserted.git_gutter"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#3EB592"
+      }
+    },
+    {
+      "name": "Modified",
+      "scope": [
+        "markup.changed.git_gutter"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#E47F41"
+      }
+    },
+    {
+      "name": "Parameter, Argument",
+      "scope": [
+        "variable.parameter",
+        "variable.argument"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#B8CACD"
+      }
+    },
+    {
+      "name": "Number, Literal",
+      "scope": [
+        "constant.numeric",
+        "constant.character",
+        "constant.escape",
+        "constant.language",
+        "constant.other",
+        "punctuation.definition"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#F06C86"
+      }
+    },
+    {
+      "name": "Unit",
+      "scope": [
+        "keyword.other.unit"
+      ],
+      "settings": {
+        "fontStyle": "bold italic",
+        "foreground": "#DF7B8C"
+      }
+    },
+    {
+      "name": "String, Symbol",
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.unquoted",
+        "string.interpolated",
+        "string.regexp",
+        "string.other",
+        "support.constant",
+        "string.other.link",
+        "markup.inline.raw.string"
+      ],
+      "settings": {
+        "fontStyle": "italic",
+        "foreground": "#E2B5DD"
+      }
+    },
+    {
+      "name": "String Delimiter",
+      "scope": [
+        "punctuation.definition.string",
+        "punctuation.definition.char",
+        "text.html.markdown punctuation.definition.link",
+        "text.html.markdown punctuation.definition.raw",
+        "punctuation.definition.interpolation"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#DD6AD5"
+      }
+    },
+    {
+      "name": "Escape, Special",
+      "scope": [
+        "constant.character.escape",
+        "constant.character.character-class.escape"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#A9CAED"
+      }
+    },
+    {
+      "name": "Function, Method",
+      "scope": [
+        "entity.name.function",
+        "meta.function-call",
+        "variable.function",
+        "support.function",
+        "keyword.other.special-methodmeta.definition.function",
+        "meta.function",
+        "entity.name.method",
+        "entity.name.function",
+        "meta.class-method.js entity.name.function.js",
+        "variable.function.constructor"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#FBD3BD"
+      }
+    },
+    {
+      "name": "Class, Type",
+      "scope": [
+        "entity.name.type",
+        "support.type",
+        "support.class",
+        "entity.name.class",
+        "entity.other.attribute-name.class"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#87DABD"
+      }
+    },
+    {
+      "name": "Namespace, Module",
+      "scope": [
+        "entity.name.namespace",
+        "entity.name.module"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#DD6AD5"
+      }
+    },
+    {
+      "name": "Macro, Preprocessor Function",
+      "scope": [
+        "entity.name.macro",
+        "entity.name.function.preprocessor"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#D6875A"
+      }
+    },
+    {
+      "name": "Hyperlink",
+      "scope": [
+        "markup.underline.link",
+        "*link*",
+        "*url*",
+        "*uri*"
+      ],
+      "settings": {
+        "fontStyle": "",
+        "foreground": "#58A2EC"
+      }
+    },
+    {
+      "name": "Markup Bold",
+      "scope": [
+        "markup.bold",
+        "punctuation.definition.bold.markdown",
+        "punctuation.definition.list"
+      ],
+      "settings": {
+        "fontStyle": "bold",
+        "foreground": "#58A2EC"
+      }
+    },
+    {
+      "name": "Markup italic",
+      "scope": [
+        "markup.italic",
+        "punctuation.definition.italic.markdown"
+      ],
+      "settings": {
+        "fontStyle": "italic",
+        "foreground": "#58A2EC"
+      }
+    }
+  ]
 }
