@@ -118,7 +118,8 @@ pub enum Error {
 }
 
 impl Template {
-    pub fn new(source: String) -> Self {
+    pub fn new(source: impl Into<String>) -> Self {
+        let source = source.into();
         Self { source }
     }
 

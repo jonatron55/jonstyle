@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, Lum, Primary, PrimaryMap, Sat, Temp, Theme, ThemeVariant, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
+    theme::{BasePalette, Primary, PrimaryMap, Theme, ThemeVariant, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
 };
 
 /// A collection of parameters for generating a theme.
@@ -36,29 +36,14 @@ pub struct ThemeBuilder {
     /// Amount to offset all hues by in degrees.
     pub offset: f64,
 
-    /// Luminance range for dark colors, as a fraction of 1.
-    ///
-    /// There are three luminance levels for the dark range: "DarkLow",
-    /// "DarkMedium", and "DarkHigh".
-    pub dark_range: (f64, f64),
-
-    /// Luminance range for mid colors, as a fraction of 1.
-    ///
-    /// There are four luminance levels for the mid range: "MediumLower",
-    /// "MediumLow", "MediumHigh", and "MediumHigher".
-    pub mid_range: (f64, f64),
-
-    /// Luminance range for bright colors, as a fraction of 1.
-    ///
-    /// There are three luminance levels for the bright range: "BrightLow",
-    /// "BrightMedium", and "BrightHigh".
-    pub bright_range: (f64, f64),
+    /// Luminance range for the theme, as a fraction of 1.
+    pub lum_range: (f64, f64),
 
     /// Power to apply to luminance when calculating color levels.
-    pub luminance_power: f64,
+    pub lum_power: f64,
 
     /// Gamma to apply to luminance when calculating color levels.
-    pub luminance_gamma: f64,
+    pub lum_gamma: f64,
 
     /// Saturation range for muted colors as a fraction of 1.
     ///
@@ -81,18 +66,9 @@ pub struct ThemeBuilder {
 
 impl ThemeBuilder {
     pub fn into_theme(self) -> Theme {
-        let lums: [f64; LUM_COUNT] = [
-            self.dark_range.0 / 100.0,
-            (self.dark_range.0 + self.dark_range.1) / 200.0,
-            self.dark_range.1 / 100.0,
-            self.mid_range.0 / 100.0,
-            (self.mid_range.0 + self.mid_range.1) * (1.0 / 300.0),
-            (self.mid_range.0 + self.mid_range.1) * (2.0 / 300.0),
-            self.mid_range.1 / 100.0,
-            self.bright_range.0 / 100.0,
-            (self.bright_range.0 + self.bright_range.1) / 200.0,
-            self.bright_range.1 / 100.0,
-        ];
+        let lums: Vec<f64> = (0..LUM_COUNT)
+            .map(|i| f64::lerp(self.lum_range.0, self.lum_range.1, i as f64 / (LUM_COUNT - 1) as f64) / 100.0)
+            .collect::<Vec<_>>();
 
         let hues: [f64; TEMP_COUNT] = [
             self.offset + self.cool_range.0,
@@ -111,34 +87,12 @@ impl ThemeBuilder {
 
         let mut base_palette: BasePalette = Default::default();
 
-        let lum_fn = |lum: f64| {
-            let t = lum.clamp(0.0, 1.0).powf(self.luminance_gamma);
-            let s = if t < 0.5 { t * 2.0 } else { (1.0 - t) * 2.0 };
-
-            if t < 0.5 {
-                s.powf(self.luminance_power) * 0.5
-            } else {
-                1.0 - s.powf(self.luminance_power) * 0.5
-            }
-        };
-
         for sat in 0..SAT_COUNT {
             for temp in 0..TEMP_COUNT {
                 for lum in 0..LUM_COUNT {
                     let h = hues[temp].to_radians().rem_euclid(TAU);
-                    let l = lum_fn(lums[lum]);
+                    let l = self.lum_fn(lums[lum]);
                     let s = sat_ranges[sat].0.lerp(sat_ranges[sat].1, l);
-
-                    println!(
-                        "{}-{}-{}: hsl({}°, {}%, {}%) -> #{:X}",
-                        Into::<Sat>::into(sat),
-                        Into::<Temp>::into(temp),
-                        Into::<Lum>::into(lum),
-                        (h.to_degrees()).round(),
-                        (s * 100.0).round(),
-                        (l * 100.0).round(),
-                        okhsl(h, s, l).to_srgb()
-                    );
 
                     base_palette[sat][temp][lum] = okhsl(h, s, l)
                 }
@@ -154,7 +108,7 @@ impl ThemeBuilder {
             let (index, _) = hues
                 .iter()
                 .enumerate()
-                .filter(|(i, _)| i & used == 0)
+                .filter(|(i, _)| (1 << i) & used == 0)
                 .min_by(|(_, x), (_, y)| {
                     primary
                         .distance(**x)
@@ -174,12 +128,30 @@ impl ThemeBuilder {
             description: self.description,
             base_palette,
             primaries,
+            variants: self.variants,
         }
     }
 
     pub fn build_theme(&self) -> Theme {
         self.clone().into_theme()
     }
+
+    pub fn lum_fn(&self, lum: f64) -> f64 {
+        lum_fn(lum, self.lum_range, self.lum_power, self.lum_gamma)
+    }
+}
+
+pub fn lum_fn(lum: f64, (low, high): (f64, f64), power: f64, gamma: f64) -> f64 {
+    let t = lum.clamp(0.0, 1.0).powf(gamma);
+    let s = if t < 0.5 { t * 2.0 } else { (1.0 - t) * 2.0 };
+
+    let lum = if t < 0.5 {
+        s.powf(power) * 0.5
+    } else {
+        1.0 - s.powf(power) * 0.5
+    };
+
+    f64::lerp(low / 100.0, high / 100.0, lum)
 }
 
 impl Default for ThemeBuilder {
@@ -198,14 +170,12 @@ impl Default for ThemeBuilder {
             cool_range: (150.0, 270.0),
             warm_range: (-50.0, 70.0),
             offset: 0.0,
-            dark_range: (0.1, 0.2),
-            mid_range: (0.4, 0.6),
-            bright_range: (0.9, 1.0),
-            luminance_power: 1.2,
-            luminance_gamma: 1.1,
-            muted_sat_range: (0.1, 0.25),
-            base_sat_range: (0.55, 0.65),
-            intense_sat_range: (0.8, 0.9),
+            lum_range: (10.0, 90.0),
+            lum_power: 1.2,
+            lum_gamma: 1.1,
+            muted_sat_range: (10.0, 25.0),
+            base_sat_range: (55.0, 65.0),
+            intense_sat_range: (80.0, 90.0),
         }
     }
 }

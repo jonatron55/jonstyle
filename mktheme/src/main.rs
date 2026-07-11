@@ -3,8 +3,9 @@ use std::{env, fs, path::PathBuf};
 use anyhow::{anyhow, Result as AnyResult};
 use clap::{Parser, Subcommand};
 use themelib::{
+    scripts,
     template::Template,
-    theme::{ThemeBuilder, ThemeVariant},
+    theme::{Indexer, ThemeBuilder, ThemeVariant},
 };
 
 /// Generates six-colour themes from a given configuration file and applies them
@@ -55,9 +56,10 @@ pub enum Command {
 
     /// Generates a Visual Studio Code theme extension from the given
     /// configuration.
+    #[clap(alias = "vscode")]
     VsCode {
         /// Output path to write the generated VS Code theme extension to.
-        #[arg()]
+        #[arg(short, long)]
         output: PathBuf,
 
         /// Whether to overwrite existing files at the output path.
@@ -76,6 +78,15 @@ pub enum Command {
         /// Code extensions directory.
         #[arg(short, long)]
         install: bool,
+
+        /// License text to include in the generated VS Code theme extension.
+        #[arg(short, long)]
+        license: Option<PathBuf>,
+
+        /// Repository URL to include in the generated VS Code theme extension's
+        /// package.json file.
+        #[arg(short, long)]
+        repository: Option<String>,
     },
 
     /// Generates a `.pal` (RIFF palette) file containing the theme's colors.
@@ -99,6 +110,12 @@ pub enum Command {
         /// Whether to overwrite existing files at the output path.
         #[arg(short, long)]
         force: bool,
+    },
+
+    /// Lists all theme colors for the given variant.
+    List {
+        #[arg(short, long)]
+        variant: ThemeVariant,
     },
 }
 
@@ -158,18 +175,40 @@ pub fn main() -> AnyResult<()> {
             }
         }
         Command::VsCode {
-            output: _,
-            force: _,
-            package: _,
-            install: _,
+            output,
+            force,
+            package,
+            install,
+            license,
+            repository,
         } => {
-            todo!()
+            if output.exists() && !force {
+                return Err(anyhow!("{}: Already exists (use --force to overwrite)", output.display()).into());
+            }
+
+            fs::remove_dir_all(&output)?;
+
+            scripts::vscode::make_vscode_theme(&theme, license.as_deref(), repository.as_deref(), &output)?;
+
+            if package {
+                scripts::vscode::package_vscode_theme(&output, license.is_some(), repository.is_some())?;
+            }
+
+            if install {
+                scripts::vscode::install_vscode_theme(&output)?;
+            }
         }
         Command::Pal { output: _, force: _ } => {
             todo!()
         }
         Command::Ase { output: _, force: _ } => {
             todo!()
+        }
+        Command::List { variant } => {
+            for indexer in Indexer::iter(variant) {
+                let color = theme[&indexer].to_srgb();
+                println!("{indexer}: #{color:X}");
+            }
         }
     }
 
