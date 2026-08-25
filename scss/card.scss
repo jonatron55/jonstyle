@@ -3,13 +3,14 @@
 
 $panel-shadow-x: 0px;
 $panel-shadow-y: 2px;
+$panel-background-blur: 24px;
 $panel-shadow-blur: 8px;
 $tooltip-delay: 500ms;
 
 .panel {
   background-color: var(--content-background-transparent);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur($panel-background-blur);
+  backdrop-filter: blur($panel-background-blur);
   color: var(--primary-foreground);
   border-color: var(--chrome);
   border-style: var(--panel-border-style);
@@ -41,8 +42,8 @@ $tooltip-delay: 500ms;
 .card {
   animation: card-hydrate calc(var(--ui-hydrate-time) * 2) ease-out;
   background-color: var(--card-background-transparent);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur($panel-background-blur);
+  backdrop-filter: blur($panel-background-blur);
   color: var(--primary-foreground);
   border-color: var(--chrome);
   border-style: solid;
@@ -160,4 +161,38 @@ $tooltip-delay: 500ms;
     opacity: 0;
     transform: translateY(1rem) scale(0.9);
   }
+}
+
+@keyframes dialog-overlay-hydrate {
+  0% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-backdrop-filter: blur($panel-background-blur);
+    backdrop-filter: blur($panel-background-blur);
+  }
+}
+
+.dialog-overlay {
+  animation: dialog-overlay-hydrate calc(var(--ui-hydrate-time) * 2) ease-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--content-background-transparent);
+  -webkit-backdrop-filter: blur($panel-background-blur);
+  backdrop-filter: blur($panel-background-blur);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+dialog {
+  z-index: 1100;
 }
