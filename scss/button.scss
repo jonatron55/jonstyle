@@ -23,6 +23,7 @@ input[type="file"].button+label {
   transform: scale(1);
   box-shadow: globals.$control-shadow-x globals.$control-shadow-y globals.$control-shadow-blur var(--chrome-shadow);
   text-decoration: none;
+  text-transform: none;
 
   &:hover {
     background-color: var(--control-hover-background);
@@ -53,6 +54,21 @@ input[type="file"].button+label {
     outline: solid var(--ui-border-width) var(--control-hover-foreground);
     outline-offset: var(--ui-border-width);
     transform: scale(globals.$control-hover-scale);
+  }
+
+  &.icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--horizontal-gap);
+
+    .icon {
+      display: inline-block;
+    }
+
+    .caption {
+      display: var(--icon-button-caption);
+    }
   }
 }
 
