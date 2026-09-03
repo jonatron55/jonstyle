@@ -9,8 +9,8 @@ $control-shadow-x: 0px;
 $control-shadow-y: 1.5px;
 $control-shadow-blur: 3px;
 
-$control-hover-scale: 1.02;
-$control-active-scale: 0.98;
+$control-hover-scale: 1.01;
+$control-active-scale: 0.99;
 
 // Base theme
 :root {
@@ -32,6 +32,8 @@ $control-active-scale: 0.98;
   --primary-button-order: 1;
   --secondary-button-order: 2;
   --cancel-button-order: 3;
+
+  --icon-button-caption: inline-block;
 }
 
 @property --chrome {
