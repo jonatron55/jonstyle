@@ -207,7 +207,7 @@ impl Template {
     }
 }
 
-fn write_string<W: Write>(writer: &mut W, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
+pub fn write_string<W: Write>(writer: &mut W, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
     let mut parts = name.split(|c| c == '-' || c == '_' || c == ' ').map(|part| part.to_lowercase());
 
     let capitalize = |s: String| {
@@ -323,7 +323,7 @@ fn write_string<W: Write>(writer: &mut W, name: &str, fmt: Option<&str>, errors:
     Ok(())
 }
 
-fn write_color<W: Write>(
+pub fn write_color<W: Write>(
     writer: &mut W,
     value: &OkHsl,
     order: Option<&str>,
@@ -450,6 +450,31 @@ fn write_color<W: Write>(
     }
 
     Ok(())
+}
+
+pub fn fmt_string(name: &str, fmt: &str) -> String {
+    let mut w = Vec::with_capacity(name.len());
+    let mut errors = vec![];
+    match write_string(&mut w, name, Some(fmt), &mut errors) {
+        Ok(()) => String::from_utf8_lossy(&w).to_string(),
+        Err(_) => errors.iter().map(|err| err.to_string()).join(" "),
+    }
+}
+
+pub fn fmt_color(value: &OkHsl, fmt: &str, order: &str, linear: bool) -> String {
+    let mut w = vec![];
+    let mut errors = vec![];
+    match write_color(
+        &mut w,
+        value,
+        Some(fmt),
+        Some(order),
+        Some(if linear { "L" } else { "G" }),
+        &mut errors,
+    ) {
+        Ok(()) => String::from_utf8_lossy(&w).to_string(),
+        Err(_) => errors.iter().map(|err| err.to_string()).join(" "),
+    }
 }
 
 fn swizzle(color: OkHsl, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, ()> {

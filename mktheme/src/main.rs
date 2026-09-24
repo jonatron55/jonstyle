@@ -1,9 +1,9 @@
 use std::{env, fs, path::PathBuf};
 
-use anyhow::{anyhow, Result as AnyResult};
+use anyhow::{anyhow, bail, Result as AnyResult};
 use clap::{Parser, Subcommand};
 use themelib::{
-    scripts,
+    scripts::{self, pal::make_pal},
     template::Template,
     theme::{Indexer, ThemeBuilder, ThemeVariant},
 };
@@ -14,7 +14,7 @@ use themelib::{
 struct Args {
     /// Theme configuration file.
     ///
-    /// This should be a TOML file containing a [`ThemeBuilder`] struct.
+    /// This should be a TOML file containing a ThemeBuilder struct.
     #[arg()]
     config: PathBuf,
 
@@ -69,7 +69,7 @@ pub enum Command {
         /// Whether to package the generated theme extension as a .vsix file
         /// after generating it.
         ///
-        /// This requires the `vsce` command-line tool to be installed and
+        /// This requires the 'vsce' command-line tool to be installed and
         /// available in the system PATH.
         #[arg(short, long)]
         package: bool,
@@ -89,21 +89,21 @@ pub enum Command {
         repository: Option<String>,
     },
 
-    /// Generates a `.pal` (RIFF palette) file containing the theme's colors.
+    /// Generates a '.pal' (RIFF palette) file containing the theme's colors.
     Pal {
         /// Output path to write the generated .pal file to.
         #[arg()]
-        output: PathBuf,
+        output: Option<PathBuf>,
 
         /// Whether to overwrite existing files at the output path.
         #[arg(short, long)]
         force: bool,
     },
 
-    /// Generates an `.ase` (Adobe Swatch Exchange) file containing the theme's
+    /// Generates an '.ase' (Adobe Swatch Exchange) file containing the theme's
     /// colors.
     Ase {
-        /// Output path to write the generated .ase file to.
+        /// Output path to write the generated '.ase' file to.
         #[arg()]
         output: PathBuf,
 
@@ -183,7 +183,7 @@ pub fn main() -> AnyResult<()> {
             repository,
         } => {
             if output.exists() && !force {
-                return Err(anyhow!("{}: Already exists (use --force to overwrite)", output.display()).into());
+                bail!("{}: Already exists (use --force to overwrite)", output.display());
             }
 
             fs::remove_dir_all(&output)?;
@@ -198,8 +198,8 @@ pub fn main() -> AnyResult<()> {
                 scripts::vscode::install_vscode_theme(&output)?;
             }
         }
-        Command::Pal { output: _, force: _ } => {
-            todo!()
+        Command::Pal { output, force } => {
+            make_pal(&theme, output.as_deref(), force)?;
         }
         Command::Ase { output: _, force: _ } => {
             todo!()
