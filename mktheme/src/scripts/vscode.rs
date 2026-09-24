@@ -6,10 +6,11 @@ use std::{
     process::Command,
 };
 
-use crate::template::Template;
-use crate::theme::{Theme, ThemeMode};
 use anyhow::{bail, Result as AnyResult};
 use serde_json::json;
+
+use crate::template::Template;
+use crate::theme::{Theme, ThemeMode};
 
 pub fn make_vscode_theme(
     theme: &Theme,
