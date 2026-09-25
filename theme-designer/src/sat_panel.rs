@@ -11,7 +11,7 @@ pub fn SatPanel(
     view! {
         <div class="panel">
             <h1 class="caption">"Saturation"</h1>
-            <div class="split-panel">
+            <div class="split-2">
                 <div>
                     <RangeSlider
                         id="muted-range"

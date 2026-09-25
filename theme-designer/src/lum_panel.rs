@@ -14,7 +14,7 @@ pub fn LumPanel(
     view! {
         <div class="panel">
             <h1 class="caption">"Luminance"</h1>
-            <div class="split">
+            <div class="split-3">
                 <div>
                     <RangeSlider
                         id="lum-range"

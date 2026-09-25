@@ -8,6 +8,7 @@ pub fn ValueSlider(
     min: f64,
     max: f64,
     step: f64,
+    #[prop(optional)] on_change: Option<Callback<f64, ()>>,
 ) -> impl IntoView {
     view! {
         <div class="value-slider">
@@ -22,6 +23,9 @@ pub fn ValueSlider(
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
                     value.set(new_value);
+                    if let Some(callback) = &on_change {
+                        callback.run(new_value);
+                    }
                 }
             />
             <input
@@ -34,6 +38,9 @@ pub fn ValueSlider(
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
                     value.set(new_value);
+                    if let Some(callback) = &on_change {
+                        callback.run(new_value);
+                    }
                 }
             />
         </div>

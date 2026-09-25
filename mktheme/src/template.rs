@@ -13,7 +13,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::{
-    color::OkHsl,
+    color::OkHsla,
     theme::{Indexer, Theme, ThemeVariant},
 };
 
@@ -190,7 +190,7 @@ impl Template {
                 }
                 other => {
                     if let Ok(indexer) = Indexer::from_str_with_variant(other, variant) {
-                        write_color(writer, &context[indexer], swizzle, space, fmt, &mut errors)?
+                        write_color(writer, &context.get(&indexer), swizzle, space, fmt, &mut errors)?
                     } else {
                         errors.push(Error::NotFound(other.to_string()));
                         write!(writer, "<<NOT FOUND: '{other}'>>")?;
@@ -325,7 +325,7 @@ pub fn write_string<W: Write>(writer: &mut W, name: &str, fmt: Option<&str>, err
 
 pub fn write_color<W: Write>(
     writer: &mut W,
-    value: &OkHsl,
+    value: &OkHsla,
     order: Option<&str>,
     space: Option<&str>,
     fmt: Option<&str>,
@@ -461,7 +461,7 @@ pub fn fmt_string(name: &str, fmt: &str) -> String {
     }
 }
 
-pub fn fmt_color(value: &OkHsl, fmt: &str, order: &str, linear: bool) -> String {
+pub fn fmt_color(value: &OkHsla, fmt: &str, order: &str, linear: bool) -> String {
     let mut w = vec![];
     let mut errors = vec![];
     match write_color(
@@ -477,12 +477,12 @@ pub fn fmt_color(value: &OkHsl, fmt: &str, order: &str, linear: bool) -> String 
     }
 }
 
-fn swizzle(color: OkHsl, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, ()> {
-    let OkHsl { h, s, l } = color;
-    let [r, g, b] = if gamma {
-        color.to_srgb().as_array()
+fn swizzle(color: OkHsla, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, ()> {
+    let OkHsla { h, s, l, a } = color;
+    let [r, g, b, _] = if gamma {
+        color.to_srgba().as_array()
     } else {
-        color.to_rgb().as_array()
+        color.to_rgba().as_array()
     };
 
     let order = match order {
@@ -500,7 +500,7 @@ fn swizzle(color: OkHsl, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, (
             'r' | 'R' => result.push(r),
             'g' | 'G' => result.push(g),
             'b' | 'B' => result.push(b),
-            'a' | 'A' => result.push(1.0),
+            'a' | 'A' => result.push(a),
             _ => return Err(()),
         }
     }

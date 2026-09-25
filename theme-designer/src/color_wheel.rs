@@ -15,7 +15,9 @@ pub fn ColorWheel(
                 viewBox="-512 -512 1024 1024"
                 style="min-width: 192px; min-height: 192px; max-width: 512px; max-height: 512px;"
             >
-                <g>
+                <g transform=move || {
+                    format!("rotate({})", offset.get())
+                }>
                     {(0..360)
                         .map(|hue| {
                             let hue = hue as f64;
@@ -39,13 +41,7 @@ pub fn ColorWheel(
                                 d.0,
                                 d.1,
                             );
-                            view! {
-                                <path
-                                    d=path
-                                    style=format!("fill: #{color:X}")
-                                    transform=move || format!("rotate({})", offset.get())
-                                />
-                            }
+                            view! { <path d=path style=format!("fill: #{color:X}") /> }
                         })
                         .collect::<Vec<_>>()}
                 </g>
@@ -55,7 +51,6 @@ pub fn ColorWheel(
                         let cool_end = cool_end.get();
                         let warm_start = warm_start.get();
                         let warm_end = warm_end.get();
-                        let offset = offset.get();
                         let markers = [
                             cool_start,
                             (cool_start + cool_end) * 0.5,
@@ -73,10 +68,10 @@ pub fn ColorWheel(
                                             transform=move || { format!("rotate({})", -marker) }
                                             class="marker-group"
                                         >
-                                            <path class="marker-line" d="M0 0 L-256 0" />
-                                            <path class="marker-line-inv" d="M-448 0 L-256 0" />
-                                            <path class="marker-line" d="M0 0 L-256 0" />
-                                            <path class="marker" d="M-448 0 L-512 -24 L -512 24 Z" />
+                                            <path class="marker-line" d="M 0 0 L -256 0" />
+                                            <path class="marker-line-inv" d="M -448 0 L-256 0" />
+                                            <path class="marker-line" d="M 0 0 L -256 0" />
+                                            <path class="marker" d="M -448 0 L -512 -24 L -512 24 Z" />
                                         </g>
                                     }
                                 })

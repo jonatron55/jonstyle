@@ -22,7 +22,10 @@ pub fn PalettePanel(theme: ReadSignal<Theme, LocalStorage>) -> impl IntoView {
                                                             style:background-color=move || {
                                                                 let color = theme
                                                                     .with(|theme| {
-                                                                        theme[&Indexer::Base(sat, temp, lum)].to_srgb()
+                                                                        theme
+                                                                            .get(&Indexer::Base(sat, temp, lum))
+                                                                            .without_a()
+                                                                            .to_srgb()
                                                                     });
                                                                 format!("#{color:X}")
                                                             }

@@ -206,7 +206,7 @@ pub fn main() -> AnyResult<()> {
         }
         Command::List { variant } => {
             for indexer in Indexer::iter(variant) {
-                let color = theme[&indexer].to_srgb();
+                let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
             }
         }
