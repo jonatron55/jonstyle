@@ -50,8 +50,8 @@ pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<
     w.write_u16::<LittleEndian>(color_count as u16)?;
 
     for i in Indexer::iter_base() {
-        let [r, g, b] = theme[i].to_srgb().to_bytes();
-        w.write_all(&[r, g, b, 255])?;
+        let bytes = theme.get(&i).to_srgba().to_bytes();
+        w.write_all(&bytes)?;
     }
 
     Ok(())

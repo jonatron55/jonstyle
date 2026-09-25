@@ -3,7 +3,7 @@ mod index;
 mod primary;
 mod variant;
 
-use std::{collections::HashMap, ops::Index};
+use std::collections::HashMap;
 
 use semver::Version;
 
@@ -12,10 +12,13 @@ pub use index::*;
 pub use primary::*;
 pub use variant::*;
 
-use crate::color::OkHsl;
+use crate::color::{OkHsl, OkHsla};
 
 pub type BasePalette = [[[OkHsl; LUM_COUNT]; TEMP_COUNT]; SAT_COUNT];
 pub type PrimaryMap = HashMap<Primary, Temp>;
+
+const BACKGROUND_ALPHA: f64 = 2.0 / 3.0;
+const SHADOW_ALPHA: f64 = 2.0 / 3.0;
 
 pub struct Theme {
     /// The name of the theme.
@@ -40,25 +43,25 @@ pub struct Theme {
     primaries: PrimaryMap,
 }
 
-impl Index<&Indexer> for Theme {
-    type Output = OkHsl;
-
-    fn index(&self, index: &Indexer) -> &Self::Output {
+impl Theme {
+    pub fn get(&self, index: &Indexer) -> OkHsla {
         match index {
-            Indexer::Base(sat, temp, lum) => &self.base_palette[*sat as usize][*temp as usize][*lum as usize],
+            Indexer::Base(sat, temp, lum) => {
+                self.base_palette[*sat as usize][*temp as usize][*lum as usize].with_a(1.0)
+            }
             Indexer::Themed(variant, sat, hue, level) => {
                 let temp = hue.to_temp(*variant);
                 let lum = level.to_lum(*variant);
-                &self.base_palette[*sat as usize][temp as usize][lum as usize]
+                self.base_palette[*sat as usize][temp as usize][lum as usize].with_a(1.0)
             }
             Indexer::Primary(sat, primary, lum) => {
                 let temp = self.primaries[&primary];
-                &self.base_palette[*sat as usize][temp as usize][*lum as usize]
+                self.base_palette[*sat as usize][temp as usize][*lum as usize].with_a(1.0)
             }
             Indexer::ThemedPrimary(variant, sat, primary, level) => {
                 let temp = self.primaries[&primary];
                 let lum = level.to_lum(*variant);
-                &self.base_palette[*sat as usize][temp as usize][lum as usize]
+                self.base_palette[*sat as usize][temp as usize][lum as usize].with_a(1.0)
             }
             Indexer::Semantic(variant, name) => {
                 let mut ctrl_hue = ThemeHue::Color1;
@@ -88,287 +91,455 @@ impl Index<&Indexer> for Theme {
                 let disabled_bg_level = Level::HighBackground;
                 let dsabled_link_level = Level::LowMidground;
 
-                let indexer = match name.as_str() {
-                    "primary-foreground" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::Foreground),
-                    "intense-foreground" => {
-                        Indexer::Themed(*variant, Sat::Intense, ThemeHue::Color6, Level::HighForeground)
-                    }
-                    "dim-foreground" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::LowMidground),
-                    "content-background" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::Background),
-                    "card-background" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HighBackground),
-                    "page-background" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground),
-                    "selection-background" => {
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::LowerMidground)
-                    }
-                    "dim-selection-background" => {
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::HighBackground)
-                    }
-                    "content-background-transparent" => {
-                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::Background)
-                    }
-                    "card-background-transparent" => {
-                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HighBackground)
-                    }
-                    "chrome-foreground" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowForeground),
-                    "chrome-high" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowForeground),
-                    "chrome" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::HighMidground),
-                    "chrome-low" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowMidground),
-                    "chrome-background" => {
-                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::HighBackground)
-                    }
-                    "caption-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground)
-                    }
-                    "chrome-shadow" => {
-                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Lum::DimHigh.to_level(*variant))
-                    }
-                    "dim-shadow" => {
-                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Lum::DimHigh.to_level(*variant))
-                    }
-                    "intense-shadow" => {
-                        Indexer::Themed(*variant, Sat::Intense, ThemeHue::Color6, Lum::DimLow.to_level(*variant))
-                    }
-
-                    "link" => Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level),
-                    "link-hover" => Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level.brighter(*variant)),
-                    "link-active" => Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level.dimmer(*variant)),
-                    "link-disabled" => Indexer::Themed(*variant, Sat::Base, ctrl_hue, dsabled_link_level),
-
-                    "label" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::Foreground),
-                    "label-hover" => Indexer::Themed(
-                        *variant,
-                        Sat::Muted,
-                        ThemeHue::Color6,
-                        Level::Foreground.brighter(*variant),
+                let (index, alpha) = match name.as_str() {
+                    "primary-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::Foreground),
+                        1.0,
                     ),
-                    "label-active" => Indexer::Themed(
-                        *variant,
-                        Sat::Muted,
-                        ThemeHue::Color6,
-                        Level::Foreground.dimmer(*variant),
+                    "intense-foreground" => (
+                        Indexer::Themed(*variant, Sat::Intense, ThemeHue::Color6, Level::HighForeground),
+                        1.0,
                     ),
-                    "label-disabled" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, disabled_fg_level),
+                    "dim-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::LowMidground),
+                        1.0,
+                    ),
+                    "content-background" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::Background),
+                        1.0,
+                    ),
+                    "card-background" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HighBackground),
+                        1.0,
+                    ),
+                    "page-background" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground),
+                        1.0,
+                    ),
+                    "selection-background" => (
+                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::LowerMidground),
+                        1.0,
+                    ),
+                    "dim-selection-background" => (
+                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::HighBackground),
+                        1.0,
+                    ),
+                    "content-background-transparent" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::Background),
+                        BACKGROUND_ALPHA,
+                    ),
+                    "card-background-transparent" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HighBackground),
+                        BACKGROUND_ALPHA,
+                    ),
+                    "chrome-foreground" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowForeground),
+                        1.0,
+                    ),
+                    "chrome-high" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowForeground),
+                        1.0,
+                    ),
+                    "chrome" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::HighMidground),
+                        1.0,
+                    ),
+                    "chrome-low" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowMidground),
+                        1.0,
+                    ),
+                    "chrome-background" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::HighBackground),
+                        1.0,
+                    ),
+                    "caption-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground),
+                        1.0,
+                    ),
+                    "chrome-shadow" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Lum::DimHigh.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
+                    "dim-shadow" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Lum::DimHigh.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
+                    "intense-shadow" => (
+                        Indexer::Themed(*variant, Sat::Intense, ThemeHue::Color6, Lum::DimLow.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
 
-                    "control-foreground" => Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level),
-                    "control-background" => Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level),
-                    "control-hover-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level.brighter(*variant))
+                    "link" => (Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level), 1.0),
+                    "link-hover" => (
+                        Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "link-active" => (
+                        Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "link-disabled" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, dsabled_link_level), 1.0),
+
+                    "label" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::Foreground),
+                        1.0,
+                    ),
+                    "label-hover" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Muted,
+                            ThemeHue::Color6,
+                            Level::Foreground.brighter(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "label-active" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Muted,
+                            ThemeHue::Color6,
+                            Level::Foreground.dimmer(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "label-disabled" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, disabled_fg_level),
+                        1.0,
+                    ),
+
+                    "control-foreground" => (Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level), 1.0),
+                    "control-background" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level), 1.0),
+                    "control-hover-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "control-hover-background" => (
+                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "control-active-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "control-active-background" => (
+                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "control-disabled-foreground" => {
+                        (Indexer::Themed(*variant, Sat::Muted, ctrl_hue, disabled_fg_level), 1.0)
                     }
-                    "control-hover-background" => {
-                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level.brighter(*variant))
+                    "control-disabled-background" => {
+                        (Indexer::Themed(*variant, Sat::Muted, ctrl_hue, disabled_bg_level), 1.0)
                     }
-                    "control-active-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, ctrl_hue, ctrl_fg_level.dimmer(*variant))
-                    }
-                    "control-active-background" => {
-                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, ctrl_bg_level.dimmer(*variant))
-                    }
-                    "control-disabled-foreground" => Indexer::Themed(*variant, Sat::Muted, ctrl_hue, disabled_fg_level),
-                    "control-disabled-background" => Indexer::Themed(*variant, Sat::Muted, ctrl_hue, disabled_bg_level),
 
                     "secondary-control-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level)
+                        (Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level), 1.0)
                     }
                     "secondary-control-background" => {
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level)
+                        (Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level), 1.0)
                     }
-                    "secondary-control-hover-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.brighter(*variant))
-                    }
-                    "secondary-control-hover-background" => {
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.brighter(*variant))
-                    }
-                    "secondary-control-active-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.dimmer(*variant))
-                    }
-                    "secondary-control-active-background" => {
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.dimmer(*variant))
-                    }
-                    "secondary-control-disabled-foreground" => {
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_fg_level)
-                    }
-                    "secondary-control-disabled-background" => {
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_bg_level)
-                    }
-
-                    "ok-control-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level)
-                    }
-                    "ok-control-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, ctrl_bg_level)
-                    }
-                    "ok-control-hover-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.brighter(*variant))
-                    }
-                    "ok-control-hover-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, ctrl_bg_level.brighter(*variant))
-                    }
-                    "ok-control-active-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.dimmer(*variant))
-                    }
-                    "ok-control-active-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_bg_level.dimmer(*variant))
-                    }
-                    "ok-control-disabled-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_fg_level)
-                    }
-                    "ok-control-disabled-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_bg_level)
-                    }
-
-                    "caution-control-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level)
-                    }
-                    "caution-control-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, ctrl_bg_level)
-                    }
-                    "caution-control-hover-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.brighter(*variant))
-                    }
-                    "caution-control-hover-background" => Indexer::ThemedPrimary(
-                        *variant,
-                        Sat::Intense,
-                        Primary::Yellow,
-                        ctrl_bg_level.brighter(*variant),
+                    "secondary-control-hover-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.brighter(*variant)),
+                        1.0,
                     ),
-                    "caution-control-active-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.dimmer(*variant))
-                    }
-                    "caution-control-active-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_bg_level.dimmer(*variant))
-                    }
-                    "caution-control-disabled-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_fg_level)
-                    }
-                    "caution-control-disabled-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_bg_level)
-                    }
-
-                    "danger-control-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level)
-                    }
-                    "danger-control-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level)
-                    }
-                    "danger-control-hover-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.brighter(*variant))
-                    }
-                    "danger-control-hover-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level.brighter(*variant))
-                    }
-                    "danger-control-active-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.dimmer(*variant))
-                    }
-                    "danger-control-active-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_bg_level.dimmer(*variant))
-                    }
-                    "danger-control-disabled-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_fg_level)
-                    }
-                    "danger-control-disabled-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_bg_level)
-                    }
-
-                    "ok-foreground" => Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, accent_level),
-                    "ok-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground)
-                    }
-                    "ok-background-transparent" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground)
-                    }
-                    "ok-shadow" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Lum::DimHigh.to_level(*variant))
-                    }
-
-                    "caution-foreground" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, accent_level)
-                    }
-                    "caution-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground)
-                    }
-                    "caution-background-transparent" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground)
-                    }
-                    "caution-shadow" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Lum::DimHigh.to_level(*variant))
-                    }
-
-                    "danger-foreground" => Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, accent_level),
-                    "danger-background" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground)
-                    }
-                    "danger-background-transparent" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground)
-                    }
-                    "danger-shadow" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Lum::DimHigh.to_level(*variant))
-                    }
-
-                    "input-background" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::Background),
-                    "input-border" => Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowMidground),
-                    "input-hover-background" => Indexer::Themed(
-                        *variant,
-                        Sat::Base,
-                        ThemeHue::Color1,
-                        Level::Background.brighter(*variant),
+                    "secondary-control-hover-background" => (
+                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.brighter(*variant)),
+                        1.0,
                     ),
-                    "input-hover-border" => Indexer::Themed(
-                        *variant,
-                        Sat::Base,
-                        ThemeHue::Color1,
-                        Level::LowMidground.brighter(*variant),
+                    "secondary-control-active-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.dimmer(*variant)),
+                        1.0,
                     ),
-                    "input-active-background" => Indexer::Themed(
-                        *variant,
-                        Sat::Base,
-                        ThemeHue::Color1,
-                        Level::Background.dimmer(*variant),
+                    "secondary-control-active-background" => (
+                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.dimmer(*variant)),
+                        1.0,
                     ),
-                    "input-active-border" => Indexer::Themed(
-                        *variant,
-                        Sat::Intense,
-                        ThemeHue::Color1,
-                        Level::LowMidground.dimmer(*variant),
+                    "secondary-control-disabled-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_fg_level),
+                        1.0,
+                    ),
+                    "secondary-control-disabled-background" => (
+                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_bg_level),
+                        1.0,
                     ),
 
-                    "dark-black" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground),
-                    "bright-black" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowerMidground),
-                    "dark-white" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HigherMidground),
-                    "bright-white" => Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HighForeground),
-                    "dark-red" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
-                    "bright-red" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
-                    "dark-green" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
-                    "bright-green" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
-                    "dark-yellow" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground)
-                    }
-                    "bright-yellow" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground)
-                    }
-                    "dark-blue" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighBackground),
-                    "bright-blue" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighMidground),
-                    "dark-magenta" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighBackground)
-                    }
-                    "bright-magenta" => {
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground)
-                    }
-                    "dark-cyan" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighBackground),
-                    "bright-cyan" => Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighMidground),
+                    "ok-control-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level),
+                        1.0,
+                    ),
+                    "ok-control-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, ctrl_bg_level),
+                        1.0,
+                    ),
+                    "ok-control-hover-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "ok-control-hover-background" => (
+                        Indexer::ThemedPrimary(
+                            *variant,
+                            Sat::Intense,
+                            Primary::Green,
+                            ctrl_bg_level.brighter(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "ok-control-active-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "ok-control-active-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_bg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "ok-control-disabled-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_fg_level),
+                        1.0,
+                    ),
+                    "ok-control-disabled-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_bg_level),
+                        1.0,
+                    ),
+
+                    "caution-control-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level),
+                        1.0,
+                    ),
+                    "caution-control-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, ctrl_bg_level),
+                        1.0,
+                    ),
+                    "caution-control-hover-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "caution-control-hover-background" => (
+                        Indexer::ThemedPrimary(
+                            *variant,
+                            Sat::Intense,
+                            Primary::Yellow,
+                            ctrl_bg_level.brighter(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "caution-control-active-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "caution-control-active-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_bg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "caution-control-disabled-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_fg_level),
+                        1.0,
+                    ),
+                    "caution-control-disabled-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_bg_level),
+                        1.0,
+                    ),
+
+                    "danger-control-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level),
+                        1.0,
+                    ),
+                    "danger-control-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level),
+                        1.0,
+                    ),
+                    "danger-control-hover-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "danger-control-hover-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level.brighter(*variant)),
+                        1.0,
+                    ),
+                    "danger-control-active-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "danger-control-active-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_bg_level.dimmer(*variant)),
+                        1.0,
+                    ),
+                    "danger-control-disabled-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_fg_level),
+                        1.0,
+                    ),
+                    "danger-control-disabled-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_bg_level),
+                        1.0,
+                    ),
+
+                    "ok-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, accent_level),
+                        1.0,
+                    ),
+                    "ok-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
+                        1.0,
+                    ),
+                    "ok-background-transparent" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
+                        BACKGROUND_ALPHA,
+                    ),
+                    "ok-shadow" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Lum::DimHigh.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
+
+                    "caution-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, accent_level),
+                        1.0,
+                    ),
+                    "caution-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        1.0,
+                    ),
+                    "caution-background-transparent" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        BACKGROUND_ALPHA,
+                    ),
+                    "caution-shadow" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Lum::DimHigh.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
+
+                    "danger-foreground" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, accent_level),
+                        1.0,
+                    ),
+                    "danger-background" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        1.0,
+                    ),
+                    "danger-background-transparent" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        BACKGROUND_ALPHA,
+                    ),
+                    "danger-shadow" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Lum::DimHigh.to_level(*variant)),
+                        SHADOW_ALPHA,
+                    ),
+
+                    "input-background" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::Background),
+                        1.0,
+                    ),
+                    "input-border" => (
+                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowMidground),
+                        1.0,
+                    ),
+                    "input-hover-background" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Base,
+                            ThemeHue::Color1,
+                            Level::Background.brighter(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "input-hover-border" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Base,
+                            ThemeHue::Color1,
+                            Level::LowMidground.brighter(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "input-active-background" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Base,
+                            ThemeHue::Color1,
+                            Level::Background.dimmer(*variant),
+                        ),
+                        1.0,
+                    ),
+                    "input-active-border" => (
+                        Indexer::Themed(
+                            *variant,
+                            Sat::Intense,
+                            ThemeHue::Color1,
+                            Level::LowMidground.dimmer(*variant),
+                        ),
+                        1.0,
+                    ),
+
+                    "dark-black" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowBackground),
+                        1.0,
+                    ),
+                    "bright-black" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowerMidground),
+                        1.0,
+                    ),
+                    "dark-white" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HigherMidground),
+                        1.0,
+                    ),
+                    "bright-white" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HighForeground),
+                        1.0,
+                    ),
+                    "dark-red" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-red" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                        1.0,
+                    ),
+                    "dark-green" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-green" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                        1.0,
+                    ),
+                    "dark-yellow" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-yellow" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground),
+                        1.0,
+                    ),
+                    "dark-blue" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-blue" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighMidground),
+                        1.0,
+                    ),
+                    "dark-magenta" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-magenta" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                        1.0,
+                    ),
+                    "dark-cyan" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighBackground),
+                        1.0,
+                    ),
+                    "bright-cyan" => (
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighMidground),
+                        1.0,
+                    ),
 
                     _ => panic!("Unknown semantic color name: {}", name),
                 };
 
-                &self[indexer]
+                let mut color = self.get(&index);
+                color.a = alpha;
+                color
             }
         }
-    }
-}
-
-impl Index<Indexer> for Theme {
-    type Output = OkHsl;
-
-    fn index(&self, index: Indexer) -> &Self::Output {
-        &self[&index]
     }
 }

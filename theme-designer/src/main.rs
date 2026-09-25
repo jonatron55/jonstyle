@@ -5,38 +5,47 @@ mod lum_plot;
 mod meta_panel;
 mod palette_panel;
 mod plot;
+mod preview_content;
 mod sat_panel;
 mod slider;
 mod toolbar;
 
-use leptos::prelude::*;
-use semver::Version;
-use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
-
 use hue_panel::HuePanel;
+use leptos::prelude::*;
 use lum_panel::LumPanel;
 use meta_panel::MetaPanel;
 use palette_panel::PalettePanel;
+use preview_content::PreviewContent;
 use sat_panel::SatPanel;
+use semver::Version;
 use themelib::theme::{Indexer, Theme, ThemeBuilder, ThemeVariant};
 use toolbar::Toolbar;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlElement;
 
 fn apply_theme_to_root(theme: &Theme, variant: ThemeVariant) {
     let Some(root) = document().document_element().and_then(|el| el.dyn_into::<HtmlElement>().ok()) else {
         return;
     };
     let style = root.style();
-
     for indexer in Indexer::iter(variant) {
-        let color = theme[&indexer].to_srgb();
+        let color = theme.get(&indexer).to_srgba();
         let _ = style.set_property(&format!("--{indexer}"), &format!("#{color:X}"));
     }
+
+    let body = root.owner_document().and_then(|doc| doc.body()).unwrap();
+    let body_style = body.style();
+    let _ = body_style.set_property(
+        &format!("background-image"),
+        &format!("url('background-{}.jpg')", variant.to_string().to_lowercase()),
+    );
 }
 
 #[component]
 fn App() -> impl IntoView {
     let builder = StoredValue::new_local(ThemeBuilder::default());
+    apply_theme_to_root(&builder.with_value(|b| b.build_theme()), ThemeVariant::NIGHT);
+
     let (theme, set_theme) = signal_local(ThemeBuilder::default().into_theme());
     let (preview_variant, set_preview_variant) = signal_local(ThemeVariant::NIGHT);
 
@@ -121,7 +130,12 @@ fn App() -> impl IntoView {
                 />
                 <PalettePanel theme />
             </div>
-            <div class="right"></div>
+            <div class="right">
+                <div class="panel">
+                    <h1 class="caption">"Preview"</h1>
+                    <PreviewContent />
+                </div>
+            </div>
         </div>
     }
 }

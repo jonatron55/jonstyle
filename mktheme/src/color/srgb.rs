@@ -45,7 +45,7 @@ pub fn srgb_u24(packed: u32) -> SRgb {
     SRgba::unpack_be(packed).without_a()
 }
 
-pub fn sargb_u32(packed: u32) -> SRgba {
+pub fn srgba_u32(packed: u32) -> SRgba {
     SRgba::unpack_be(packed)
 }
 
@@ -206,7 +206,7 @@ impl UpperHex for SRgb {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:X}{g:X}{b:X}")
         } else {
-            write!(f, "{:06X}", self.with_a(0.0).pack_be())
+            write!(f, "{:06X}", self.with_a(0.0).pack_be() >> 8)
         }
     }
 }
@@ -217,7 +217,7 @@ impl LowerHex for SRgb {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:x}{g:x}{b:x}")
         } else {
-            write!(f, "{:06x}", self.with_a(0.0).pack_be())
+            write!(f, "{:06x}", self.with_a(0.0).pack_be() >> 8)
         }
     }
 }
@@ -296,23 +296,23 @@ impl SRgba {
         Self::new(slice[0], slice[1], slice[2], slice[3])
     }
 
-    /// Pack the color into a 32-bit integer in the format 0xAARRGGBB (big endian) or 0xBBGGRRAA (little endian).
+    /// Pack the color into a 32-bit integer in the format 0xRRGGBBAA (big endian) or 0xAABBGGRR (little endian).
     pub fn pack<O: ByteOrder>(&self) -> u32 {
         let r = (self.r * 255.0).round().clamp(0.0, 255.0) as u8;
         let g = (self.g * 255.0).round().clamp(0.0, 255.0) as u8;
         let b = (self.b * 255.0).round().clamp(0.0, 255.0) as u8;
         let a = (self.a * 255.0).round().clamp(0.0, 255.0) as u8;
-        O::read_u32(&[a, r, g, b])
+        O::read_u32(&[r, g, b, a])
     }
 
-    /// Unpack a 32-bit integer in the format 0xAARRGGBB (big endian) or 0xBBGGRRAA (little endian) into an sRGBA color.
+    /// Unpack a 32-bit integer in the format 0xRRGGBBAA (big endian) or 0xAABBGGRR (little endian) into an sRGBA color.
     pub fn unpack<O: ByteOrder>(packed: u32) -> Self {
         let buf = &mut [0; 4];
         O::write_u32(buf, packed);
-        let a = buf[0] as f64 / 255.0;
-        let r = buf[1] as f64 / 255.0;
-        let g = buf[2] as f64 / 255.0;
-        let b = buf[3] as f64 / 255.0;
+        let r = buf[0] as f64 / 255.0;
+        let g = buf[1] as f64 / 255.0;
+        let b = buf[2] as f64 / 255.0;
+        let a = buf[3] as f64 / 255.0;
         Self::new(r, g, b, a)
     }
 
@@ -402,7 +402,7 @@ impl UpperHex for SRgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         if let Some(width) = f.width() && width == 4 {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
-            write!(f, "{a:X}{r:X}{g:X}{b:X}")
+            write!(f, "{r:X}{g:X}{b:X}{a:X}")
         } else {
             write!(f, "{:08X}", self.pack_be())
         }
@@ -413,7 +413,7 @@ impl LowerHex for SRgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         if let Some(width) = f.width() && width == 4 {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
-            write!(f, "{a:x}{r:x}{g:x}{b:x}")
+            write!(f, "{r:x}{g:x}{b:x}{a:x}")
         } else {
             write!(f, "{:08x}", self.pack_be())
         }

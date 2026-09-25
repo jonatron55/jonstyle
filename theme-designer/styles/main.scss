@@ -10,6 +10,7 @@
   overflow: clip;
 
   @include system.theme;
+
 }
 
 body {
@@ -63,7 +64,7 @@ body {
   align-items: center;
 }
 
-.split {
+.split-2 {
   display: grid;
   grid-template-columns: 2fr 1fr;
   margin: var(--vertical-gap) var(--horizontal-gap);
@@ -156,4 +157,16 @@ body {
 .major-gridline {
   stroke: var(--chrome);
   stroke-width: 1px;
+}
+
+
+.preview {
+  max-width: 50rem;
+  margin: auto !important;
+
+  p {
+    margin: 2rem var(--horizontal-gap);
+    -webkit-user-select: text;
+    user-select: text;
+  }
 }

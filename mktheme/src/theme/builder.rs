@@ -167,15 +167,15 @@ impl Default for ThemeBuilder {
                 ThemeVariant::NIGHT,
             ],
             description: None,
-            cool_range: (150.0, 270.0),
-            warm_range: (-50.0, 70.0),
+            cool_range: (270.0, 180.0),
+            warm_range: (0.0, 90.0),
             offset: 0.0,
-            lum_range: (10.0, 90.0),
-            lum_power: 1.2,
-            lum_gamma: 1.1,
-            muted_sat_range: (10.0, 25.0),
-            base_sat_range: (55.0, 65.0),
-            intense_sat_range: (80.0, 90.0),
+            lum_range: (5.0, 95.0),
+            lum_power: 1.0,
+            lum_gamma: 1.0,
+            muted_sat_range: (0.0, 20.0),
+            base_sat_range: (40.0, 60.0),
+            intense_sat_range: (80.0, 100.0),
         }
     }
 }
