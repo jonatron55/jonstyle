@@ -11,9 +11,9 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
         let builder = builder.clone();
         move || builder.with(|b| b.lum_range)
     });
-    let lum_power = Signal::derive_local({
+    let lum_alpha = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.lum_power)
+        move || builder.with(|b| b.lum_alpha)
     });
     let lum_gamma = Signal::derive_local({
         let builder = builder.clone();
@@ -41,22 +41,22 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                     />
 
                     <ValueSlider
-                        label="Power"
-                        id="lum-power"
+                        label="α"
+                        id="lum-alpha"
                         min=0.33
                         max=3.0
                         step=0.01
-                        value=lum_power
+                        value=lum_alpha
                         on_change=Callback::new({
                             let builder = builder.clone();
                             move |new_value| {
-                                builder.update(|b| b.lum_power = new_value);
+                                builder.update(|b| b.lum_alpha = new_value);
                             }
                         })
                     />
 
                     <ValueSlider
-                        label="Gamma"
+                        label="γ"
                         id="lum-gamma"
                         min=0.5
                         max=2.0
@@ -71,7 +71,7 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                     />
 
                 </div>
-                <LumPlot lum_range=lum_range lum_power=lum_power lum_gamma=lum_gamma />
+                <LumPlot lum_range=lum_range lum_alpha=lum_alpha lum_gamma=lum_gamma />
             </div>
         </div>
     }

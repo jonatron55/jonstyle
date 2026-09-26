@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, LUM_COUNT, Primary, PrimaryMap, SAT_COUNT, TEMP_COUNT, Theme, ThemeVariant},
+    theme::{BasePalette, Primary, PrimaryMap, Theme, ThemeVariant, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
 };
 
 /// A collection of parameters for generating a theme.
@@ -40,7 +40,7 @@ pub struct ThemeBuilder {
     pub lum_range: (f64, f64),
 
     /// Power to apply to luminance when calculating color levels.
-    pub lum_power: f64,
+    pub lum_alpha: f64,
 
     /// Gamma to apply to luminance when calculating color levels.
     pub lum_gamma: f64,
@@ -137,7 +137,7 @@ impl ThemeBuilder {
     }
 
     pub fn lum_fn(&self, lum: f64) -> f64 {
-        lum_fn(lum, self.lum_range, self.lum_power, self.lum_gamma)
+        lum_fn(lum, self.lum_range, self.lum_alpha, self.lum_gamma)
     }
 }
 
@@ -171,7 +171,7 @@ impl Default for ThemeBuilder {
             warm_range: (0.0, 90.0),
             offset: 0.0,
             lum_range: (5.0, 95.0),
-            lum_power: 1.0,
+            lum_alpha: 1.0,
             lum_gamma: 1.0,
             muted_sat_range: (0.0, 20.0),
             base_sat_range: (40.0, 60.0),

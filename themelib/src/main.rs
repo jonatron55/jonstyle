@@ -1,6 +1,6 @@
 use std::{env, fs, path::PathBuf};
 
-use anyhow::{Result as AnyResult, anyhow, bail};
+use anyhow::{anyhow, bail, Result as AnyResult};
 use clap::{Parser, Subcommand};
 use themelib::{
     scripts::{self, pal::make_pal},
@@ -82,6 +82,14 @@ pub enum Command {
         /// License text to include in the generated VS Code theme extension.
         #[arg(short, long)]
         license: Option<PathBuf>,
+
+        /// SPDX license identifier to include in the generated VS Code theme
+        /// extension.
+        ///
+        /// If not provided, the license ID will be automatically detected from
+        /// the file provided by '--license' if 'osslili' is available.
+        #[arg(short = 'L', long)]
+        license_id: Option<String>,
 
         /// Repository URL to include in the generated VS Code theme extension's
         /// package.json file.
@@ -187,15 +195,22 @@ pub fn main() -> AnyResult<()> {
             package,
             install,
             license,
+            license_id,
             repository,
         } => {
             if output.exists() && !force {
                 bail!("{}: Already exists (use --force to overwrite)", output.display());
             }
 
-            fs::remove_dir_all(&output)?;
+            _ = fs::remove_dir_all(&output);
 
-            scripts::vscode::make_vscode_theme(&theme, license.as_deref(), repository.as_deref(), &output)?;
+            scripts::vscode::make_vscode_theme(
+                &theme,
+                license.as_deref(),
+                license_id.as_deref(),
+                repository.as_deref(),
+                &output,
+            )?;
 
             if package {
                 scripts::vscode::package_vscode_theme(&output, license.is_some(), repository.is_some())?;

@@ -6,7 +6,7 @@ use std::{
     process::Command,
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use serde_json::json;
 
 use crate::template::Template;
@@ -15,6 +15,7 @@ use crate::theme::{Theme, ThemeMode};
 pub fn make_vscode_theme(
     theme: &Theme,
     license: Option<&Path>,
+    license_id: Option<&str>,
     repository: Option<&str>,
     output_root: &Path,
 ) -> AnyResult<()> {
@@ -24,28 +25,40 @@ pub fn make_vscode_theme(
     fs::create_dir_all(output_root.join("themes"))?;
     fs::create_dir_all(output_root.join(".vscode"))?;
 
-    if let Some(path) = license {
-        let license_text = fs::read_to_string(path)?;
+    if let Some(license_path) = license {
+        let license_text = fs::read_to_string(license_path)?;
         let mut license_file = File::create(output_root.join("LICENSE"))?;
         license_file.write_all(license_text.as_bytes())?;
     }
 
-    let license_id = if let Some(path) = license {
-        println!("Detecting license ID from {}...", path.display());
-        match shell_exec(
+    let license_id = if let Some(license_id) = license_id {
+        Some(license_id.to_string())
+    } else if let Some(license_path) = license {
+        println!("Detecting license ID from {}...", license_path.display());
+        match shell_exec_env(
             format!(
                 "osslili --evidence-detail=minimal --output-format=kissbom {}",
-                path.to_str().unwrap()
+                license_path.to_str().unwrap()
             ),
             PathBuf::from("."),
+            &[("PYTHONIOENCODING", "UTF-8")],
         ) {
             Ok(output) => {
+                let start = output.find('{').unwrap_or(0);
+                let output = &output[start..];
                 let json = serde_json::from_str::<serde_json::Value>(&output)?;
-                json.get("packages")
+                let id = json
+                    .get("packages")
                     .and_then(|packages| packages.get(0))
                     .and_then(|pkg| pkg.get("license"))
                     .map(|val| val.as_str().map(|s| s.to_owned()))
-                    .flatten()
+                    .flatten();
+                if let Some(id) = &id {
+                    println!("Detected license ID: {id}");
+                } else {
+                    println!("License not recognized");
+                }
+                id
             }
             Err(err) => {
                 eprintln!("Warning: Failed to detect license ID: {}", err);
@@ -227,11 +240,20 @@ pub fn install_vscode_theme(vsix_path: &Path) -> AnyResult<()> {
     Ok(())
 }
 
-#[cfg(target_os = "windows")]
 fn shell_exec(cmd: impl AsRef<str>, cwd: impl AsRef<Path>) -> AnyResult<String> {
+    shell_exec_env(cmd, cwd, &[] as &[(&str, &str)])
+}
+
+#[cfg(target_os = "windows")]
+fn shell_exec_env(
+    cmd: impl AsRef<str>,
+    cwd: impl AsRef<Path>,
+    env: &[(impl AsRef<str>, impl AsRef<str>)],
+) -> AnyResult<String> {
     let output = Command::new("pwsh")
         .args(&["-C", cmd.as_ref()])
         .current_dir(cwd.as_ref())
+        .envs(env.iter().map(|(k, v)| (k.as_ref(), v.as_ref())))
         .output()?;
     if !output.status.success() {
         bail!(
@@ -246,11 +268,16 @@ fn shell_exec(cmd: impl AsRef<str>, cwd: impl AsRef<Path>) -> AnyResult<String> 
 }
 
 #[cfg(not(target_os = "windows"))]
-fn shell_exec(cmd: impl AsRef<str>, cwd: impl AsRef<Path>) -> AnyResult<String> {
+fn shell_exec_env(
+    cmd: impl AsRef<str>,
+    cwd: impl AsRef<Path>,
+    env: &[(impl AsRef<str>, impl AsRef<str>)],
+) -> AnyResult<String> {
     let output = Command::new("sh")
         .arg("-c")
         .arg(cmd.as_ref())
         .current_dir(cwd.as_ref())
+        .envs(env.iter().map(|(k, v)| (k.as_ref(), v.as_ref())))
         .output()?;
     if !output.status.success() {
         bail!(

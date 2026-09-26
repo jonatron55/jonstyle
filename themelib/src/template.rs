@@ -86,9 +86,12 @@ pub struct Template {
     source: String,
 }
 
+const END_LOOP: &'static str = "{{/each}}";
+
 lazy_static! {
     static ref TEMPLATE_REGEX: Regex =
         Regex::new(r"\{\{([\$A-Za-z0-9\-_]+)(?:\.([A-Za-z]+))?(?:/([A-Za-z]+))?(?::([A-Za-z]+))?\}\}").unwrap();
+    static ref LOOP_REGEX: Regex = Regex::new(r"\{\{#each(\s+[A-Za-z0-9\-_]+)\}\}").unwrap();
     static ref PREPS: HashSet<&'static str> = {
         let mut set = HashSet::new();
         set.insert("a");
