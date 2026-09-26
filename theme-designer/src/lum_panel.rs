@@ -1,45 +1,75 @@
-use leptos::prelude::*;
-
 use crate::{
     lum_plot::LumPlot,
     slider::{RangeSlider, ValueSlider},
 };
+use leptos::prelude::*;
+use themelib::theme::ThemeBuilder;
 
 #[component]
-pub fn LumPanel(
-    lum_range: RwSignal<(f64, f64), LocalStorage>,
-    lum_power: RwSignal<f64, LocalStorage>,
-    lum_gamma: RwSignal<f64, LocalStorage>,
-) -> impl IntoView {
+pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
+    let lum_range = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.lum_range)
+    });
+    let lum_power = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.lum_power)
+    });
+    let lum_gamma = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.lum_gamma)
+    });
+
     view! {
         <div class="panel">
             <h1 class="caption">"Luminance"</h1>
-            <div class="split-3">
+            <div class="split-2">
                 <div>
                     <RangeSlider
+                        label="Range"
                         id="lum-range"
                         min=0.0
                         max=100.0
                         step=1.0
                         value=lum_range
-                        label="Range"
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder.update(|b| b.lum_range = new_value);
+                            }
+                        })
                     />
+
                     <ValueSlider
+                        label="Power"
                         id="lum-power"
                         min=0.33
                         max=3.0
                         step=0.01
                         value=lum_power
-                        label="Power"
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder.update(|b| b.lum_power = new_value);
+                            }
+                        })
                     />
+
                     <ValueSlider
+                        label="Gamma"
                         id="lum-gamma"
                         min=0.5
                         max=2.0
                         step=0.01
                         value=lum_gamma
-                        label="Gamma"
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder.update(|b| b.lum_gamma = new_value);
+                            }
+                        })
                     />
+
                 </div>
                 <LumPlot lum_range=lum_range lum_power=lum_power lum_gamma=lum_gamma />
             </div>

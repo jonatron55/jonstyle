@@ -1,7 +1,5 @@
 use std::{
-    fmt::{Display, Formatter, LowerExp, LowerHex, Result as FmtResult, UpperExp, UpperHex},
-    io::{self, Error as IoError},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    fmt::{Display, Formatter, LowerExp, LowerHex, Result as FmtResult, UpperExp, UpperHex}, io::{self, Error as IoError}, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Not, Sub, SubAssign, },
 };
 
 use super::*;
@@ -224,15 +222,15 @@ impl LowerHex for Rgb {
 }
 
 impl Add<Rgb> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn add(self, rhs: Rgb) -> Rgb {
-        Rgb::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
+    fn add(self, rhs: Self) -> Self {
+        rgb(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
     }
 }
 
 impl AddAssign<Rgb> for Rgb {
-    fn add_assign(&mut self, rhs: Rgb) {
+    fn add_assign(&mut self, rhs: Self) {
         self.r += rhs.r;
         self.g += rhs.g;
         self.b += rhs.b;
@@ -240,10 +238,10 @@ impl AddAssign<Rgb> for Rgb {
 }
 
 impl Sub<Rgb> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn sub(self, rhs: Rgb) -> Rgb {
-        Rgb::new(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
+    fn sub(self, rhs: Self) -> Self {
+        rgb(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
     }
 }
 
@@ -256,10 +254,10 @@ impl SubAssign<Rgb> for Rgb {
 }
 
 impl Mul<f64> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn mul(self, rhs: f64) -> Rgb {
-        Rgb::new(self.r * rhs, self.g * rhs, self.b * rhs)
+    fn mul(self, rhs: f64) -> Self {
+        rgb(self.r * rhs, self.g * rhs, self.b * rhs)
     }
 }
 
@@ -272,15 +270,15 @@ impl MulAssign<f64> for Rgb {
 }
 
 impl Mul<Rgb> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn mul(self, rhs: Rgb) -> Rgb {
-        Rgb::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
+    fn mul(self, rhs: Self) -> Self {
+        rgb(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b)
     }
 }
 
 impl MulAssign<Rgb> for Rgb {
-    fn mul_assign(&mut self, rhs: Rgb) {
+    fn mul_assign(&mut self, rhs: Self) {
         self.r *= rhs.r;
         self.g *= rhs.g;
         self.b *= rhs.b;
@@ -288,10 +286,10 @@ impl MulAssign<Rgb> for Rgb {
 }
 
 impl Div<f64> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn div(self, rhs: f64) -> Rgb {
-        Rgb::new(self.r / rhs, self.g / rhs, self.b / rhs)
+    fn div(self, rhs: f64) -> Self {
+        rgb(self.r / rhs, self.g / rhs, self.b / rhs)
     }
 }
 
@@ -304,18 +302,26 @@ impl DivAssign<f64> for Rgb {
 }
 
 impl Div<Rgb> for Rgb {
-    type Output = Rgb;
+    type Output = Self;
 
-    fn div(self, rhs: Rgb) -> Rgb {
-        Rgb::new(self.r / rhs.r, self.g / rhs.g, self.b / rhs.b)
+    fn div(self, rhs: Self) -> Self {
+        rgb(self.r / rhs.r, self.g / rhs.g, self.b / rhs.b)
     }
 }
 
 impl DivAssign<Rgb> for Rgb {
-    fn div_assign(&mut self, rhs: Rgb) {
+    fn div_assign(&mut self, rhs: Self) {
         self.r /= rhs.r;
         self.g /= rhs.g;
         self.b /= rhs.b;
+    }
+}
+
+impl Not for Rgb {
+    type Output = Self;
+
+    fn not(self) -> Self {
+        Rgb::new(1.0 - self.r, 1.0 - self.g, 1.0 - self.b)
     }
 }
 
@@ -536,15 +542,15 @@ impl LowerHex for Rgba {
 }
 
 impl Add for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn add(self, rhs: Rgba) -> Rgba {
-        Rgba::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b, self.a + rhs.a)
+    fn add(self, rhs: Self) -> Self {
+        Self::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b, self.a + rhs.a)
     }
 }
 
 impl AddAssign for Rgba {
-    fn add_assign(&mut self, rhs: Rgba) {
+    fn add_assign(&mut self, rhs: Self) {
         self.r += rhs.r;
         self.g += rhs.g;
         self.b += rhs.b;
@@ -553,15 +559,15 @@ impl AddAssign for Rgba {
 }
 
 impl Sub for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn sub(self, rhs: Rgba) -> Rgba {
-        Rgba::new(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b, self.a - rhs.a)
+    fn sub(self, rhs: Self) -> Self {
+        Self::new(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b, self.a - rhs.a)
     }
 }
 
 impl SubAssign for Rgba {
-    fn sub_assign(&mut self, rhs: Rgba) {
+    fn sub_assign(&mut self, rhs: Self) {
         self.r -= rhs.r;
         self.g -= rhs.g;
         self.b -= rhs.b;
@@ -570,10 +576,10 @@ impl SubAssign for Rgba {
 }
 
 impl Mul<f64> for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn mul(self, rhs: f64) -> Rgba {
-        Rgba::new(self.r * rhs, self.g * rhs, self.b * rhs, self.a * rhs)
+    fn mul(self, rhs: f64) -> Self {
+        rgba(self.r * rhs, self.g * rhs, self.b * rhs, self.a * rhs)
     }
 }
 
@@ -587,10 +593,10 @@ impl MulAssign<f64> for Rgba {
 }
 
 impl Mul for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn mul(self, rhs: Rgba) -> Rgba {
-        Rgba::new(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b, self.a * rhs.a)
+    fn mul(self, rhs: Self) -> Self {
+        rgba(self.r * rhs.r, self.g * rhs.g, self.b * rhs.b, self.a * rhs.a)
     }
 }
 
@@ -604,10 +610,10 @@ impl MulAssign for Rgba {
 }
 
 impl Div<f64> for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn div(self, rhs: f64) -> Rgba {
-        Rgba::new(self.r / rhs, self.g / rhs, self.b / rhs, self.a / rhs)
+    fn div(self, rhs: f64) -> Self {
+        rgba(self.r / rhs, self.g / rhs, self.b / rhs, self.a / rhs)
     }
 }
 
@@ -621,19 +627,27 @@ impl DivAssign<f64> for Rgba {
 }
 
 impl Div for Rgba {
-    type Output = Rgba;
+    type Output = Self;
 
-    fn div(self, rhs: Rgba) -> Rgba {
-        Rgba::new(self.r / rhs.r, self.g / rhs.g, self.b / rhs.b, self.a / rhs.a)
+    fn div(self, rhs: Self) -> Self {
+        rgba(self.r / rhs.r, self.g / rhs.g, self.b / rhs.b, self.a / rhs.a)
     }
 }
 
 impl DivAssign for Rgba {
-    fn div_assign(&mut self, rhs: Rgba) {
+    fn div_assign(&mut self, rhs: Self) {
         self.r /= rhs.r;
         self.g /= rhs.g;
         self.b /= rhs.b;
         self.a /= rhs.a;
+    }
+}
+
+impl Not for Rgba {
+    type Output = Self;
+
+    fn not(self) -> Self {
+        rgba(1.0 - self.r, 1.0 - self.g, 1.0 - self.b, 1.0 - self.a)
     }
 }
 

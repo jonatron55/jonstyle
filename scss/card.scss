@@ -91,11 +91,21 @@ $tooltip-delay: 500ms;
 .tooltip>.caption {
   background-color: var(--chrome);
   color: var(--caption-foreground);
-  padding: var(--vertical-gap) var(--horizontal-gap);
   background-clip: border-box;
   margin-top: 0px;
   text-transform: uppercase;
   font-weight: bold;
+  text-align: left;
+  align-items: center;
+
+  &.toolbar {
+    padding: 0;
+  }
+
+  &:not(.toolbar) {
+    padding: var(--vertical-gap) var(--horizontal-gap);
+  }
+
 
   h1,
   h2,
@@ -103,6 +113,7 @@ $tooltip-delay: 500ms;
   h4,
   h5,
   h6 {
+    text-align: left;
     color: var(--caption-foreground);
     padding: 0;
     margin: 0;

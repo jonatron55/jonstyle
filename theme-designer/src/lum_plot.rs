@@ -6,9 +6,9 @@ const LUM_PLOT_SIZE_HALF: f64 = LUM_PLOT_SIZE / 2.0;
 
 #[component]
 pub fn LumPlot(
-    lum_range: RwSignal<(f64, f64), LocalStorage>,
-    lum_power: RwSignal<f64, LocalStorage>,
-    lum_gamma: RwSignal<f64, LocalStorage>,
+    lum_range: Signal<(f64, f64), LocalStorage>,
+    lum_power: Signal<f64, LocalStorage>,
+    lum_gamma: Signal<f64, LocalStorage>,
 ) -> impl IntoView {
     view! {
         <div style="margin: auto;">

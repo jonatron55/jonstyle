@@ -39,6 +39,10 @@ pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<
     }
 
     let mut w = File::create(&output)?;
+    write_pal(theme, &mut w)
+}
+
+pub fn write_pal(theme: &Theme, w: &mut impl Write) -> AnyResult<()> {
     let color_count = Indexer::iter_base().count();
     let filesize = 24 + 4 * color_count;
 

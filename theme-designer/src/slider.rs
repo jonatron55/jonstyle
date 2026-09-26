@@ -4,11 +4,11 @@ use leptos::prelude::*;
 pub fn ValueSlider(
     id: &'static str,
     label: &'static str,
-    value: RwSignal<f64, LocalStorage>,
+    value: Signal<f64, LocalStorage>,
     min: f64,
     max: f64,
     step: f64,
-    #[prop(optional)] on_change: Option<Callback<f64, ()>>,
+    on_change: Callback<f64, ()>,
 ) -> impl IntoView {
     view! {
         <div class="value-slider">
@@ -22,10 +22,7 @@ pub fn ValueSlider(
                 prop:value=value
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
-                    value.set(new_value);
-                    if let Some(callback) = &on_change {
-                        callback.run(new_value);
-                    }
+                    on_change.run(new_value);
                 }
             />
             <input
@@ -37,10 +34,7 @@ pub fn ValueSlider(
                 prop:value=value
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
-                    value.set(new_value);
-                    if let Some(callback) = &on_change {
-                        callback.run(new_value);
-                    }
+                    on_change.run(new_value);
                 }
             />
         </div>
@@ -51,10 +45,11 @@ pub fn ValueSlider(
 pub fn RangeSlider(
     id: &'static str,
     label: &'static str,
-    value: RwSignal<(f64, f64), LocalStorage>,
+    value: Signal<(f64, f64), LocalStorage>,
     min: f64,
     max: f64,
     step: f64,
+    on_change: Callback<(f64, f64), ()>,
 ) -> impl IntoView {
     view! {
         <div class="range-slider">
@@ -73,7 +68,7 @@ pub fn RangeSlider(
                         .parse::<f64>()
                         .unwrap()
                         .min(value.get().1 - step);
-                    value.update(|v| v.0 = new_value);
+                    on_change.run((new_value, value.get().1));
                 }
             />
             <input
@@ -85,7 +80,7 @@ pub fn RangeSlider(
                 prop:value=move || value.get().0
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
-                    value.update(|v| v.0 = new_value);
+                    on_change.run((new_value, value.get().1));
                 }
             />
             <input
@@ -102,7 +97,7 @@ pub fn RangeSlider(
                         .parse::<f64>()
                         .unwrap()
                         .max(value.get().0 + step);
-                    value.update(|v| v.1 = new_value);
+                    on_change.run((value.get().0, new_value));
                 }
             />
             <input
@@ -114,7 +109,7 @@ pub fn RangeSlider(
                 prop:value=move || value.get().1
                 on:input:target=move |ev| {
                     let new_value = ev.target().value().parse::<f64>().unwrap();
-                    value.update(|v| v.1 = new_value);
+                    on_change.run((value.get().0, new_value));
                 }
             />
         </div>
