@@ -3,11 +3,11 @@ use themelib::color::okhsl;
 
 #[component]
 pub fn ColorWheel(
-    cool_start: RwSignal<f64, LocalStorage>,
-    cool_end: RwSignal<f64, LocalStorage>,
-    warm_start: RwSignal<f64, LocalStorage>,
-    warm_end: RwSignal<f64, LocalStorage>,
-    offset: RwSignal<f64, LocalStorage>,
+    cool_start: Signal<f64, LocalStorage>,
+    cool_end: Signal<f64, LocalStorage>,
+    warm_start: Signal<f64, LocalStorage>,
+    warm_end: Signal<f64, LocalStorage>,
+    offset: Signal<f64, LocalStorage>,
 ) -> impl IntoView {
     view! {
         <div>

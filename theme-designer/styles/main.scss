@@ -73,6 +73,23 @@ body {
   align-self: stretch;
 }
 
+.split-caption {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+
+  .primary {
+    grid-column: 1;
+  }
+
+  .title {
+    grid-column: 2;
+  }
+
+  .secondary {
+    grid-column: 3;
+  }
+}
+
 .swatch {
   width: 2rem;
   height: 2rem;

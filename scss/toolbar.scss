@@ -17,6 +17,9 @@ input[type="file"].button.toolbar+label {
   transform: scale(1);
   padding: var(--vertical-gap) var(--horizontal-gap);
   margin: 0;
+  display: inline-block;
+  align-content: center;
+  text-align: center;
 
   &:hover {
     background-color: var(--control-hover-background);

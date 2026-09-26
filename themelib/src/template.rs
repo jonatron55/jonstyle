@@ -452,9 +452,12 @@ pub fn write_color<W: Write>(
     Ok(())
 }
 
-pub fn fmt_string(name: &str, fmt: &str) -> String {
+pub fn fmt_string(name: impl AsRef<str>, fmt: impl AsRef<str>) -> String {
+    let name = name.as_ref();
+    let fmt = fmt.as_ref();
     let mut w = Vec::with_capacity(name.len());
     let mut errors = vec![];
+
     match write_string(&mut w, name, Some(fmt), &mut errors) {
         Ok(()) => String::from_utf8_lossy(&w).to_string(),
         Err(_) => errors.iter().map(|err| err.to_string()).join(" "),

@@ -28,7 +28,7 @@ pub fn PreviewContent() -> impl IntoView {
                         <td class="green">Green</td>
                         <td class="blue">Blue</td>
                         <td class="cyan">Cyan</td>
-                        <td class="purple">Purple</td>
+                        <td class="magenta">Magenta</td>
                         <td class="yellow">Yellow</td>
                     </tr>
                     <tr>
@@ -36,7 +36,7 @@ pub fn PreviewContent() -> impl IntoView {
                         <td class="green-background">Green</td>
                         <td class="blue-background">Blue</td>
                         <td class="cyan-background">Cyan</td>
-                        <td class="purple-background">Purple</td>
+                        <td class="magenta-background">Magenta</td>
                         <td class="yellow-background">Yellow</td>
                     </tr>
                 </tbody>

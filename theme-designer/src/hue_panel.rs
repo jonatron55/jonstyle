@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use themelib::theme::ThemeBuilder;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 
@@ -6,14 +7,29 @@ use crate::color_wheel::ColorWheel;
 use crate::slider::ValueSlider;
 
 #[component]
-pub fn HuePanel(
-    cool_start: RwSignal<f64, LocalStorage>,
-    cool_end: RwSignal<f64, LocalStorage>,
-    warm_start: RwSignal<f64, LocalStorage>,
-    warm_end: RwSignal<f64, LocalStorage>,
-    offset: RwSignal<f64, LocalStorage>,
-) -> impl IntoView {
+pub fn HuePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
     let (symmetric, set_symmetric) = signal_local(false);
+
+    let cool_start = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.cool_range.0)
+    });
+    let cool_end = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.cool_range.1)
+    });
+    let warm_start = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.warm_range.0)
+    });
+    let warm_end = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.warm_range.1)
+    });
+    let offset = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.offset)
+    });
 
     view! {
         <div class="panel">
@@ -21,59 +37,81 @@ pub fn HuePanel(
             <div class="split-2">
                 <div style="display: grid; grid-template-columns: 1fr auto">
                     <ValueSlider
+                        label="Offset"
                         id="offset"
                         min=-359.0
                         max=359.0
                         step=1.0
                         value=offset
-                        label="Offset"
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder.update(|b| b.offset = new_value);
+                            }
+                        })
                     />
                     <div></div>
                     <ValueSlider
+                        label="Cool Start"
                         id="cool-start"
                         min=-359.0
                         max=359.0
                         step=1.0
                         value=cool_start
-                        label="Cool Start"
-                        on_change=Callback::new(move |new_value| {
-                            if symmetric.get() {
-                                let (new_warm_start, new_warm_end) = symmetric_hue_range(
-                                    new_value,
-                                    cool_end.get(),
-                                    (cool_start.get() - cool_end.get()).signum(),
-                                );
-                                warm_start.set(new_warm_start);
-                                warm_end.set(new_warm_end);
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder
+                                    .update(|b| {
+                                        b.cool_range = (new_value, b.cool_range.1);
+                                        if symmetric.get() {
+                                            let (new_warm_start, new_warm_end) = symmetric_hue_range(
+                                                new_value,
+                                                b.cool_range.1,
+                                                (b.cool_range.0 - b.cool_range.1).signum(),
+                                            );
+                                            b.warm_range = (new_warm_start, new_warm_end);
+                                        }
+                                    })
                             }
                         })
                     />
 
                     <div style="display: flex; justify-content: center; align-items: center;">
-                        <button on:click=move |_| {
-                            let cool_start_val = cool_start.get();
-                            let cool_end_val = cool_end.get();
-                            cool_start.set(cool_end_val);
-                            cool_end.set(cool_start_val);
+                        <button on:click={
+                            let builder = builder.clone();
+                            move |_| {
+                                builder
+                                    .update(|b| {
+                                        let (cool_start, cool_end) = b.cool_range;
+                                        b.cool_range = (cool_end, cool_start);
+                                    });
+                            }
                         }>"Swap"</button>
                     </div>
 
                     <ValueSlider
+                        label="Cool End"
                         id="cool-end"
                         min=-359.0
                         max=359.0
                         step=1.0
                         value=cool_end
-                        label="Cool End"
-                        on_change=Callback::new(move |new_value| {
-                            if symmetric.get() {
-                                let (new_warm_start, new_warm_end) = symmetric_hue_range(
-                                    cool_start.get(),
-                                    new_value,
-                                    (cool_start.get() - cool_end.get()).signum(),
-                                );
-                                warm_start.set(new_warm_start);
-                                warm_end.set(new_warm_end);
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder
+                                    .update(|b| {
+                                        b.cool_range = (b.cool_range.0, new_value);
+                                        if symmetric.get() {
+                                            let (new_warm_start, new_warm_end) = symmetric_hue_range(
+                                                b.cool_range.0,
+                                                new_value,
+                                                (b.cool_range.0 - b.cool_range.1).signum(),
+                                            );
+                                            b.warm_range = (new_warm_start, new_warm_end);
+                                        }
+                                    })
                             }
                         })
                     />
@@ -83,50 +121,66 @@ pub fn HuePanel(
                     </div>
 
                     <ValueSlider
+                        label="Warm Start"
                         id="warm-start"
                         min=-359.0
                         max=359.0
                         step=1.0
                         value=warm_start
-                        label="Warm Start"
-                        on_change=Callback::new(move |new_value| {
-                            if symmetric.get() {
-                                let (new_cool_start, new_cool_end) = symmetric_hue_range(
-                                    new_value,
-                                    warm_end.get(),
-                                    (cool_start.get() - cool_end.get()).signum(),
-                                );
-                                cool_start.set(new_cool_start);
-                                cool_end.set(new_cool_end);
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder
+                                    .update(|b| {
+                                        b.warm_range = (new_value, b.warm_range.1);
+                                        if symmetric.get() {
+                                            let (new_cool_start, new_cool_end) = symmetric_hue_range(
+                                                new_value,
+                                                b.warm_range.1,
+                                                (b.cool_range.0 - b.cool_range.1).signum(),
+                                            );
+                                            b.cool_range = (new_cool_start, new_cool_end);
+                                        }
+                                    })
                             }
                         })
                     />
 
                     <div style="display: flex; justify-content: center; align-items: center;">
-                        <button on:click=move |_| {
-                            let warm_start_val = warm_start.get();
-                            let warm_end_val = warm_end.get();
-                            warm_start.set(warm_end_val);
-                            warm_end.set(warm_start_val);
+                        <button on:click={
+                            let builder = builder.clone();
+                            move |_| {
+                                builder
+                                    .update(|b| {
+                                        let (warm_start, warm_end) = b.warm_range;
+                                        b.warm_range = (warm_end, warm_start);
+                                    });
+                            }
                         }>"Swap"</button>
                     </div>
 
                     <ValueSlider
+                        label="Warm End"
                         id="warm-end"
                         min=-359.0
                         max=359.0
                         step=1.0
                         value=warm_end
-                        label="Warm End"
-                        on_change=Callback::new(move |new_value| {
-                            if symmetric.get() {
-                                let (new_cool_start, new_cool_end) = symmetric_hue_range(
-                                    warm_start.get(),
-                                    new_value,
-                                    (cool_start.get() - cool_end.get()).signum(),
-                                );
-                                cool_start.set(new_cool_start);
-                                cool_end.set(new_cool_end);
+                        on_change=Callback::new({
+                            let builder = builder.clone();
+                            move |new_value| {
+                                builder
+                                    .update(|b| {
+                                        b.warm_range = (b.warm_range.0, new_value);
+                                        if symmetric.get() {
+                                            let (new_cool_start, new_cool_end) = symmetric_hue_range(
+                                                b.warm_range.0,
+                                                new_value,
+                                                (b.cool_range.0 - b.cool_range.1).signum(),
+                                            );
+                                            b.cool_range = (new_cool_start, new_cool_end);
+                                        }
+                                    });
                             }
                         })
                     />

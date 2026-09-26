@@ -1,20 +1,16 @@
 [package]
-name = "theme-designer"
+name = "components"
 edition = "2024"
 authors.workspace = true
 version.workspace = true
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
 anyhow.workspace = true
-components = { path = "../components-rs" }
 js-sys.workspace = true
 leptos = { workspace = true, features = ["csr"] }
 leptos-use.workspace = true
-getrandom = { workspace = true, features = ["wasm_js"] }
-semver.workspace = true
+rand.workspace = true
 themelib = { path = "../themelib" }
-toml.workspace = true
 wasm-bindgen.workspace = true
 web-sys = { workspace = true, features = [
     "Blob",
@@ -28,4 +24,3 @@ web-sys = { workspace = true, features = [
     "CssStyleDeclaration",
     "Url",
 ] }
-glam.workspace = true
