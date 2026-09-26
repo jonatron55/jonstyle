@@ -2,8 +2,8 @@ use anyhow::{Error as AnyError, Result as AnyResult};
 use leptos::ev::Targeted;
 use leptos::prelude::*;
 use rand::RngExt;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 use web_sys::{Event, FileReader, HtmlInputElement, ProgressEvent};
 
 #[component]

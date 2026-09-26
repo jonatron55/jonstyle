@@ -1,5 +1,7 @@
 use std::{
-    fmt::{Display, Formatter, LowerExp, LowerHex, Result as FmtResult, UpperExp, UpperHex}, io::{self, Error as IoError}, ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Not, Sub, SubAssign, },
+    fmt::{Display, Formatter, LowerExp, LowerHex, Result as FmtResult, UpperExp, UpperHex},
+    io::{self, Error as IoError},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Not, Sub, SubAssign},
 };
 
 use super::*;
@@ -201,7 +203,9 @@ impl LowerExp for Rgb {
 
 impl UpperHex for Rgb {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 3 {
+        if let Some(width) = f.width()
+            && width == 3
+        {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:X}{g:X}{b:X}")
         } else {
@@ -212,7 +216,9 @@ impl UpperHex for Rgb {
 
 impl LowerHex for Rgb {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 3 {
+        if let Some(width) = f.width()
+            && width == 3
+        {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:x}{g:x}{b:x}")
         } else {
@@ -521,7 +527,9 @@ impl LowerExp for Rgba {
 
 impl UpperHex for Rgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 4 {
+        if let Some(width) = f.width()
+            && width == 4
+        {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:X}{g:X}{b:X}{a:X}")
         } else {
@@ -532,7 +540,9 @@ impl UpperHex for Rgba {
 
 impl LowerHex for Rgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 4 {
+        if let Some(width) = f.width()
+            && width == 4
+        {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:x}{g:x}{b:x}{a:x}")
         } else {

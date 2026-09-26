@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::color::{okhsl, okluv, srgb_u24, srgba_u8, OkHsl, OkLuv, SRgb, SRgba};
+use crate::color::{OkHsl, OkLuv, SRgb, SRgba, okhsl, okluv, srgb_u24, srgba_u8};
 
 trait ApproxEq {
     fn approx_eq(&self, other: &Self) -> bool;

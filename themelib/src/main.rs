@@ -1,6 +1,6 @@
 use std::{env, fs, path::PathBuf};
 
-use anyhow::{anyhow, bail, Result as AnyResult};
+use anyhow::{Result as AnyResult, anyhow, bail};
 use clap::{Parser, Subcommand};
 use themelib::{
     scripts::{self, pal::make_pal},
@@ -117,6 +117,13 @@ pub enum Command {
         #[arg(short, long)]
         variant: ThemeVariant,
     },
+
+    /// Add the given theme to Windows Terminal.
+    Wt {
+        /// Whether to overwrite existing entries in the Windows Terminal configuration.
+        #[arg(short, long)]
+        force: bool,
+    },
 }
 
 pub fn main() -> AnyResult<()> {
@@ -127,7 +134,7 @@ pub fn main() -> AnyResult<()> {
         Some("toml") | Some("ini") => toml::from_str::<ThemeBuilder>(&config)?.into_theme(),
         Some("json") => serde_json::from_str::<ThemeBuilder>(&config)?.into_theme(),
         Some(other) => {
-            return Err(anyhow!("Config file must be a '.toml' or '.json' file ('.{other}' provided)").into())
+            return Err(anyhow!("Config file must be a '.toml' or '.json' file ('.{other}' provided)").into());
         }
         None => return Err(anyhow!("Config file must be a '.toml' or '.json' file").into()),
     };
@@ -209,6 +216,9 @@ pub fn main() -> AnyResult<()> {
                 let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
             }
+        }
+        Command::Wt { force } => {
+            scripts::wt::make_wt_theme(&theme, force)?;
         }
     }
 
