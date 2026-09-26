@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, Primary, PrimaryMap, Theme, ThemeVariant, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
+    theme::{BasePalette, LUM_COUNT, Primary, PrimaryMap, SAT_COUNT, TEMP_COUNT, Theme, ThemeVariant},
 };
 
 /// A collection of parameters for generating a theme.

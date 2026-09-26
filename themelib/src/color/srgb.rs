@@ -202,7 +202,9 @@ impl LowerExp for SRgb {
 
 impl UpperHex for SRgb {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 3 {
+        if let Some(width) = f.width()
+            && width == 3
+        {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:X}{g:X}{b:X}")
         } else {
@@ -213,7 +215,9 @@ impl UpperHex for SRgb {
 
 impl LowerHex for SRgb {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 3 {
+        if let Some(width) = f.width()
+            && width == 3
+        {
             let [r, g, b] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:x}{g:x}{b:x}")
         } else {
@@ -400,7 +404,9 @@ impl LowerExp for SRgba {
 
 impl UpperHex for SRgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 4 {
+        if let Some(width) = f.width()
+            && width == 4
+        {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:X}{g:X}{b:X}{a:X}")
         } else {
@@ -411,7 +417,9 @@ impl UpperHex for SRgba {
 
 impl LowerHex for SRgba {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        if let Some(width) = f.width() && width == 4 {
+        if let Some(width) = f.width()
+            && width == 4
+        {
             let [r, g, b, a] = self.to_bytes().map(|by| by >> 4);
             write!(f, "{r:x}{g:x}{b:x}{a:x}")
         } else {

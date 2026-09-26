@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use themelib::theme::{lum_fn, LUM_COUNT};
+use themelib::theme::{LUM_COUNT, lum_fn};
 
 const LUM_PLOT_SIZE: f64 = 192.0;
 const LUM_PLOT_SIZE_HALF: f64 = LUM_PLOT_SIZE / 2.0;
