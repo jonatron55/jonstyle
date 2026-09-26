@@ -485,51 +485,51 @@ impl Theme {
                         1.0,
                     ),
                     "dark-red" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowMidground),
                         1.0,
                     ),
                     "bright-red" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HigherMidground),
                         1.0,
                     ),
                     "dark-green" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::LowMidground),
                         1.0,
                     ),
                     "bright-green" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HigherMidground),
                         1.0,
                     ),
                     "dark-yellow" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowMidground),
                         1.0,
                     ),
                     "bright-yellow" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HigherMidground),
                         1.0,
                     ),
                     "dark-blue" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowMidground),
                         1.0,
                     ),
                     "bright-blue" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HigherMidground),
                         1.0,
                     ),
                     "dark-magenta" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowMidground),
                         1.0,
                     ),
                     "bright-magenta" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HigherMidground),
                         1.0,
                     ),
                     "dark-cyan" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighBackground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::LowMidground),
                         1.0,
                     ),
                     "bright-cyan" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HighMidground),
+                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HigherMidground),
                         1.0,
                     ),
 

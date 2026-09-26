@@ -1,5 +1,5 @@
 use leptos::prelude::*;
-use themelib::theme::{LUM_COUNT, lum_fn};
+use themelib::theme::{lum_fn, LUM_COUNT};
 
 const LUM_PLOT_SIZE: f64 = 192.0;
 const LUM_PLOT_SIZE_HALF: f64 = LUM_PLOT_SIZE / 2.0;
@@ -7,7 +7,7 @@ const LUM_PLOT_SIZE_HALF: f64 = LUM_PLOT_SIZE / 2.0;
 #[component]
 pub fn LumPlot(
     lum_range: Signal<(f64, f64), LocalStorage>,
-    lum_power: Signal<f64, LocalStorage>,
+    lum_alpha: Signal<f64, LocalStorage>,
     lum_gamma: Signal<f64, LocalStorage>,
 ) -> impl IntoView {
     view! {
@@ -57,7 +57,7 @@ pub fn LumPlot(
                                         * (lum_fn(
                                             t,
                                             lum_range.get(),
-                                            lum_power.get(),
+                                            lum_alpha.get(),
                                             lum_gamma.get(),
                                         ));
                                 format!("{x} {y}")

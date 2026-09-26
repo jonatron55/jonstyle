@@ -157,7 +157,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#D8DDE2"
+        "foreground": "#{{primary-foreground.rgb:X}}"
       }
     },
     {
@@ -167,7 +167,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#3EB592"
+        "foreground": "#{{intense-green-higher-midground.rgb:X}}"
       }
     },
     {
@@ -177,7 +177,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#3EB592"
+        "foreground": "#{{intense-green-high-midground.rgb:X}}"
       }
     },
     {
@@ -199,7 +199,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#34AFC2"
+        "foreground": "#{{base-cyan-higher-midground.rgb:X}}"
       }
     },
     {
@@ -210,7 +210,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#58A2EC"
+        "foreground": "#{{intense-blue-higher-midground.rgb:X}}"
       }
     },
     {
@@ -225,7 +225,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#8CA0B5"
+        "foreground": "#{{muted-blue-higher-midground.rgb:X}}"
       }
     },
     {
@@ -246,7 +246,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#B39788"
+        "foreground": "#{{muted-color1-low-foreground.rgb:X}}"
       }
     },
     {
@@ -262,7 +262,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#CBDFF4"
+        "foreground": "#{{base-blue-foreground.rgb:X}}"
       }
     },
     {
@@ -274,7 +274,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#F06C86"
+        "foreground": "#{{intense-red-high-midground.rgb:X}}"
       }
     },
     {
@@ -284,7 +284,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#3EB592"
+        "foreground": "#{{intense-green-high-midground.rgb:X}}"
       }
     },
     {
@@ -294,7 +294,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#E47F41"
+        "foreground": "#{{intense-yellow-high-midground.rgb:X}}"
       }
     },
     {
@@ -305,7 +305,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#B8CACD"
+        "foreground": "#{{muted-cyan-low-foreground.rgb:X}}"
       }
     },
     {
@@ -320,7 +320,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#F06C86"
+        "foreground": "#{{intense-red-low-foreground.rgb:X}}"
       }
     },
     {
@@ -330,7 +330,7 @@
       ],
       "settings": {
         "fontStyle": "bold italic",
-        "foreground": "#DF7B8C"
+        "foreground": "#{{intense-red-higher-midground.rgb:X}}"
       }
     },
     {
@@ -348,7 +348,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#E2B5DD"
+        "foreground": "#{{base-magenta-low-foreground.rgb:X}}"
       }
     },
     {
@@ -362,7 +362,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#DD6AD5"
+        "foreground": "#{{intense-magenta-high-midground.rgb:X}}"
       }
     },
     {
@@ -373,7 +373,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#A9CAED"
+        "foreground": "#{{base-blue-low-foreground.rgb:X}}"
       }
     },
     {
@@ -392,7 +392,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#FBD3BD"
+        "foreground": "#{{base-yellow-foreground.rgb:X}}"
       }
     },
     {
@@ -406,7 +406,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#87DABD"
+        "foreground": "#{{base-green-low-foreground.rgb:X}}"
       }
     },
     {
@@ -417,7 +417,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#DD6AD5"
+        "foreground": "#{{base-magenta-low-foreground.rgb:X}}"
       }
     },
     {
@@ -428,7 +428,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#D6875A"
+        "foreground": "#{{base-yellow-low-foreground.rgb:X}}"
       }
     },
     {
@@ -441,7 +441,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#58A2EC"
+        "foreground": "#{{intense-blue-foreground.rgb:X}}"
       }
     },
     {
@@ -453,7 +453,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#58A2EC"
+        "foreground": "#{{intense-blue-low-foreground.rgb:X}}"
       }
     },
     {
@@ -464,7 +464,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#58A2EC"
+        "foreground": "#{{intense-blue-low-foreground.rgb:X}}"
       }
     }
   ]
