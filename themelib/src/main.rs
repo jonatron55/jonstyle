@@ -127,6 +127,7 @@ pub enum Command {
     },
 
     /// Add the given theme to Windows Terminal.
+    #[cfg(windows)]
     Wt {
         /// Whether to overwrite existing entries in the Windows Terminal configuration.
         #[arg(short, long)]
@@ -232,6 +233,7 @@ pub fn main() -> AnyResult<()> {
                 println!("{indexer}: #{color:X}");
             }
         }
+        #[cfg(windows)]
         Command::Wt { force } => {
             scripts::wt::make_wt_theme(&theme, force)?;
         }
