@@ -5,6 +5,7 @@ use serde_json::{Map as JsonMap, Value as JsonValue, json};
 
 use crate::theme::{Indexer,  Theme,  ThemeVariant};
 
+#[cfg(windows)]
 pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
     let local_app_data = PathBuf::from(env::var("LOCALAPPDATA")?);
     let settings_path = local_app_data

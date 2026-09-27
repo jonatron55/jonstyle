@@ -5,6 +5,7 @@ use std::{
     fmt::{Display, Formatter, Result as FmtResult},
     fs::File,
     io::{Read, Result as IoResult, Write},
+    iter,
     path::Path,
 };
 
@@ -86,12 +87,10 @@ pub struct Template {
     source: String,
 }
 
-const END_LOOP: &'static str = "{{/each}}";
-
 lazy_static! {
     static ref TEMPLATE_REGEX: Regex =
         Regex::new(r"\{\{([\$A-Za-z0-9\-_]+)(?:\.([A-Za-z]+))?(?:/([A-Za-z]+))?(?::([A-Za-z]+))?\}\}").unwrap();
-    static ref LOOP_REGEX: Regex = Regex::new(r"\{\{#each(\s+[A-Za-z0-9\-_]+)\}\}").unwrap();
+    static ref LOOP_REGEX: Regex = Regex::new(r"(?s)\{\{#each(\s+[A-Za-z0-9\-_]+)?\}\}(.*)\{\{\/each\}\}").unwrap();
     static ref PREPS: HashSet<&'static str> = {
         let mut set = HashSet::new();
         set.insert("a");
@@ -118,6 +117,8 @@ pub enum Error {
     BadFormat(String),
     BadColorSpace(String),
     BadSwizzle(String),
+    InvalidIterator(String),
+    InvalidContext(String),
 }
 
 impl Template {
@@ -143,11 +144,85 @@ impl Template {
         (String::from_utf8(output).unwrap(), errors)
     }
 
-    pub fn render<W: Write>(&self, context: &Theme, variant: ThemeVariant, writer: &mut W) -> IoResult<Vec<Error>> {
+    pub fn render(&self, context: &Theme, variant: ThemeVariant, writer: &mut impl Write) -> IoResult<Vec<Error>> {
         let Self { source } = self;
-
-        let mut last_index = 0;
         let mut errors = Vec::new();
+
+        Self::expand_loops(&source, context, variant, writer, &mut errors)?;
+
+        Ok(errors)
+    }
+
+    fn expand_loops(
+        source: impl AsRef<str>,
+        context: &Theme,
+        variant: ThemeVariant,
+        writer: &mut impl Write,
+        errors: &mut Vec<Error>,
+    ) -> IoResult<()> {
+        let mut last_index = 0;
+
+        for cap in LOOP_REGEX.captures_iter(source.as_ref()) {
+            let whole_match = cap.get(0).unwrap();
+
+            Self::render_inner(
+                &source.as_ref()[last_index..whole_match.start()],
+                context,
+                variant,
+                None,
+                None,
+                writer,
+                errors,
+            )?;
+
+            let iter: Box<dyn Iterator<Item = Indexer>> = match cap.get(1).map(|m| m.as_str().trim()) {
+                Some("base") => Box::new(Indexer::iter_base()),
+                Some("themed") => Box::new(Indexer::iter_themed(variant)),
+                Some("primary") => Box::new(Indexer::iter_primary()),
+                Some("themed-primary") => Box::new(Indexer::iter_themed_primary(variant)),
+                Some("semantic") => Box::new(Indexer::iter_semantic(variant)),
+                Some(other) if other.is_empty() => Box::new(Indexer::iter(variant)),
+                Some(other) => {
+                    write!(std::io::stderr(), "<<INVALID ITERATOR: '{other}'>>").unwrap();
+                    Box::new(iter::empty())
+                }
+                None => Box::new(Indexer::iter(variant)),
+            };
+
+            let inner_source = cap.get(2).unwrap().as_str();
+
+            for indexer in iter {
+                let key = format!("{indexer}");
+                let value = context.get(&indexer);
+                Self::render_inner(inner_source, context, variant, Some(&key), Some(&value), writer, errors)?;
+            }
+
+            last_index = whole_match.end();
+        }
+
+        Self::render_inner(
+            &source.as_ref()[last_index..],
+            context,
+            variant,
+            None,
+            None,
+            writer,
+            errors,
+        )?;
+        Ok(())
+    }
+
+    fn render_inner(
+        source: impl AsRef<str>,
+        context: &Theme,
+        variant: ThemeVariant,
+        key: Option<&str>,
+        value: Option<&OkHsla>,
+        writer: &mut impl Write,
+        errors: &mut Vec<Error>,
+    ) -> IoResult<()> {
+        let source = source.as_ref();
+        let mut last_index = 0;
 
         for cap in TEMPLATE_REGEX.captures_iter(&source) {
             writer.write_all(&source[last_index..cap.get(0).unwrap().start()].as_bytes())?;
@@ -167,33 +242,49 @@ impl Template {
                     writer.write_all(b"}}")?;
                 }
                 "name" => {
-                    write_string(writer, &context.name, fmt, &mut errors)?;
+                    write_string(writer, &context.name, fmt, errors)?;
                 }
                 "author" => {
                     if let Some(author) = &context.author {
-                        write_string(writer, author, fmt, &mut errors)?;
+                        write_string(writer, author, fmt, errors)?;
                     }
                 }
                 "description" => {
                     if let Some(description) = &context.description {
-                        write_string(writer, description, fmt, &mut errors)?;
+                        write_string(writer, description, fmt, errors)?;
                     }
                 }
                 "version" => {
-                    write_string(writer, &context.version.to_string(), fmt, &mut errors)?;
+                    write_string(writer, &context.version.to_string(), fmt, errors)?;
                 }
                 "variant" => {
-                    write_string(writer, &variant.to_string(), fmt, &mut errors)?;
+                    write_string(writer, &variant.to_string(), fmt, errors)?;
                 }
                 "mode" => {
-                    write_string(writer, &variant.mode.to_string(), fmt, &mut errors)?;
+                    write_string(writer, &variant.mode.to_string(), fmt, errors)?;
                 }
                 "temperature" => {
-                    write_string(writer, &variant.temperature.to_string(), fmt, &mut errors)?;
+                    write_string(writer, &variant.temperature.to_string(), fmt, errors)?;
+                }
+                "$key" => {
+                    if let Some(key) = key {
+                        write_string(writer, key, fmt, errors)?;
+                    } else {
+                        errors.push(Error::InvalidContext("$key".to_string()));
+                        write!(writer, "<<INVALID CONTEXT: '$key'>>")?;
+                    }
+                }
+                "$value" => {
+                    if let Some(value) = value {
+                        write_color(writer, value, swizzle, space, fmt, errors)?;
+                    } else {
+                        errors.push(Error::InvalidContext("$value".to_string()));
+                        write!(writer, "<<INVALID CONTEXT: '$value'>>")?;
+                    }
                 }
                 other => {
                     if let Ok(indexer) = Indexer::from_str_with_variant(other, variant) {
-                        write_color(writer, &context.get(&indexer), swizzle, space, fmt, &mut errors)?
+                        write_color(writer, &context.get(&indexer), swizzle, space, fmt, errors)?
                     } else {
                         errors.push(Error::NotFound(other.to_string()));
                         write!(writer, "<<NOT FOUND: '{other}'>>")?;
@@ -206,11 +297,11 @@ impl Template {
 
         writer.write_all(&source[last_index..].as_bytes())?;
 
-        Ok(errors)
+        Ok(())
     }
 }
 
-pub fn write_string<W: Write>(writer: &mut W, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
+pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
     let mut parts = name.split(|c| c == '-' || c == '_' || c == ' ').map(|part| part.to_lowercase());
 
     let capitalize = |s: String| {
@@ -521,6 +612,8 @@ impl Display for Error {
             Error::BadFormat(s) => write!(f, "Bad format: '{s}'"),
             Error::BadColorSpace(s) => write!(f, "Bad color space: '{s}'"),
             Error::BadSwizzle(s) => write!(f, "Bad swizzle: '{s}'"),
+            Error::InvalidIterator(s) => write!(f, "Invalid iterator: '{s}'"),
+            Error::InvalidContext(s) => write!(f, "Invalid context: '{s}'"),
         }
     }
 }
