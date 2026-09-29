@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use crate::{
@@ -16,14 +16,14 @@ use crate::{
 pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<()> {
     let output = if let Some(root) = output {
         if root.is_dir() {
-            let mut path = root.join(fmt_string(&theme.name, "k"));
+            let mut path = root.join(fmt_string(&theme.meta.name, "k"));
             path.add_extension("pal");
             Cow::Owned(path)
         } else {
             Cow::Borrowed(root)
         }
     } else {
-        let mut path = PathBuf::from(fmt_string(&theme.name, "k"));
+        let mut path = PathBuf::from(fmt_string(&theme.meta.name, "k"));
         path.add_extension("pal");
         Cow::Owned(path)
     };

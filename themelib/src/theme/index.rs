@@ -4,8 +4,9 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{Error as AnyError, anyhow};
+use anyhow::{anyhow, Error as AnyError};
 use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
 
 use crate::theme::{Primary, ThemeMode, ThemeTemperature, ThemeVariant};
 
@@ -94,6 +95,23 @@ pub enum Level {
     HighBackground = 2,
     Background = 1,
     LowBackground = 0,
+}
+
+#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+pub struct CodeStyle {
+    pub vocab: ColorVocabulary,
+    pub bold_keywords: bool,
+    pub bold_punctuation: bool,
+    pub italic_comments: bool,
+    pub italic_strings: bool,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ColorVocabulary {
+    #[default]
+    VisualStudio,
+    Monokai,
+    Vim,
 }
 
 lazy_static! {

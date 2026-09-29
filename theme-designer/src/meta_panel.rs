@@ -6,19 +6,19 @@ use themelib::theme::ThemeBuilder;
 pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
     let name = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.name.clone())
+        move || builder.with(|b| b.meta.name.clone())
     });
     let author = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.author.clone().unwrap_or_default())
+        move || builder.with(|b| b.meta.author.clone().unwrap_or_default())
     });
     let description = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.description.clone().unwrap_or_default())
+        move || builder.with(|b| b.meta.description.clone().unwrap_or_default())
     });
     let version = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.version.clone().to_string())
+        move || builder.with(|b| b.meta.version.clone().to_string())
     });
 
     view! {
@@ -31,7 +31,7 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     type="text"
                     prop:value=name
                     on:input:target=move |ev| {
-                        builder.update(|b| b.name = ev.target().value());
+                        builder.update(|b| b.meta.name = ev.target().value());
                     }
                     placeholder="Theme name"
                 />
@@ -41,7 +41,7 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     type="text"
                     prop:value=author
                     on:input:target=move |ev| {
-                        builder.update(|b| b.author = Some(ev.target().value()));
+                        builder.update(|b| b.meta.author = Some(ev.target().value()));
                     }
                     placeholder="Theme author"
                 />
@@ -51,7 +51,7 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     type="text"
                     prop:value=description
                     on:input:target=move |ev| {
-                        builder.update(|b| b.description = Some(ev.target().value()));
+                        builder.update(|b| b.meta.description = Some(ev.target().value()));
                     }
                     placeholder="Theme description"
                 />
@@ -63,7 +63,7 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     on:input:target=move |ev| {
                         builder
                             .update(|b| {
-                                b.version = ev
+                                b.meta.version = ev
                                     .target()
                                     .value()
                                     .parse()

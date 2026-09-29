@@ -10,12 +10,13 @@ pub fn ValueSlider(
     step: f64,
     on_change: Callback<f64, ()>,
 ) -> impl IntoView {
+    let num_id = format!("{id}-num");
     view! {
         <div class="value-slider">
             <label for=id>{label}</label>
             <input
                 type="range"
-                id
+                id=id
                 min=min
                 max=max
                 step=step
@@ -27,7 +28,7 @@ pub fn ValueSlider(
             />
             <input
                 type="number"
-                id
+                id=num_id
                 min=min
                 max=max
                 step=step
@@ -51,12 +52,17 @@ pub fn RangeSlider(
     step: f64,
     on_change: Callback<(f64, f64), ()>,
 ) -> impl IntoView {
+    let min_id = format!("{id}-min");
+    let max_id = format!("{id}-max");
+    let min_num_id = format!("{id}-min-num");
+    let max_num_id = format!("{id}-max-num");
+
     view! {
         <div class="range-slider">
             <label for=id>{label}</label>
             <input
                 type="range"
-                id
+                id=min_id
                 min=min
                 max=max
                 step=step
@@ -73,7 +79,7 @@ pub fn RangeSlider(
             />
             <input
                 type="number"
-                id
+                id=min_num_id
                 min=min
                 max=move || value.get().1 - step
                 step=step
@@ -85,7 +91,7 @@ pub fn RangeSlider(
             />
             <input
                 type="range"
-                id
+                id=max_id
                 min=min
                 max=max
                 step=step
@@ -102,7 +108,7 @@ pub fn RangeSlider(
             />
             <input
                 type="number"
-                id
+                id=max_num_id
                 min=move || value.get().0 + step
                 max=max
                 step=step

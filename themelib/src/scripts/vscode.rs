@@ -69,12 +69,13 @@ pub fn make_vscode_theme(
         None
     };
 
-    let description = theme.description.as_ref().map_or_else(
-        || Cow::Owned(format!("{} theme collection for Visual Studio Code.", theme.name)),
+    let description = theme.meta.description.as_ref().map_or_else(
+        || Cow::Owned(format!("{} theme collection for Visual Studio Code.", theme.meta.name)),
         |desc| Cow::Borrowed(desc),
     );
 
     let package_name = theme
+        .meta
         .name
         .chars()
         .filter_map(|ch| {
@@ -89,6 +90,7 @@ pub fn make_vscode_theme(
         .collect::<String>();
 
     let publisher_name = theme
+        .meta
         .author
         .as_ref()
         .map(|s| {
@@ -109,7 +111,7 @@ pub fn make_vscode_theme(
         let readme = File::create(output_root.join("README.md"))?;
         let mut readme = BufWriter::new(readme);
 
-        writeln!(readme, "# {} Themes #", theme.name)?;
+        writeln!(readme, "# {} Themes #", theme.meta.name)?;
         writeln!(readme)?;
         writeln!(readme, "{description}")?;
         writeln!(readme)?;
@@ -121,7 +123,7 @@ pub fn make_vscode_theme(
 
         writeln!(changelog, "# Change Log #")?;
         writeln!(changelog)?;
-        writeln!(changelog, "Changes to {}.", theme.name)?;
+        writeln!(changelog, "Changes to {}.", theme.meta.name)?;
         writeln!(changelog)?;
         writeln!(changelog, "## [Unreleased] ##")?;
         writeln!(changelog)?;
@@ -141,9 +143,9 @@ pub fn make_vscode_theme(
 
         let json = json!({
             "name": package_name,
-            "displayName": theme.name,
+            "displayName": theme.meta.name,
             "description": description,
-            "version": theme.version.to_string(),
+            "version": theme.meta.version.to_string(),
             "publisher": publisher_name,
             "engines": {
                 "vscode": "^1.88.0"
@@ -152,9 +154,9 @@ pub fn make_vscode_theme(
             "license": license_id,
             "categories": ["Themes"],
             "contributes": {
-                "themes": theme.variants.iter().map(|variant| {
+                "themes": theme.meta.variants.iter().map(|variant| {
                     let variant_name = format!("{variant}").to_lowercase();
-                    let theme_name = format!("{} {}", theme.name, variant);
+                    let theme_name = format!("{} {}", theme.meta.name, variant);
                     let theme_file = format!("themes/{package_name}-{variant_name}-color-theme.json");
                     json!({
                         "label": theme_name,
@@ -173,7 +175,7 @@ pub fn make_vscode_theme(
 
     let template = Template::new(include_str!("../../../templates/vscode-theme.json"));
 
-    for variant in &theme.variants {
+    for variant in &theme.meta.variants {
         let variant_name = format!("{variant}").to_lowercase();
         let theme_file = output_root.join(format!("themes/{package_name}-{variant_name}-color-theme.json"));
 

@@ -9,15 +9,15 @@ use themelib::theme::ThemeBuilder;
 pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
     let lum_range = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.lum_range)
+        move || builder.with(|b| b.lum.range)
     });
     let lum_alpha = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.lum_alpha)
+        move || builder.with(|b| b.lum.alpha)
     });
     let lum_gamma = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.lum_gamma)
+        move || builder.with(|b| b.lum.gamma)
     });
 
     view! {
@@ -35,7 +35,7 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                         on_change=Callback::new({
                             let builder = builder.clone();
                             move |new_value| {
-                                builder.update(|b| b.lum_range = new_value);
+                                builder.update(|b| b.lum.range = new_value);
                             }
                         })
                     />
@@ -50,7 +50,7 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                         on_change=Callback::new({
                             let builder = builder.clone();
                             move |new_value| {
-                                builder.update(|b| b.lum_alpha = new_value);
+                                builder.update(|b| b.lum.alpha = new_value);
                             }
                         })
                     />
@@ -65,7 +65,7 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                         on_change=Callback::new({
                             let builder = builder.clone();
                             move |new_value| {
-                                builder.update(|b| b.lum_gamma = new_value);
+                                builder.update(|b| b.lum.gamma = new_value);
                             }
                         })
                     />

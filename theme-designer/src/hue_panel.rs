@@ -1,241 +1,556 @@
 use leptos::prelude::*;
-use themelib::theme::ThemeBuilder;
+use themelib::theme::{HueBuilder, ThemeBuilder};
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 
 use crate::color_wheel::ColorWheel;
 use crate::slider::ValueSlider;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PanelMode {
+    Analogous,
+    Complementary,
+    Triadic,
+    Custom,
+}
+
 #[component]
 pub fn HuePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
-    let (symmetric, set_symmetric) = signal_local(false);
+    let mode = Memo::new({
+        let builder = builder.clone();
+        move |_| {
+            builder.with(|b| match &b.hue {
+                HueBuilder::Analogous { .. } => PanelMode::Analogous,
+                HueBuilder::Complementary { .. } => PanelMode::Complementary,
+                HueBuilder::Triadic { .. } => PanelMode::Triadic,
+                HueBuilder::Custom { .. } => PanelMode::Custom,
+            })
+        }
+    });
 
-    let cool_start = Signal::derive_local({
+    let ctrls = {
         let builder = builder.clone();
-        move || builder.with(|b| b.cool_range.0)
+        move || match mode.get() {
+            PanelMode::Analogous => view! { <AnalogousControls builder=builder.clone() /> }.into_any(),
+            PanelMode::Complementary => view! { <ComplementaryControls builder=builder.clone() /> }.into_any(),
+            PanelMode::Triadic => view! { <TriadicControls builder=builder.clone() /> }.into_any(),
+            PanelMode::Custom => view! { <CustomControls builder=builder.clone() /> }.into_any(),
+        }
+    };
+
+    let hues = Signal::derive_local({
+        let builder = builder.clone();
+        move || builder.with(|b| b.hue.clone().build_hues())
     });
-    let cool_end = Signal::derive_local({
+
+    let primary_index = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.cool_range.1)
+        move || builder.with(|b| b.hue.clone().primary_index())
     });
-    let warm_start = Signal::derive_local({
+
+    let on_mode_selected = Callback::new({
         let builder = builder.clone();
-        move || builder.with(|b| b.warm_range.0)
-    });
-    let warm_end = Signal::derive_local({
-        let builder = builder.clone();
-        move || builder.with(|b| b.warm_range.1)
-    });
-    let offset = Signal::derive_local({
-        let builder = builder.clone();
-        move || builder.with(|b| b.offset)
+        move |selected: PanelMode| {
+            if mode.get_untracked() == selected {
+                return;
+            }
+
+            let hue = match selected {
+                PanelMode::Analogous => HueBuilder::default_analogous(),
+                PanelMode::Complementary => HueBuilder::default_complementary(),
+                PanelMode::Triadic => HueBuilder::default_triadic(),
+                PanelMode::Custom => HueBuilder::default_custom(),
+            };
+
+            builder.update(|b| b.hue = hue);
+        }
     });
 
     view! {
         <div class="panel">
-            <h1 class="caption">"Hues"</h1>
-            <div class="split-2">
-                <div style="display: grid; grid-template-columns: 1fr auto">
-                    <ValueSlider
-                        label="Offset"
-                        id="offset"
-                        min=-359.0
-                        max=359.0
-                        step=1.0
-                        value=offset
-                        on_change=Callback::new({
-                            let builder = builder.clone();
-                            move |new_value| {
-                                builder.update(|b| b.offset = new_value);
+            <div class="caption split-caption toolbar">
+                <h1 class="primary">"Hues"</h1>
+                <div>
+                    <input
+                        type="radio"
+                        class="toolbar button"
+                        name="hue-mode"
+                        value="analogous"
+                        id="analogous"
+                        prop:checked=move || mode.get() == PanelMode::Analogous
+                        on:change:target=move |ev| {
+                            if ev.target().checked() {
+                                on_mode_selected.run(PanelMode::Analogous);
                             }
-                        })
+                        }
                     />
-                    <div></div>
-                    <ValueSlider
-                        label="Cool Start"
-                        id="cool-start"
-                        min=-359.0
-                        max=359.0
-                        step=1.0
-                        value=cool_start
-                        on_change=Callback::new({
-                            let builder = builder.clone();
-                            move |new_value| {
-                                builder
-                                    .update(|b| {
-                                        b.cool_range = (new_value, b.cool_range.1);
-                                        if symmetric.get() {
-                                            let (new_warm_start, new_warm_end) = symmetric_hue_range(
-                                                new_value,
-                                                b.cool_range.1,
-                                                (b.cool_range.0 - b.cool_range.1).signum(),
-                                            );
-                                            b.warm_range = (new_warm_start, new_warm_end);
-                                        }
-                                    })
+                    <label for="analogous">"Analogous"</label>
+                    <input
+                        type="radio"
+                        class="toolbar button"
+                        name="hue-mode"
+                        value="complementary"
+                        id="complementary"
+                        prop:checked=move || mode.get() == PanelMode::Complementary
+                        on:change:target=move |ev| {
+                            if ev.target().checked() {
+                                on_mode_selected.run(PanelMode::Complementary);
                             }
-                        })
+                        }
                     />
-
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                        <button on:click={
-                            let builder = builder.clone();
-                            move |_| {
-                                builder
-                                    .update(|b| {
-                                        let (cool_start, cool_end) = b.cool_range;
-                                        b.cool_range = (cool_end, cool_start);
-                                    });
+                    <label for="complementary">"Complementary"</label>
+                    <input
+                        type="radio"
+                        class="toolbar button"
+                        name="hue-mode"
+                        value="triadic"
+                        id="triadic"
+                        prop:checked=move || mode.get() == PanelMode::Triadic
+                        on:change:target=move |ev| {
+                            if ev.target().checked() {
+                                on_mode_selected.run(PanelMode::Triadic);
                             }
-                        }>"Swap"</button>
-                    </div>
-
-                    <ValueSlider
-                        label="Cool End"
-                        id="cool-end"
-                        min=-359.0
-                        max=359.0
-                        step=1.0
-                        value=cool_end
-                        on_change=Callback::new({
-                            let builder = builder.clone();
-                            move |new_value| {
-                                builder
-                                    .update(|b| {
-                                        b.cool_range = (b.cool_range.0, new_value);
-                                        if symmetric.get() {
-                                            let (new_warm_start, new_warm_end) = symmetric_hue_range(
-                                                b.cool_range.0,
-                                                new_value,
-                                                (b.cool_range.0 - b.cool_range.1).signum(),
-                                            );
-                                            b.warm_range = (new_warm_start, new_warm_end);
-                                        }
-                                    })
-                            }
-                        })
+                        }
                     />
-
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                        {move || { format!("{}°", (cool_end.get() - cool_start.get())) }}
-                    </div>
-
-                    <ValueSlider
-                        label="Warm Start"
-                        id="warm-start"
-                        min=-359.0
-                        max=359.0
-                        step=1.0
-                        value=warm_start
-                        on_change=Callback::new({
-                            let builder = builder.clone();
-                            move |new_value| {
-                                builder
-                                    .update(|b| {
-                                        b.warm_range = (new_value, b.warm_range.1);
-                                        if symmetric.get() {
-                                            let (new_cool_start, new_cool_end) = symmetric_hue_range(
-                                                new_value,
-                                                b.warm_range.1,
-                                                (b.cool_range.0 - b.cool_range.1).signum(),
-                                            );
-                                            b.cool_range = (new_cool_start, new_cool_end);
-                                        }
-                                    })
+                    <label for="triadic">"Triadic"</label>
+                    <input
+                        type="radio"
+                        class="toolbar button"
+                        name="hue-mode"
+                        value="custom"
+                        id="custom"
+                        prop:checked=move || mode.get() == PanelMode::Custom
+                        on:change:target=move |ev| {
+                            if ev.target().checked() {
+                                on_mode_selected.run(PanelMode::Custom);
                             }
-                        })
+                        }
                     />
-
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                        <button on:click={
-                            let builder = builder.clone();
-                            move |_| {
-                                builder
-                                    .update(|b| {
-                                        let (warm_start, warm_end) = b.warm_range;
-                                        b.warm_range = (warm_end, warm_start);
-                                    });
-                            }
-                        }>"Swap"</button>
-                    </div>
-
-                    <ValueSlider
-                        label="Warm End"
-                        id="warm-end"
-                        min=-359.0
-                        max=359.0
-                        step=1.0
-                        value=warm_end
-                        on_change=Callback::new({
-                            let builder = builder.clone();
-                            move |new_value| {
-                                builder
-                                    .update(|b| {
-                                        b.warm_range = (b.warm_range.0, new_value);
-                                        if symmetric.get() {
-                                            let (new_cool_start, new_cool_end) = symmetric_hue_range(
-                                                b.warm_range.0,
-                                                new_value,
-                                                (b.cool_range.0 - b.cool_range.1).signum(),
-                                            );
-                                            b.cool_range = (new_cool_start, new_cool_end);
-                                        }
-                                    });
-                            }
-                        })
-                    />
-
-                    <div style="display: flex; justify-content: center; align-items: center;">
-                        {move || { format!("{}°", (warm_end.get() - warm_start.get())) }}
-                    </div>
-
-                    <div style="display: flex; justify-content: center; align-items: center; grid-column: span 2">
-                        <input
-                            type="checkbox"
-                            id="symmetric"
-                            class="toggle-switch"
-                            checked=symmetric
-                            on:change=move |ev| {
-                                let is_checked = ev
-                                    .target()
-                                    .unwrap()
-                                    .unchecked_into::<HtmlInputElement>()
-                                    .checked();
-                                set_symmetric.set(is_checked);
-                            }
-                        />
-                        <label for="symmetric">"Symmetric"</label>
-                    </div>
+                    <label for="custom">"Custom"</label>
                 </div>
-                <ColorWheel
-                    cool_start=cool_start
-                    cool_end=cool_end
-                    warm_start=warm_start
-                    warm_end=warm_end
-                    offset=offset
+            </div>
+            <div class="split-2">{ctrls} <ColorWheel hues primary_index /></div>
+        </div>
+    }
+}
+
+#[component]
+fn AnalogousControls(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
+    let primary = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Analogous { primary, .. } => *primary,
+            _ => 0.0,
+        }
+    });
+
+    let spread = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Analogous { spread, .. } => *spread,
+            _ => 0.0,
+        }
+    });
+
+    view! {
+        <div>
+            <ValueSlider
+                label="Primary"
+                id="primary"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=primary
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Analogous { primary, .. } = &mut b.hue {
+                                    *primary = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+
+            <ValueSlider
+                label="Spread"
+                id="spread"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=spread
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Analogous { spread, .. } = &mut b.hue {
+                                    *spread = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+        </div>
+    }
+}
+
+#[component]
+fn ComplementaryControls(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
+    let primary = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Complementary { primary, .. } => *primary,
+            _ => 0.0,
+        }
+    });
+
+    let spread = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Complementary { spread, .. } => *spread,
+            _ => 0.0,
+        }
+    });
+
+    let offset = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Complementary { offset, .. } => *offset,
+            _ => 0.0,
+        }
+    });
+
+    let reverse = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Complementary { reverse, .. } => *reverse,
+            _ => false,
+        }
+    });
+
+    view! {
+        <div>
+            <ValueSlider
+                label="Primary"
+                id="primary"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=primary
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Complementary { primary, .. } = &mut b.hue {
+                                    *primary = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+
+            <ValueSlider
+                label="Spread"
+                id="spread"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=spread
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Complementary { spread, .. } = &mut b.hue {
+                                    *spread = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+
+            <ValueSlider
+                label="Offset"
+                id="offset"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=offset
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Complementary { offset, .. } = &mut b.hue {
+                                    *offset = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+
+            <div style="display: flex; justify-content: center; align-items: center; grid-column: span 2">
+                <input
+                    type="checkbox"
+                    id="reverse"
+                    class="toggle-switch"
+                    checked=reverse
+                    on:change={
+                        let builder = builder.clone();
+                        move |ev| {
+                            let is_checked = ev
+                                .target()
+                                .unwrap()
+                                .unchecked_into::<HtmlInputElement>()
+                                .checked();
+                            builder
+                                .update(|b| {
+                                    if let HueBuilder::Complementary { reverse, .. } = &mut b.hue {
+                                        *reverse = is_checked;
+                                    }
+                                });
+                        }
+                    }
                 />
+                <label for="reverse">"Reverse"</label>
             </div>
         </div>
     }
 }
 
-fn symmetric_hue_range(start: f64, end: f64, symmetric_sign: f64) -> (f64, f64) {
-    let range = end - start;
-    let half_range = range / 2.0;
+#[component]
+fn TriadicControls(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
+    let primary = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Triadic { primary, .. } => *primary,
+            _ => 0.0,
+        }
+    });
 
-    let center = start + half_range + 180.0;
-    let sign = (start - end).signum();
+    let spread = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Triadic { spread, .. } => *spread,
+            _ => 0.0,
+        }
+    });
 
-    let sign = sign * symmetric_sign;
+    view! {
+        <div>
+            <ValueSlider
+                label="Primary"
+                id="primary"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=primary
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Triadic { primary, .. } = &mut b.hue {
+                                    *primary = new_value;
+                                }
+                            })
+                    }
+                })
+            />
 
-    let symmetric_start = center - half_range * sign;
-    let symmetric_end = center + half_range * sign;
+            <ValueSlider
+                label="Spread"
+                id="spread"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=spread
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Triadic { spread, .. } = &mut b.hue {
+                                    *spread = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+        </div>
+    }
+}
 
-    if symmetric_start > 360.0 || symmetric_end > 360.0 {
-        (symmetric_start - 360.0, symmetric_end - 360.0)
-    } else if symmetric_start < -360.0 || symmetric_end < -360.0 {
-        (symmetric_start + 360.0, symmetric_end + 360.0)
-    } else {
-        (symmetric_start, symmetric_end)
+#[component]
+fn CustomControls(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
+    let cold = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { cold, .. } => *cold,
+            _ => 0.0,
+        }
+    });
+
+    let cool = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { cool, .. } => *cool,
+            _ => 0.0,
+        }
+    });
+
+    let coolish = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { coolish, .. } => *coolish,
+            _ => 0.0,
+        }
+    });
+
+    let warmish = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { warmish, .. } => *warmish,
+            _ => 0.0,
+        }
+    });
+
+    let warm = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { warm, .. } => *warm,
+            _ => 0.0,
+        }
+    });
+
+    let hot = Signal::derive_local({
+        let builder = builder.clone();
+        move || match &builder.get().hue {
+            HueBuilder::Custom { hot, .. } => *hot,
+            _ => 0.0,
+        }
+    });
+
+    view! {
+        <div>
+            <ValueSlider
+                label="Cold"
+                id="cold"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=cold
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { cold, .. } = &mut b.hue {
+                                    *cold = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+            <ValueSlider
+                label="Cool"
+                id="cool"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=cool
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { cool, .. } = &mut b.hue {
+                                    *cool = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+            <ValueSlider
+                label="Coolish"
+                id="coolish"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=coolish
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { coolish, .. } = &mut b.hue {
+                                    *coolish = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+            <ValueSlider
+                label="Warmish"
+                id="warmish"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=warmish
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { warmish, .. } = &mut b.hue {
+                                    *warmish = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+            <ValueSlider
+                label="Warm"
+                id="warm"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=warm
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { warm, .. } = &mut b.hue {
+                                    *warm = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+            <ValueSlider
+                label="Hot"
+                id="hot"
+                min=-359.0
+                max=359.0
+                step=1.0
+                value=hot
+                on_change=Callback::new({
+                    let builder = builder.clone();
+                    move |new_value| {
+                        builder
+                            .update(|b| {
+                                if let HueBuilder::Custom { hot, .. } = &mut b.hue {
+                                    *hot = new_value;
+                                }
+                            })
+                    }
+                })
+            />
+        </div>
     }
 }

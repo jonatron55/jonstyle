@@ -5,7 +5,6 @@ use serde_json::{Map as JsonMap, Value as JsonValue, json};
 
 use crate::theme::{Indexer,  Theme,  ThemeVariant};
 
-#[cfg(windows)]
 pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
     let local_app_data = PathBuf::from(env::var("LOCALAPPDATA")?);
     let settings_path = local_app_data
@@ -27,8 +26,8 @@ pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
         bail!("Failed to parse 'schemes' as an array");
     };
 
-    for variant in &theme.variants {
-        let name = format!("{} {}", theme.name, variant.to_string());
+    for variant in &theme.meta.variants {
+        let name = format!("{} {}", theme.meta.name, variant.to_string());
         let existing = schemes.iter_mut().find_map(|value| {
             if let Some(object) = value.as_object_mut()
                 && object.get("name").and_then(|name| name.as_str()) == Some(&name)

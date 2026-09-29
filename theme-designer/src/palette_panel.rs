@@ -14,7 +14,7 @@ pub fn PalettePanel(
 ) -> impl IntoView {
     let name = Signal::derive_local({
         let theme = theme.clone();
-        move || theme.with(|theme| fmt_string(&theme.name, "k"))
+        move || theme.with(|theme| fmt_string(&theme.meta.name, "k"))
     });
 
     let export_pal = Callback::new({

@@ -7,15 +7,15 @@ use crate::slider::RangeSlider;
 pub fn SatPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView {
     let muted_range = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.muted_sat_range)
+        move || builder.with(|b| b.sat.muted_range)
     });
     let base_range = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.base_sat_range)
+        move || builder.with(|b| b.sat.base_range)
     });
     let intense_range = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.intense_sat_range)
+        move || builder.with(|b| b.sat.intense_range)
     });
 
     view! {
@@ -35,7 +35,7 @@ pub fn SatPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                             move |new_value| {
                                 builder
                                     .update(|b| {
-                                        b.muted_sat_range = new_value;
+                                        b.sat.muted_range = new_value;
                                     });
                             }
                         })
@@ -52,7 +52,7 @@ pub fn SatPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                             move |new_value| {
                                 builder
                                     .update(|b| {
-                                        b.base_sat_range = new_value;
+                                        b.sat.base_range = new_value;
                                     });
                             }
                         })
@@ -69,7 +69,7 @@ pub fn SatPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                             move |new_value| {
                                 builder
                                     .update(|b| {
-                                        b.intense_sat_range = new_value;
+                                        b.sat.intense_range = new_value;
                                     });
                             }
                         })

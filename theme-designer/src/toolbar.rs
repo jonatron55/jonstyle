@@ -37,7 +37,7 @@ pub fn Toolbar(
 
     let name = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|builder| fmt_string(&builder.name, "k"))
+        move || builder.with(|builder| fmt_string(&builder.meta.name, "k"))
     });
 
     view! {

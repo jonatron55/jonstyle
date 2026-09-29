@@ -1,13 +1,10 @@
 use leptos::prelude::*;
-use themelib::color::okhsl;
+use themelib::{color::okhsl, theme::TEMP_COUNT};
 
 #[component]
 pub fn ColorWheel(
-    cool_start: Signal<f64, LocalStorage>,
-    cool_end: Signal<f64, LocalStorage>,
-    warm_start: Signal<f64, LocalStorage>,
-    warm_end: Signal<f64, LocalStorage>,
-    offset: Signal<f64, LocalStorage>,
+    hues: Signal<[f64; TEMP_COUNT], LocalStorage>,
+    primary_index: Signal<usize, LocalStorage>,
 ) -> impl IntoView {
     view! {
         <div>
@@ -15,9 +12,7 @@ pub fn ColorWheel(
                 viewBox="-512 -512 1024 1024"
                 style="min-width: 192px; min-height: 192px; max-width: 512px; max-height: 512px;"
             >
-                <g transform=move || {
-                    format!("rotate({})", offset.get())
-                }>
+                <g>
                     {(0..360)
                         .map(|hue| {
                             let hue = hue as f64;
@@ -47,39 +42,38 @@ pub fn ColorWheel(
                 </g>
                 <g>
                     {move || {
-                        let cool_start = cool_start.get();
-                        let cool_end = cool_end.get();
-                        let warm_start = warm_start.get();
-                        let warm_end = warm_end.get();
-                        let markers = [
-                            cool_start,
-                            (cool_start + cool_end) * 0.5,
-                            cool_end,
-                            warm_start,
-                            (warm_start + warm_end) * 0.5,
-                            warm_end,
-                        ];
-                        {
-                            markers
-                                .into_iter()
-                                .map(|marker| {
-                                    view! {
-                                        <g
-                                            transform=move || { format!("rotate({})", -marker) }
-                                            class="marker-group"
-                                        >
-                                            <path class="marker-line" d="M 0 0 L -256 0" />
-                                            <path class="marker-line-inv" d="M -448 0 L-256 0" />
-                                            <path class="marker-line" d="M 0 0 L -256 0" />
-                                            <path class="marker" d="M -448 0 L -512 -24 L -512 24 Z" />
-                                        </g>
-                                    }
-                                })
-                                .collect::<Vec<_>>()
-                        }
+                        hues.get()
+                            .into_iter()
+                            .enumerate()
+                            .map(|(index, marker)| {
+                                view! {
+                                    <g
+                                        transform=move || { format!("rotate({})", -marker) }
+                                        class="marker-group"
+                                    >
+                                        <path class="marker-line" d="M 0 0 L -256 0" />
+                                        <path class="marker-line-inv" d="M -448 0 L-256 0" />
+                                        <path class="marker-line" d="M 0 0 L -256 0" />
+                                        {move || {
+                                            let is_primary = index == primary_index.get();
+                                            view! { <Marker is_primary /> }
+                                        }}
+                                    </g>
+                                }
+                            })
+                            .collect::<Vec<_>>()
                     }}
                 </g>
             </svg>
         </div>
+    }
+}
+
+#[component]
+pub fn Marker(is_primary: bool) -> impl IntoView {
+    if is_primary {
+        view! { <path class="marker" d="M -448 0 L -512 -24 L -512 24 Z" /> }.into_any()
+    } else {
+        view! { <path class="marker" d="M -448 6 L -448 -6 L -512 -6 L -512 6 Z" /> }.into_any()
     }
 }

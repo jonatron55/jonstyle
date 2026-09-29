@@ -10,6 +10,7 @@ use semver::Version;
 pub use builder::*;
 pub use index::*;
 pub use primary::*;
+use serde::{Deserialize, Serialize};
 pub use variant::*;
 
 use crate::color::{OkHsl, OkHsla};
@@ -21,8 +22,24 @@ const BACKGROUND_ALPHA: f64 = 2.0 / 3.0;
 const SHADOW_ALPHA: f64 = 2.0 / 3.0;
 
 pub struct Theme {
+    /// Theme metadata.
+    pub meta: Metadata,
+
+    /// The hue range in degrees for the theme's cool colors.
+    base_palette: BasePalette,
+
+    /// Mapping of primary colors to their associated temperatures.
+    primaries: PrimaryMap,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Metadata {
     /// The name of the theme.
     pub name: String,
+
+    /// The variants to include in the theme.
+    pub variants: Vec<ThemeVariant>,
 
     /// The author of the theme.
     pub author: Option<String>,
@@ -32,15 +49,6 @@ pub struct Theme {
 
     /// The version of the theme, following semantic versioning.
     pub version: Version,
-
-    /// The variants of the theme.
-    pub variants: Vec<ThemeVariant>,
-
-    /// The hue range in degrees for the theme's cool colors.
-    base_palette: BasePalette,
-
-    /// Mapping of primary colors to their associated temperatures.
-    primaries: PrimaryMap,
 }
 
 impl Theme {
@@ -540,6 +548,23 @@ impl Theme {
                 color.a = alpha;
                 color
             }
+        }
+    }
+}
+
+impl Default for Metadata {
+    fn default() -> Self {
+        Self {
+            name: "Untitled".to_string(),
+            author: None,
+            version: Version::new(0, 1, 0),
+            description: None,
+            variants: vec![
+                ThemeVariant::DAWN,
+                ThemeVariant::DUSK,
+                ThemeVariant::NOON,
+                ThemeVariant::NIGHT,
+            ],
         }
     }
 }

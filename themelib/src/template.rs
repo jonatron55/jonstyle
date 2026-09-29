@@ -242,20 +242,20 @@ impl Template {
                     writer.write_all(b"}}")?;
                 }
                 "name" => {
-                    write_string(writer, &context.name, fmt, errors)?;
+                    write_string(writer, &context.meta.name, fmt, errors)?;
                 }
                 "author" => {
-                    if let Some(author) = &context.author {
+                    if let Some(author) = &context.meta.author {
                         write_string(writer, author, fmt, errors)?;
                     }
                 }
                 "description" => {
-                    if let Some(description) = &context.description {
+                    if let Some(description) = &context.meta.description {
                         write_string(writer, description, fmt, errors)?;
                     }
                 }
                 "version" => {
-                    write_string(writer, &context.version.to_string(), fmt, errors)?;
+                    write_string(writer, &context.meta.version.to_string(), fmt, errors)?;
                 }
                 "variant" => {
                     write_string(writer, &variant.to_string(), fmt, errors)?;
