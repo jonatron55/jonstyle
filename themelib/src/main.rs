@@ -38,7 +38,7 @@ pub enum Command {
         ///
         /// If not provided, the generated files will be written to the current
         /// working directory.
-        #[arg(short, long)]
+        #[arg(short, long, alias = "out")]
         output: Option<PathBuf>,
 
         /// Whether to overwrite existing files at the output path.
@@ -59,7 +59,7 @@ pub enum Command {
     #[clap(alias = "vscode")]
     VsCode {
         /// Output path to write the generated VS Code theme extension to.
-        #[arg(short, long)]
+        #[arg(short, long, alias = "out")]
         output: PathBuf,
 
         /// Whether to overwrite existing files at the output path.
@@ -71,7 +71,7 @@ pub enum Command {
         ///
         /// This requires the 'vsce' command-line tool to be installed and
         /// available in the system PATH.
-        #[arg(short, long)]
+        #[arg(short, long, alias = "pack")]
         package: bool,
 
         /// Whether to install the generated theme extension to the local VS
@@ -100,7 +100,7 @@ pub enum Command {
     /// Generates a '.pal' (RIFF palette) file containing the theme's colors.
     Pal {
         /// Output path to write the generated .pal file to.
-        #[arg()]
+        #[arg(short, long, alias = "out")]
         output: Option<PathBuf>,
 
         /// Whether to overwrite existing files at the output path.
@@ -112,7 +112,7 @@ pub enum Command {
     /// colors.
     Ase {
         /// Output path to write the generated '.ase' file to.
-        #[arg()]
+        #[arg(short, long, alias = "out")]
         output: PathBuf,
 
         /// Whether to overwrite existing files at the output path.
@@ -122,7 +122,7 @@ pub enum Command {
 
     /// Lists all theme colors for the given variant.
     List {
-        #[arg(short, long)]
+        #[arg(short, long, alias = "var")]
         variant: ThemeVariant,
     },
 
