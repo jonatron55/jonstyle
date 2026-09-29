@@ -4,11 +4,9 @@ param(
     [string]$Source = ".\themes",
 
     [Parameter()]
-    [string]$Out = ".\scss\themes\",
-
-    [Parameter()]
     [switch]$Recurse
 )
+
 $Root = Split-Path -Path $PSScriptRoot -Parent
 Push-Location -Path $Root
 
@@ -22,7 +20,7 @@ try {
     }
 
     $themes | ForEach-Object {
-        .\target\release\mktheme.exe $_.FullName apply .\templates\theme-mixin.scss --force --output .\scss\themes
+        .\target\release\mktheme.exe $_.FullName wt --force
     }
 }
 finally {

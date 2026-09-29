@@ -199,7 +199,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{base-cyan-higher-midground.rgb:X}}"
+        "foreground": "#{{intense-cyan-higher-midground.rgb:X}}"
       }
     },
     {
@@ -362,7 +362,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{intense-magenta-high-midground.rgb:X}}"
+        "foreground": "#{{base-magenta-low-midground.rgb:X}}"
       }
     },
     {
@@ -417,7 +417,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{base-magenta-low-foreground.rgb:X}}"
+        "foreground": "#{{intense-magenta-higher-midground.rgb:X}}"
       }
     },
     {
