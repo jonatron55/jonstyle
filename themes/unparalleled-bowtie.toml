@@ -1,0 +1,28 @@
+[meta]
+name = "Unparalleled Bowtie"
+variants = ["Dawn", "Dusk", "Noon", "Night"]
+version = "0.1.0"
+
+[hue]
+mode = "Complementary"
+primary = 27.0
+spread = 45.0
+offset = 180.0
+reverse = false
+
+[lum]
+range = [5.0, 95.0]
+alpha = 1.0
+gamma = 1.0
+
+[sat]
+muted_range = [0.0, 20.0]
+base_range = [40.0, 60.0]
+intense_range = [80.0, 100.0]
+
+[code]
+vocab = "VisualStudio"
+bold_keywords = false
+bold_punctuation = false
+italic_comments = false
+italic_strings = false

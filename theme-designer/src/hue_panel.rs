@@ -40,7 +40,7 @@ pub fn HuePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
 
     let hues = Signal::derive_local({
         let builder = builder.clone();
-        move || builder.with(|b| b.hue.clone().build_hues())
+        move || builder.with(|b| b.hue.clone().build_hues().map(|h| h.to_degrees()))
     });
 
     let primary_index = Signal::derive_local({

@@ -22,7 +22,7 @@ try {
     }
 
     $themes | ForEach-Object {
-        .\target\release\mktheme.exe $_.FullName apply .\templates\theme-mixin.scss --force --output .\scss\themes
+        .\target\release\mktheme.exe apply $_.FullName .\templates\theme-mixin.scss --force --output .\scss\themes
     }
 }
 finally {

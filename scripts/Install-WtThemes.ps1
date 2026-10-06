@@ -20,7 +20,7 @@ try {
     }
 
     $themes | ForEach-Object {
-        .\target\release\mktheme.exe $_.FullName wt --force
+        .\target\release\mktheme.exe wt $_.FullName --force
     }
 }
 finally {

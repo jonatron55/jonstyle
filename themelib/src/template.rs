@@ -302,7 +302,7 @@ impl Template {
 }
 
 pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
-    let mut parts = name.split(|c| c == '-' || c == '_' || c == ' ').map(|part| part.to_lowercase());
+    let mut parts = name.split(&['-', '_', ' ']).map(|part| part.to_lowercase());
 
     let capitalize = |s: String| {
         let mut chars = s.chars();
@@ -332,7 +332,7 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
         }
         Some("s") => {
             // snake_case
-            for part in parts.map(|part| part.to_lowercase()).intersperse("_".to_string()) {
+            for part in parts.intersperse("_".to_string()) {
                 writer.write_all(part.as_bytes())?;
             }
         }
@@ -350,7 +350,7 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
         }
         Some("k") => {
             // kebab-case
-            for part in parts.map(|part| part.to_lowercase()).intersperse("-".to_string()) {
+            for part in parts.intersperse("-".to_string()) {
                 writer.write_all(part.as_bytes())?;
             }
         }
@@ -376,15 +376,19 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
             // Title Case
             if let Some(first) = parts.next() {
                 writer.write_all(capitalize(first).as_bytes())?;
+                writer.write_all(b" ")?;
             }
 
-            for part in parts.map(|part| {
-                if PREPS.contains(part.as_str()) {
-                    part.to_lowercase()
-                } else {
-                    capitalize(part)
-                }
-            }) {
+            for part in parts
+                .map(|part| {
+                    if PREPS.contains(part.as_str()) {
+                        part.to_lowercase()
+                    } else {
+                        capitalize(part)
+                    }
+                })
+                .intersperse(" ".to_string())
+            {
                 writer.write_all(part.as_bytes())?;
             }
         }
@@ -393,7 +397,8 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
             if let Some(first) = parts.next() {
                 writer.write_all(capitalize(first).as_bytes())?;
             }
-            for part in parts.map(|part| part.to_lowercase()) {
+
+            for part in parts.map(|part| part.to_lowercase()).intersperse(" ".to_string()) {
                 writer.write_all(part.as_bytes())?;
             }
         }

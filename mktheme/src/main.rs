@@ -1,16 +1,21 @@
 use std::{
     env, fs,
+    io::{stdout, Write},
     path::{Path, PathBuf},
 };
 
 use anyhow::{bail, Result as AnyResult};
 use clap::{Parser, Subcommand};
+use crossterm::{
+    queue,
+    style::{Color as TermColor, ContentStyle, Print, PrintStyledContent},
+};
 use semver::Version;
 use themelib::{
     sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
     template::{fmt_string, Template},
-    theme::{Indexer, Metadata, Theme, ThemeBuilder, ThemeVariant},
+    theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder, ThemeVariant},
 };
 
 /// Generates six-colour themes from a given configuration file and applies them
@@ -63,6 +68,7 @@ pub enum Command {
     ///
     /// This command extracts dominant hues from the given image file and
     /// generates a theme configuration based on the mode provided.
+    #[clap(alias = "from-img")]
     FromImage {
         /// Image file to extract colors from.
         #[arg()]
@@ -75,6 +81,12 @@ pub enum Command {
         /// Mode to use for generating the theme from the image.
         #[arg(short, long, value_enum, default_value_t = HueMode::Complementary)]
         mode: HueMode,
+
+        /// Spread argument for the hue mode, in degrees.
+        ///
+        /// Does not apply to the "custom" mode.
+        #[arg(short, long)]
+        spread: Option<f64>,
 
         /// Whether to overwrite existing files at the output path.
         #[arg(short, long)]
@@ -133,7 +145,7 @@ pub enum Command {
         install: bool,
 
         /// License text to include in the generated VS Code theme extension.
-        #[arg(short, long)]
+        #[arg(short, long, alias = "lic")]
         license: Option<PathBuf>,
 
         /// SPDX license identifier to include in the generated VS Code theme
@@ -141,12 +153,12 @@ pub enum Command {
         ///
         /// If not provided, the license ID will be automatically detected from
         /// the file provided by '--license' if 'osslili' is available.
-        #[arg(short = 'L', long)]
+        #[arg(short = 'L', long, alias = "spdx")]
         license_id: Option<String>,
 
         /// Repository URL to include in the generated VS Code theme extension's
         /// package.json file.
-        #[arg(short, long)]
+        #[arg(short, long, alias = "repo")]
         repository: Option<String>,
     },
 
@@ -273,6 +285,7 @@ pub fn main() -> AnyResult<()> {
             image,
             output,
             mode,
+            spread,
             force,
             name,
             author,
@@ -280,24 +293,38 @@ pub fn main() -> AnyResult<()> {
             version,
             json,
         } => {
-            println!("Analyzing {}", image.display());
-            let histogram = sampler::HueSampler::from_file(&image)?.histogram();
-            histogram.print()?;
-
-            let hue_builder = histogram.create_builder(mode);
-
             let mut meta = Metadata::default();
             if let Some(name) = name {
                 meta.name = name;
+            } else if let Some(stem) = image.file_stem().and_then(|s| s.to_str()) {
+                meta.name = fmt_string(stem, "T");
             }
+
             meta.author = author;
             meta.description = description;
             if let Some(version) = version {
                 meta.version = version;
             }
 
-            let output =
-                output.unwrap_or_else(|| PathBuf::from(fmt_string(&meta.name, "k")).with_added_extension("toml"));
+            let output = if let Some(output) = output {
+                if output.is_dir() {
+                    output.join(PathBuf::from(fmt_string(&meta.name, "k")).with_added_extension("toml"))
+                } else {
+                    output
+                }
+            } else {
+                PathBuf::from(fmt_string(&meta.name, "k")).with_added_extension("toml")
+            };
+
+            if output.exists() && !force {
+                bail!("{}: Already exists (use --force to overwrite)", output.display());
+            }
+
+            println!("Analyzing: {}", image.display());
+            let histogram = sampler::HueSampler::from_file(&image)?.histogram();
+            histogram.print()?;
+
+            let hue_builder = histogram.create_builder(mode, spread);
 
             let builder = ThemeBuilder {
                 hue: hue_builder,
@@ -305,15 +332,103 @@ pub fn main() -> AnyResult<()> {
                 ..Default::default()
             };
 
-            if output.exists() && !force {
-                bail!("{}: Already exists (use --force to overwrite)", output.display());
-            }
+            println!("Writing: {}", output.display());
 
             if json {
                 fs::write(output, serde_json::to_string(&builder)?)?;
             } else {
                 fs::write(output, toml::to_string(&builder)?)?;
             }
+
+            let theme = builder.into_theme();
+
+            let cold = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Cold, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+            let cool = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Cool, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+            let coolish = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Coolish, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+            let warmish = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Warmish, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+            let warm = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Warm, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+            let hot = theme
+                .get(&Indexer::Base(Sat::Intense, Temp::Hot, Lum::MediumHigh))
+                .to_srgba()
+                .to_bytes();
+
+            let cold = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: cold[0],
+                    g: cold[1],
+                    b: cold[2],
+                }),
+                ..Default::default()
+            };
+            let cool = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: cool[0],
+                    g: cool[1],
+                    b: cool[2],
+                }),
+                ..Default::default()
+            };
+            let coolish = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: coolish[0],
+                    g: coolish[1],
+                    b: coolish[2],
+                }),
+                ..Default::default()
+            };
+            let warmish = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: warmish[0],
+                    g: warmish[1],
+                    b: warmish[2],
+                }),
+                ..Default::default()
+            };
+            let warm = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: warm[0],
+                    g: warm[1],
+                    b: warm[2],
+                }),
+                ..Default::default()
+            };
+            let hot = ContentStyle {
+                foreground_color: Some(TermColor::Rgb {
+                    r: hot[0],
+                    g: hot[1],
+                    b: hot[2],
+                }),
+                ..Default::default()
+            };
+
+            queue!(
+                stdout(),
+                Print("Theme created with hues: "),
+                PrintStyledContent(cold.apply("███ ")),
+                PrintStyledContent(cool.apply("███ ")),
+                PrintStyledContent(coolish.apply("███ ")),
+                PrintStyledContent(warmish.apply("███ ")),
+                PrintStyledContent(warm.apply("███ ")),
+                PrintStyledContent(hot.apply("███ ")),
+                Print("\n"),
+            )?;
+
+            stdout().flush()?;
         }
 
         Command::VsCode {

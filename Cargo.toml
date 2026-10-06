@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["components-rs", "theme-designer", "themelib"]
+members = ["mktheme", "components-rs", "theme-designer", "themelib"]
 
 [workspace.package]
 authors = ["Jonathon Cobb"]

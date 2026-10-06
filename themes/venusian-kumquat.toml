@@ -1,0 +1,28 @@
+[meta]
+name = "Venusian Kumquat"
+variants = ["Noon", "Night"]
+version = "0.1.0"
+
+[hue]
+mode = "Complementary"
+primary = 253.0
+spread = 30.0
+offset = -206.0
+reverse = false
+
+[lum]
+range = [2.0, 98.0]
+alpha = 1.2
+gamma = 1.1
+
+[sat]
+muted_range = [15.0, 30.0]
+base_range = [60.0, 80.0]
+intense_range = [90.0, 100.0]
+
+[code]
+vocab = "VisualStudio"
+bold_keywords = false
+bold_punctuation = false
+italic_comments = false
+italic_strings = false

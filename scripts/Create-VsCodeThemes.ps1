@@ -24,7 +24,7 @@ try {
 
     $themes | ForEach-Object {
         $name = $_.BaseName
-        .\target\release\mktheme.exe $_.FullName vscode --pack --force --output "$Out\$name"
+        .\target\release\mktheme.exe vscode $_.FullName --pack --force --output "$Out\$name" --license .\License.txt --license-id "MIT" --repo https://github.com/jonatron55/jonstyle.git
     }
 }
 finally {

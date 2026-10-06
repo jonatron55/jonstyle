@@ -1,35 +1,40 @@
-use std::{borrow::Cow, f64::consts::PI, io::Result as IoResult};
+use std::borrow::Cow;
+#[cfg(not(target_arch = "wasm32"))]
+use std::{
+    f64::consts::PI,
+    io::{Result as IoResult, Write},
+};
 #[cfg(feature = "image")]
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Seek},
+    io::{stdout, BufRead, BufReader, Seek},
     path::Path,
 };
 
 #[cfg(feature = "image")]
 use anyhow::Result as AnyResult;
 use clap::ValueEnum;
+#[cfg(not(target_arch = "wasm32"))]
 use crossterm::{
     queue,
     style::{Color as TermColor, ContentStyle, Print, PrintStyledContent},
     terminal,
 };
-use glam::*;
+use glam::FloatExt;
 #[cfg(feature = "image")]
 use image::{DynamicImage, GenericImageView, ImageReader};
 use itertools::Itertools;
 
-#[cfg(feature = "image")]
-use crate::color::SRgba;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::color::{okhsl, SRgba};
 use crate::{
-    color::{okhsl, OkHsl, SRgb},
+    color::{OkHsl, SRgb},
     theme::HueBuilder,
 };
 
 #[derive(Clone, Debug)]
 pub struct Histogram {
     data: [f64; 360],
-    peak_sep: usize,
 }
 
 #[derive(Clone, Debug)]
@@ -145,11 +150,6 @@ impl<'a> HueSampler<'a> {
 }
 
 impl Histogram {
-    pub fn with_peak_sep(mut self, peak_sep: usize) -> Self {
-        self.peak_sep = peak_sep;
-        self
-    }
-
     fn normalize(&mut self) {
         let max = self.data.iter().cloned().fold(0.0, f64::max);
         if max > 0.0 {
@@ -176,7 +176,8 @@ impl Histogram {
 
         self.data = *current;
     }
-    pub fn create_builder(&self, hue_mode: HueMode) -> HueBuilder {
+
+    pub fn create_builder(&self, hue_mode: HueMode, spread: Option<f64>) -> HueBuilder {
         let hue_count = match hue_mode {
             HueMode::Analogous => 1,
             HueMode::Complementary => 2,
@@ -184,35 +185,44 @@ impl Histogram {
             HueMode::Custom => 6,
         };
 
-        let hues = self.find_peaks(hue_count);
+        let peak_sep = match hue_mode {
+            HueMode::Analogous => 0,
+            HueMode::Complementary => 90,
+            HueMode::Triadic => 0,
+            HueMode::Custom => 30,
+        };
+
+        let hues = self.find_peaks(hue_count, peak_sep);
 
         match hue_mode {
             HueMode::Analogous => HueBuilder::Analogous {
-                primary: hues[0],
-                spread: 45.0,
+                primary: hues[0].to_degrees(),
+                spread: spread.unwrap_or(60.0),
             },
             HueMode::Complementary => {
-                let offset = hues[1] - hues[0];
+                let offset = hues[1].to_degrees() - hues[0].to_degrees();
 
-                if offset.abs() > PI {
+                let spread = spread.unwrap_or(45.0);
+
+                if offset.abs() > spread.max(90.0) {
                     HueBuilder::Complementary {
-                        primary: hues[0],
-                        offset: (offset - PI).to_degrees(),
-                        spread: 30.0,
-                        reverse: true,
+                        primary: hues[0].to_degrees(),
+                        offset,
+                        spread,
+                        reverse: false,
                     }
                 } else {
                     HueBuilder::Complementary {
-                        primary: hues[0],
+                        primary: hues[0].to_degrees(),
                         offset: 180.0,
-                        spread: 30.0,
-                        reverse: true,
+                        spread,
+                        reverse: false,
                     }
                 }
             }
             HueMode::Triadic => HueBuilder::Triadic {
-                primary: hues[0],
-                spread: 20.0,
+                primary: hues[0].to_degrees(),
+                spread: spread.unwrap_or(30.0),
             },
             HueMode::Custom => {
                 let mut hues = hues
@@ -233,6 +243,7 @@ impl Histogram {
         }
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn print(&self) -> IoResult<()> {
         let (width, _) = terminal::size()?;
         let chunk_size = if width >= 122 {
@@ -245,14 +256,14 @@ impl Histogram {
 
         const HEIGHT: usize = 24;
         queue!(
-            std::io::stdout(),
+            stdout(),
             Print("┌"),
             Print("─".repeat(self.data.len() / chunk_size)),
             Print("┐\n")
         )?;
 
         for y in (0..HEIGHT).rev() {
-            queue!(std::io::stdout(), Print("│"))?;
+            queue!(stdout(), Print("│"))?;
             for (i, chunk) in self.data.iter().chunks(chunk_size).into_iter().enumerate() {
                 let value = chunk.sum::<f64>() / chunk_size as f64;
                 let whole = (value * (8 * HEIGHT) as f64) as usize / 8;
@@ -273,7 +284,7 @@ impl Histogram {
                 };
 
                 if whole > y {
-                    queue!(std::io::stdout(), PrintStyledContent(style.apply("█")))?;
+                    queue!(stdout(), PrintStyledContent(style.apply("█")))?;
                 } else if whole == y && remainder > 0 {
                     let partial_block = match remainder {
                         1 => "▁",
@@ -285,29 +296,31 @@ impl Histogram {
                         7 => "▇",
                         _ => "█",
                     };
-                    queue!(std::io::stdout(), PrintStyledContent(style.apply(partial_block)))?;
+                    queue!(stdout(), PrintStyledContent(style.apply(partial_block)))?;
                 } else {
-                    queue!(std::io::stdout(), PrintStyledContent(style.apply(" ")))?;
+                    queue!(stdout(), PrintStyledContent(style.apply(" ")))?;
                 }
             }
-            queue!(std::io::stdout(), Print("│\n"))?;
+            queue!(stdout(), Print("│\n"))?;
         }
 
         queue!(
-            std::io::stdout(),
+            stdout(),
             Print("└"),
             Print("─".repeat(self.data.len() / chunk_size)),
             Print("┘\n")
         )?;
 
+        stdout().flush()?;
+
         Ok(())
     }
 
-    fn find_peaks(&self, count: usize) -> Vec<f64> {
+    fn find_peaks(&self, count: usize, peak_sep: usize) -> Vec<f64> {
         if count == 0 {
             vec![]
         } else if count == 1 {
-            vec![self.find_peak() as f64]
+            vec![(self.find_peak() as f64).to_radians()]
         } else {
             let mut clone = self.clone();
             let mut peaks = Vec::with_capacity(count);
@@ -315,7 +328,7 @@ impl Histogram {
             for _ in 0..count {
                 let peak = clone.find_peak();
                 peaks.push((peak as f64).to_radians());
-                clone.remove_peak(peak);
+                clone.remove_peak(peak, peak_sep);
             }
             peaks
         }
@@ -334,10 +347,8 @@ impl Histogram {
         peak
     }
 
-    fn remove_peak(&mut self, peak: usize) {
-        let Self {
-            peak_sep, ref mut data, ..
-        } = *self;
+    fn remove_peak(&mut self, peak: usize, peak_sep: usize) {
+        let Self { ref mut data, .. } = *self;
 
         for i in 0..360 {
             let dist = usize::min((i + 360 - peak) % 360, (peak + 360 - i) % 360);
@@ -351,9 +362,6 @@ impl Histogram {
 
 impl Default for Histogram {
     fn default() -> Self {
-        Self {
-            data: [0.0; 360],
-            peak_sep: 25,
-        }
+        Self { data: [0.0; 360] }
     }
 }

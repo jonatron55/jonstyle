@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, CodeStyle, LUM_COUNT, Metadata, Primary, PrimaryMap, SAT_COUNT, Sat, TEMP_COUNT, Theme},
+    theme::{BasePalette, CodeStyle, Metadata, Primary, PrimaryMap, Sat, Theme, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
 };
 
 /// A collection of parameters for generating a theme.
@@ -152,7 +152,7 @@ impl ThemeBuilder {
         for sat in 0..SAT_COUNT {
             for temp in 0..TEMP_COUNT {
                 for lum in 0..LUM_COUNT {
-                    let h = hues[temp].to_radians().rem_euclid(TAU);
+                    let h = hues[temp];
                     let l = self.lum_fn(lums[lum]);
                     let s = self.sat.get(sat.into(), l);
 
@@ -222,23 +222,23 @@ impl HueBuilder {
     pub fn default_analogous() -> Self {
         Self::Analogous {
             primary: 0.0,
-            spread: 45.0,
+            spread: 60.0,
         }
     }
 
     pub fn default_complementary() -> Self {
         Self::Complementary {
             primary: 0.0,
-            spread: 30.0,
-            offset: 0.0,
-            reverse: true,
+            spread: 45.0,
+            offset: 180.0,
+            reverse: false,
         }
     }
 
     pub fn default_triadic() -> Self {
         Self::Triadic {
             primary: 0.0,
-            spread: 20.0,
+            spread: 30.0,
         }
     }
 
@@ -259,17 +259,17 @@ impl HueBuilder {
     }
 
     pub fn build_hues(&self) -> [f64; TEMP_COUNT] {
-        match self {
+        let mut hues = match self {
             Self::Analogous { primary, spread } => {
                 let increment = spread / (TEMP_COUNT / 2) as f64;
-                let color1 = (primary - 2.0 * increment) % 360.0;
-                let color2 = (primary - increment) % 360.0;
-                let color3 = (primary + increment) % 360.0;
-                let color4 = (primary + 2.0 * increment) % 360.0;
-                let color5 = (primary + 3.0 * increment) % 360.0;
+                let color1 = (primary + increment) % 360.0;
+                let color2 = (primary + 2.0 * increment) % 360.0;
+                let color3 = (primary + 3.0 * increment) % 360.0;
+                let color4 = (primary - increment) % 360.0;
+                let color5 = (primary - 2.0 * increment) % 360.0;
 
-                let mut hues = [color1, color2, *primary, color3, color4, color5];
-                if Self::temp(color1) < Self::temp(color5) {
+                let mut hues = [*primary, color1, color2, color3, color4, color5];
+                if Self::temp(*primary) < Self::temp(color5) {
                     hues.reverse();
                 }
 
@@ -282,17 +282,10 @@ impl HueBuilder {
                 offset,
                 reverse,
             } => {
-                let secondary = (primary + 180.0 + offset) % 360.0;
-
-                let (primary, secondary) = if Self::temp(*primary) > Self::temp(secondary) {
-                    (secondary, *primary)
-                } else {
-                    (*primary, secondary)
-                };
-
+                let secondary = (primary + offset) % 360.0;
                 let increment = spread / (TEMP_COUNT / 2) as f64;
 
-                let cold = primary;
+                let cold = *primary;
                 let cool = cold + increment;
                 let coolish = cool + increment;
 
@@ -302,7 +295,11 @@ impl HueBuilder {
 
                 let (hot, warmish) = if *reverse { (warmish, hot) } else { (hot, warmish) };
 
-                [cold, cool, coolish, warmish, warm, hot]
+                if Self::temp(cold) < Self::temp(hot) {
+                    [cold, cool, coolish, warmish, warm, hot]
+                } else {
+                    [hot, warm, warmish, coolish, cool, cold]
+                }
             }
 
             Self::Triadic { primary, spread } => {
@@ -338,13 +335,22 @@ impl HueBuilder {
                 *warm + *offset,
                 *hot + *offset,
             ],
+        };
+
+        for hue in &mut hues {
+            *hue = hue.to_radians().rem_euclid(TAU);
         }
+
+        hues
     }
 
     pub fn primary_index(&self) -> usize {
         match self {
             Self::Analogous { primary, .. } | Self::Complementary { primary, .. } | Self::Triadic { primary, .. } => {
-                self.build_hues().iter().position(|&h| h == *primary).unwrap_or(0)
+                self.build_hues()
+                    .iter()
+                    .position(|&h| h == primary.to_radians().rem_euclid(TAU))
+                    .unwrap_or(0)
             }
             _ => 0,
         }

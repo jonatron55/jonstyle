@@ -1,0 +1,26 @@
+[meta]
+name = "Inconceivable Gimbal"
+variants = ["Dawn", "Dusk"]
+version = "0.1.0"
+
+[hue]
+mode = "Analogous"
+primary = 46.0
+spread = 45.0
+
+[lum]
+range = [2.0, 98.0]
+alpha = 1.2
+gamma = 1.1
+
+[sat]
+muted_range = [15.0, 30.0]
+base_range = [60.0, 80.0]
+intense_range = [90.0, 100.0]
+
+[code]
+vocab = "VisualStudio"
+bold_keywords = false
+bold_punctuation = false
+italic_comments = false
+italic_strings = false
