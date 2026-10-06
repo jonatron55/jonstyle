@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, CodeStyle, Metadata, Primary, PrimaryMap, Sat, Theme, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
+    theme::{BasePalette, CodeStyle, LUM_COUNT, Metadata, Primary, PrimaryMap, SAT_COUNT, Sat, TEMP_COUNT, Theme},
 };
 
 /// A collection of parameters for generating a theme.
@@ -350,7 +350,7 @@ impl HueBuilder {
         }
     }
 
-    fn temp(hue: f64) -> f64 {
+    pub fn temp(hue: f64) -> f64 {
         let hue = hue % 360.0;
         if hue > 180.0 {
             (hue - 180.0) / 90.0 - 1.0

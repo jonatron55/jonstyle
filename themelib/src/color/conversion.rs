@@ -121,3 +121,31 @@ impl Into<SRgba> for OkHsla {
         self.to_luva().into()
     }
 }
+
+#[cfg(feature = "image")]
+impl From<image::Rgb<u8>> for SRgb {
+    fn from(pixel: image::Rgb<u8>) -> SRgb {
+        SRgb::from_bytes(&pixel.0)
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<image::Rgba<u8>> for SRgba {
+    fn from(pixel: image::Rgba<u8>) -> SRgba {
+        SRgba::from_bytes(&pixel.0)
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<image::Rgb<u8>> for Rgb {
+    fn from(pixel: image::Rgb<u8>) -> Rgb {
+        SRgb::from_bytes(&pixel.0).into()
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<image::Rgba<u8>> for Rgba {
+    fn from(pixel: image::Rgba<u8>) -> Rgba {
+        SRgba::from_bytes(&pixel.0).into()
+    }
+}

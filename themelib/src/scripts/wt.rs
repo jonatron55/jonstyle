@@ -3,7 +3,7 @@ use std::{env, fs, path::PathBuf};
 use anyhow::{Result as AnyResult, bail};
 use serde_json::{Map as JsonMap, Value as JsonValue, json};
 
-use crate::theme::{Indexer,  Theme,  ThemeVariant};
+use crate::theme::{Indexer, Theme, ThemeVariant};
 
 pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
     let local_app_data = PathBuf::from(env::var("LOCALAPPDATA")?);

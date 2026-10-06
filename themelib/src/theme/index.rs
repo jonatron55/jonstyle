@@ -4,7 +4,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{anyhow, Error as AnyError};
+use anyhow::{Error as AnyError, anyhow};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 

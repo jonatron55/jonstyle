@@ -1,23 +1,22 @@
-use std::{env, fs, path::PathBuf};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 
-use anyhow::{anyhow, bail, Result as AnyResult};
+use anyhow::{bail, Result as AnyResult};
 use clap::{Parser, Subcommand};
+use semver::Version;
 use themelib::{
+    sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
-    template::Template,
-    theme::{Indexer, ThemeBuilder, ThemeVariant},
+    template::{fmt_string, Template},
+    theme::{Indexer, Metadata, Theme, ThemeBuilder, ThemeVariant},
 };
 
 /// Generates six-colour themes from a given configuration file and applies them
 /// to a given template.
 #[derive(Parser)]
 struct Args {
-    /// Theme configuration file.
-    ///
-    /// This should be a TOML file containing a ThemeBuilder struct.
-    #[arg()]
-    config: PathBuf,
-
     #[command(subcommand)]
     command: Command,
 }
@@ -30,6 +29,12 @@ pub enum Command {
     /// applies them to a given template file, writing one file per variant to
     /// an output directory.
     Apply {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         /// Template file to apply the theme to.
         #[arg()]
         template: PathBuf,
@@ -54,10 +59,58 @@ pub enum Command {
         pattern: Option<String>,
     },
 
+    /// Generates a theme from a given image file.
+    ///
+    /// This command extracts dominant hues from the given image file and
+    /// generates a theme configuration based on the mode provided.
+    FromImage {
+        /// Image file to extract colors from.
+        #[arg()]
+        image: PathBuf,
+
+        /// Output path to write the generated theme configuration to.
+        #[arg(short, long, alias = "out")]
+        output: Option<PathBuf>,
+
+        /// Mode to use for generating the theme from the image.
+        #[arg(short, long, value_enum, default_value_t = HueMode::Complementary)]
+        mode: HueMode,
+
+        /// Whether to overwrite existing files at the output path.
+        #[arg(short, long)]
+        force: bool,
+
+        /// The name of the theme.
+        #[arg(short, long)]
+        name: Option<String>,
+
+        /// The author of the theme.
+        #[arg(short, long)]
+        author: Option<String>,
+
+        /// An optional description of the theme.
+        #[arg(short, long)]
+        description: Option<String>,
+
+        /// The version of the theme, following semantic versioning.
+        #[arg(short, long)]
+        version: Option<Version>,
+
+        /// Output in JSON instead of TOML.
+        #[arg(short, long)]
+        json: bool,
+    },
+
     /// Generates a Visual Studio Code theme extension from the given
     /// configuration.
     #[clap(alias = "vscode")]
     VsCode {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         /// Output path to write the generated VS Code theme extension to.
         #[arg(short, long, alias = "out")]
         output: PathBuf,
@@ -99,6 +152,12 @@ pub enum Command {
 
     /// Generates a '.pal' (RIFF palette) file containing the theme's colors.
     Pal {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         /// Output path to write the generated .pal file to.
         #[arg(short, long, alias = "out")]
         output: Option<PathBuf>,
@@ -111,6 +170,12 @@ pub enum Command {
     /// Generates an '.ase' (Adobe Swatch Exchange) file containing the theme's
     /// colors.
     Ase {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         /// Output path to write the generated '.ase' file to.
         #[arg(short, long, alias = "out")]
         output: PathBuf,
@@ -122,6 +187,12 @@ pub enum Command {
 
     /// Lists all theme colors for the given variant.
     List {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         #[arg(short, long, alias = "var")]
         variant: ThemeVariant,
     },
@@ -129,32 +200,40 @@ pub enum Command {
     /// Add the given theme to Windows Terminal.
     #[cfg(windows)]
     Wt {
+        /// Theme configuration file.
+        ///
+        /// This should be a TOML file containing a ThemeBuilder struct.
+        #[arg()]
+        config: PathBuf,
+
         /// Whether to overwrite existing entries in the Windows Terminal configuration.
         #[arg(short, long)]
         force: bool,
     },
 }
 
+fn load_config(path: &Path) -> AnyResult<Theme> {
+    let config = fs::read_to_string(&path)?;
+    match path.extension().and_then(|os_str| os_str.to_str()) {
+        Some("toml") | Some("ini") => Ok(toml::from_str::<ThemeBuilder>(&config)?.into_theme()),
+        Some("json") => Ok(serde_json::from_str::<ThemeBuilder>(&config)?.into_theme()),
+        Some(other) => bail!("Config file must be a '.toml' or '.json' file ('.{other}' provided)"),
+        None => bail!("Config file must be a '.toml' or '.json' file"),
+    }
+}
+
 pub fn main() -> AnyResult<()> {
     let args = Args::parse();
 
-    let config = fs::read_to_string(&args.config)?;
-    let theme = match args.config.extension().and_then(|os_str| os_str.to_str()) {
-        Some("toml") | Some("ini") => toml::from_str::<ThemeBuilder>(&config)?.into_theme(),
-        Some("json") => serde_json::from_str::<ThemeBuilder>(&config)?.into_theme(),
-        Some(other) => {
-            return Err(anyhow!("Config file must be a '.toml' or '.json' file ('.{other}' provided)").into());
-        }
-        None => return Err(anyhow!("Config file must be a '.toml' or '.json' file").into()),
-    };
-
     match args.command {
         Command::Apply {
+            config,
             template: template_file,
             output,
             force,
             pattern,
         } => {
+            let theme = load_config(&config)?;
             let template = Template::new(fs::read_to_string(&template_file)?);
             let pattern = pattern.unwrap_or_else(|| {
                 let extension = template_file.extension().and_then(|os_str| os_str.to_str()).unwrap_or("txt");
@@ -190,7 +269,55 @@ pub fn main() -> AnyResult<()> {
                 }
             }
         }
+        Command::FromImage {
+            image,
+            output,
+            mode,
+            force,
+            name,
+            author,
+            description,
+            version,
+            json,
+        } => {
+            println!("Analyzing {}", image.display());
+            let histogram = sampler::HueSampler::from_file(&image)?.histogram();
+            histogram.print()?;
+
+            let hue_builder = histogram.create_builder(mode);
+
+            let mut meta = Metadata::default();
+            if let Some(name) = name {
+                meta.name = name;
+            }
+            meta.author = author;
+            meta.description = description;
+            if let Some(version) = version {
+                meta.version = version;
+            }
+
+            let output =
+                output.unwrap_or_else(|| PathBuf::from(fmt_string(&meta.name, "k")).with_added_extension("toml"));
+
+            let builder = ThemeBuilder {
+                hue: hue_builder,
+                meta,
+                ..Default::default()
+            };
+
+            if output.exists() && !force {
+                bail!("{}: Already exists (use --force to overwrite)", output.display());
+            }
+
+            if json {
+                fs::write(output, serde_json::to_string(&builder)?)?;
+            } else {
+                fs::write(output, toml::to_string(&builder)?)?;
+            }
+        }
+
         Command::VsCode {
+            config,
             output,
             force,
             package,
@@ -206,7 +333,7 @@ pub fn main() -> AnyResult<()> {
             _ = fs::remove_dir_all(&output);
 
             scripts::vscode::make_vscode_theme(
-                &theme,
+                &load_config(&config)?,
                 license.as_deref(),
                 license_id.as_deref(),
                 repository.as_deref(),
@@ -221,20 +348,27 @@ pub fn main() -> AnyResult<()> {
                 scripts::vscode::install_vscode_theme(&output)?;
             }
         }
-        Command::Pal { output, force } => {
-            make_pal(&theme, output.as_deref(), force)?;
+        Command::Pal { config, output, force } => {
+            make_pal(&load_config(&config)?, output.as_deref(), force)?;
         }
-        Command::Ase { output: _, force: _ } => {
+        Command::Ase {
+            config,
+            output: _,
+            force: _,
+        } => {
+            let _ = load_config(&config)?;
             todo!()
         }
-        Command::List { variant } => {
+        Command::List { config, variant } => {
+            let theme = load_config(&config)?;
             for indexer in Indexer::iter(variant) {
                 let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
             }
         }
         #[cfg(windows)]
-        Command::Wt { force } => {
+        Command::Wt { config, force } => {
+            let theme = load_config(&config)?;
             scripts::wt::make_wt_theme(&theme, force)?;
         }
     }

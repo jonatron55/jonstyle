@@ -11,12 +11,23 @@ path = "src/lib.rs"
 [[bin]]
 name = "mktheme"
 path = "src/main.rs"
+required-features = ["image"]
+
+[features]
+default = []
+image = ["dep:image"]
 
 [dependencies]
 anyhow.workspace = true
 byteorder.workspace = true
 clap = { workspace = true, features = ["derive"] }
+crossterm.workspace = true
 glam.workspace = true
+image = { workspace = true, optional = true, features = [
+    "jpeg",
+    "png",
+    "webp",
+] }
 itertools.workspace = true
 lazy_static.workspace = true
 regex.workspace = true
