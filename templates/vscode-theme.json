@@ -167,7 +167,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#{{intense-green-higher-midground.rgb:X}}"
+        "foreground": "#{{comment.rgb:X}}"
       }
     },
     {
@@ -177,7 +177,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{intense-green-high-midground.rgb:X}}"
+        "foreground": "#{{comment-symbol.rgb:X}}"
       }
     },
     {
@@ -199,7 +199,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{intense-cyan-higher-midground.rgb:X}}"
+        "foreground": "#{{keyword.rgb:X}}"
       }
     },
     {
@@ -210,7 +210,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{intense-blue-higher-midground.rgb:X}}"
+        "foreground": "#{{control-keyword.rgb:X}}"
       }
     },
     {
@@ -225,7 +225,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{muted-blue-higher-midground.rgb:X}}"
+        "foreground": "#{{directive.rgb:X}}"
       }
     },
     {
@@ -246,7 +246,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{muted-color1-low-foreground.rgb:X}}"
+        "foreground": "#{{operator.rgb:X}}"
       }
     },
     {
@@ -262,7 +262,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{base-blue-foreground.rgb:X}}"
+        "foreground": "#{{variable.rgb:X}}"
       }
     },
     {
@@ -305,7 +305,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{muted-cyan-low-foreground.rgb:X}}"
+        "foreground": "#{{argument.rgb:X}}"
       }
     },
     {
@@ -320,7 +320,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{intense-red-low-foreground.rgb:X}}"
+        "foreground": "#{{literal.rgb:X}}"
       }
     },
     {
@@ -330,7 +330,7 @@
       ],
       "settings": {
         "fontStyle": "bold italic",
-        "foreground": "#{{intense-red-higher-midground.rgb:X}}"
+        "foreground": "#{{unit.rgb:X}}"
       }
     },
     {
@@ -348,7 +348,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#{{base-magenta-low-foreground.rgb:X}}"
+        "foreground": "#{{string.rgb:X}}"
       }
     },
     {
@@ -362,7 +362,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{base-magenta-low-midground.rgb:X}}"
+        "foreground": "#{{string-delimiter.rgb:X}}"
       }
     },
     {
@@ -373,7 +373,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{base-blue-low-foreground.rgb:X}}"
+        "foreground": "#{{escape.rgb:X}}"
       }
     },
     {
@@ -392,7 +392,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{base-yellow-foreground.rgb:X}}"
+        "foreground": "#{{function.rgb:X}}"
       }
     },
     {
@@ -406,7 +406,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{base-green-low-foreground.rgb:X}}"
+        "foreground": "#{{type.rgb:X}}"
       }
     },
     {
@@ -417,7 +417,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{intense-magenta-higher-midground.rgb:X}}"
+        "foreground": "#{{namespace.rgb:X}}"
       }
     },
     {
@@ -428,7 +428,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{base-yellow-low-foreground.rgb:X}}"
+        "foreground": "#{{macro.rgb:X}}"
       }
     },
     {
@@ -441,7 +441,7 @@
       ],
       "settings": {
         "fontStyle": "",
-        "foreground": "#{{intense-blue-foreground.rgb:X}}"
+        "foreground": "#{{link.rgb:X}}"
       }
     },
     {
@@ -453,7 +453,7 @@
       ],
       "settings": {
         "fontStyle": "bold",
-        "foreground": "#{{intense-blue-low-foreground.rgb:X}}"
+        "foreground": "#{{markup.rgb:X}}"
       }
     },
     {
@@ -464,7 +464,7 @@
       ],
       "settings": {
         "fontStyle": "italic",
-        "foreground": "#{{intense-blue-low-foreground.rgb:X}}"
+        "foreground": "#{{markup.rgb:X}}"
       }
     }
   ]

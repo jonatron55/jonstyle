@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, CodeStyle, Metadata, Primary, PrimaryMap, Sat, Theme, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
+    theme::{BasePalette, CodeStyle, LUM_COUNT, Metadata, Primary, PrimaryMap, SAT_COUNT, Sat, TEMP_COUNT, Theme},
 };
 
 /// A collection of parameters for generating a theme.
@@ -187,6 +187,7 @@ impl ThemeBuilder {
             meta: self.meta.clone(),
             base_palette,
             primaries,
+            code: self.code.clone(),
         }
     }
 

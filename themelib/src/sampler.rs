@@ -7,7 +7,7 @@ use std::{
 #[cfg(feature = "image")]
 use std::{
     fs::File,
-    io::{stdout, BufRead, BufReader, Seek},
+    io::{BufRead, BufReader, Seek, stdout},
     path::Path,
 };
 
@@ -26,7 +26,7 @@ use image::{DynamicImage, GenericImageView, ImageReader};
 use itertools::Itertools;
 
 #[cfg(not(target_arch = "wasm32"))]
-use crate::color::{okhsl, SRgba};
+use crate::color::{SRgba, okhsl};
 use crate::{
     color::{OkHsl, SRgb},
     theme::HueBuilder,

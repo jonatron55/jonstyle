@@ -109,6 +109,7 @@ pub struct CodeStyle {
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ColorVocabulary {
     #[default]
+    JonStyle,
     VisualStudio,
     Monokai,
     Vim,
@@ -218,6 +219,25 @@ lazy_static! {
         set.insert("bright-magenta".to_string());
         set.insert("dark-cyan".to_string());
         set.insert("bright-cyan".to_string());
+        set.insert("comment".to_string());
+        set.insert("comment-symbol".to_string());
+        set.insert("keyword".to_string());
+        set.insert("control-keyword".to_string());
+        set.insert("directive".to_string());
+        set.insert("operator".to_string());
+        set.insert("variable".to_string());
+        set.insert("argument".to_string());
+        set.insert("literal".to_string());
+        set.insert("unit".to_string());
+        set.insert("string".to_string());
+        set.insert("string-delimiter".to_string());
+        set.insert("escape".to_string());
+        set.insert("function".to_string());
+        set.insert("type".to_string());
+        set.insert("namespace".to_string());
+        set.insert("macro".to_string());
+        set.insert("markup".to_string());
+
         set
     };
 }

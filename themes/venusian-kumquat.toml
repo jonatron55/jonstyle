@@ -21,7 +21,7 @@ base_range = [60.0, 80.0]
 intense_range = [90.0, 100.0]
 
 [code]
-vocab = "VisualStudio"
+vocab = "JonStyle"
 bold_keywords = false
 bold_punctuation = false
 italic_comments = false

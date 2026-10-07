@@ -1,10 +1,10 @@
 use std::{
     env, fs,
-    io::{stdout, Write},
+    io::{Write, stdout},
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Result as AnyResult};
+use anyhow::{Result as AnyResult, bail};
 use clap::{Parser, Subcommand};
 use crossterm::{
     queue,
@@ -14,7 +14,7 @@ use semver::Version;
 use themelib::{
     sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
-    template::{fmt_string, Template},
+    template::{Template, fmt_string},
     theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder, ThemeVariant},
 };
 

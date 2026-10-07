@@ -30,6 +30,9 @@ pub struct Theme {
 
     /// Mapping of primary colors to their associated temperatures.
     primaries: PrimaryMap,
+
+    /// The code style configuration for the theme.
+    pub code: CodeStyle,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -540,7 +543,180 @@ impl Theme {
                         Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::LowForeground),
                         1.0,
                     ),
-
+                    "comment" => match self.code.vocab {
+                        ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, Level::HigherMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "comment-symbol" => match self.code.vocab {
+                        ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "keyword" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "control-keyword" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "directive" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Blue, Level::HigherMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "operator" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HigherMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "variable" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "argument" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Cyan, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::Themed(*variant, Sat::Base, ThemeHue::Color5, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "literal" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "unit" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::HigherMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "string" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "string-delimiter" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "escape" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "function" => match self.code.vocab {
+                        ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::Foreground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "type" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::LowForeground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "namespace" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HigherMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowForeground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "macro" => match self.code.vocab {
+                        ColorVocabulary::JonStyle => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
+                    "markup" => match self.code.vocab {
+                        ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::LowForeground),
+                            1.0,
+                        ),
+                        _ => todo!(),
+                    },
                     _ => panic!("Unknown semantic color name: {}", name),
                 };
 
