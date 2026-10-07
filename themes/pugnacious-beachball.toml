@@ -9,9 +9,9 @@ primary = 300.0
 spread = 45.0
 
 [lum]
-range = [2.0, 98.0]
-alpha = 1.2
-gamma = 1.1
+range = [8.0, 96.0]
+alpha = 1.1
+gamma = 1.05
 
 [sat]
 muted_range = [15.0, 30.0]
@@ -19,8 +19,8 @@ base_range = [60.0, 80.0]
 intense_range = [90.0, 100.0]
 
 [code]
-vocab = "JonStyle"
-bold_keywords = false
-bold_punctuation = false
-italic_comments = false
-italic_strings = false
+vocab = "VisualStudio"
+bold_keywords = true
+bold_punctuation = true
+italic_comments = true
+italic_strings = true

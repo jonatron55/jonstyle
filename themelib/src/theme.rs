@@ -584,6 +584,10 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Blue, Level::HigherMidground),
                             1.0,
                         ),
+                        ColorVocabulary::VisualStudio => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::HighMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "operator" => match self.code.vocab {
@@ -598,7 +602,7 @@ impl Theme {
                         _ => todo!(),
                     },
                     "variable" => match self.code.vocab {
-                        ColorVocabulary::JonStyle => (
+                        ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
                             1.0,
                         ),

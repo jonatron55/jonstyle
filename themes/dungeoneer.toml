@@ -1,0 +1,32 @@
+[meta]
+name = "Dungeoneer"
+variants = ["Dawn", "Dusk", "Noon", "Night"]
+author = "Jonathon Cobb"
+version = "4.0.0"
+
+[hue]
+mode = "Custom"
+cold = 285.0
+cool = 210.0
+coolish = 135.0
+warmish = 90.0
+warm = 60.0
+hot = 30.0
+offset = 0.0
+
+[lum]
+range = [8.0, 96.0]
+alpha = 1.1
+gamma = 1.1
+
+[sat]
+muted_range = [10.0, 15.0]
+base_range = [65.0, 80.0]
+intense_range = [88.0, 96.0]
+
+[code]
+vocab = "JonStyle"
+bold_keywords = true
+bold_punctuation = true
+italic_comments = true
+italic_strings = true

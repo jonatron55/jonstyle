@@ -1,0 +1,29 @@
+[meta]
+name = "Arcane"
+variants = ["Dawn", "Dusk", "Noon", "Night"]
+author = "Jonathon Cobb"
+version = "4.0.0"
+
+[hue]
+mode = "Complementary"
+primary = 247.0
+spread = -100.0
+offset = 157.0
+reverse = false
+
+[lum]
+range = [6.0, 96.0]
+alpha = 1.15
+gamma = 1.05
+
+[sat]
+muted_range = [10.0, 25.0]
+base_range = [55.0, 65.0]
+intense_range = [80.0, 90.0]
+
+[code]
+vocab = "JonStyle"
+bold_keywords = true
+bold_punctuation = true
+italic_comments = true
+italic_strings = true

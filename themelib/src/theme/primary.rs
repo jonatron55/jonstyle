@@ -1,4 +1,5 @@
 use std::{
+    f64::consts::TAU,
     fmt::{Display, Formatter, Result as FmtResult},
     str::FromStr,
 };
@@ -59,9 +60,9 @@ impl Primary {
     }
 
     pub fn distance(&self, hue: f64) -> f64 {
-        let hue = hue.rem_euclid(360.0);
-        let diff = (hue - self.base_hue()).abs();
-        diff.min(360.0 - diff)
+        let hue = hue.rem_euclid(TAU);
+        let diff = (hue - self.base_hue().to_radians()).abs();
+        diff.min(TAU - diff)
     }
 }
 
