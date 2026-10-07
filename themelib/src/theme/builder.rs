@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     color::okhsl,
-    theme::{BasePalette, CodeStyle, LUM_COUNT, Metadata, Primary, PrimaryMap, SAT_COUNT, Sat, TEMP_COUNT, Theme},
+    theme::{BasePalette, CodeStyle, Metadata, Primary, PrimaryMap, Sat, Theme, LUM_COUNT, SAT_COUNT, TEMP_COUNT},
 };
 
 /// A collection of parameters for generating a theme.
@@ -247,7 +247,7 @@ impl HueBuilder {
         Self::Custom {
             cold: 120.0,
             cool: 180.0,
-            coolish: 2400.0,
+            coolish: 240.0,
             warmish: 120.0,
             warm: 300.0,
             hot: 60.0,
@@ -387,8 +387,8 @@ impl Default for LumBuilder {
     fn default() -> Self {
         Self {
             range: (5.0, 95.0),
-            alpha: 1.0,
-            gamma: 1.0,
+            alpha: 1.15,
+            gamma: 1.05,
         }
     }
 }
@@ -396,9 +396,9 @@ impl Default for LumBuilder {
 impl Default for SatBuilder {
     fn default() -> Self {
         Self {
-            muted_range: (0.0, 20.0),
+            muted_range: (5.0, 20.0),
             base_range: (40.0, 60.0),
-            intense_range: (80.0, 100.0),
+            intense_range: (80.0, 95.0),
         }
     }
 }
