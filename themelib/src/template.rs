@@ -138,13 +138,13 @@ impl Template {
         Self::read(file)
     }
 
-    pub fn render_to_string(&self, context: &Theme, variant: ThemeVariant) -> (String, Vec<Error>) {
+    pub fn render_to_string(&self, context: &Theme, variant: &ThemeVariant) -> (String, Vec<Error>) {
         let mut output = Vec::with_capacity(self.source.len());
         let errors = self.render(context, variant, &mut output).unwrap();
         (String::from_utf8(output).unwrap(), errors)
     }
 
-    pub fn render(&self, context: &Theme, variant: ThemeVariant, writer: &mut impl Write) -> IoResult<Vec<Error>> {
+    pub fn render(&self, context: &Theme, variant: &ThemeVariant, writer: &mut impl Write) -> IoResult<Vec<Error>> {
         let Self { source } = self;
         let mut errors = Vec::new();
 
@@ -156,7 +156,7 @@ impl Template {
     fn expand_loops(
         source: impl AsRef<str>,
         context: &Theme,
-        variant: ThemeVariant,
+        variant: &ThemeVariant,
         writer: &mut impl Write,
         errors: &mut Vec<Error>,
     ) -> IoResult<()> {
@@ -215,7 +215,7 @@ impl Template {
     fn render_inner(
         source: impl AsRef<str>,
         context: &Theme,
-        variant: ThemeVariant,
+        variant: &ThemeVariant,
         key: Option<&str>,
         value: Option<&OkHsla>,
         writer: &mut impl Write,
@@ -264,7 +264,7 @@ impl Template {
                     write_string(writer, &variant.mode.to_string(), fmt, errors)?;
                 }
                 "temperature" => {
-                    write_string(writer, &variant.temperature.to_string(), fmt, errors)?;
+                    write_string(writer, &variant.temp.to_string(), fmt, errors)?;
                 }
                 "$key" => {
                     if let Some(key) = key {

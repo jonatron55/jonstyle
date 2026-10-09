@@ -102,7 +102,7 @@ impl Theme {
                 let disabled_bg_level = Level::HighBackground;
                 let dsabled_link_level = Level::LowMidground;
 
-                let (index, alpha) = match name.as_str() {
+                let (index, alpha) = match *name {
                     "primary-foreground" => (
                         Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::Foreground),
                         1.0,
@@ -880,10 +880,10 @@ impl Default for Metadata {
             version: Version::new(0, 1, 0),
             description: None,
             variants: vec![
-                ThemeVariant::DAWN,
-                ThemeVariant::DUSK,
-                ThemeVariant::NOON,
-                ThemeVariant::NIGHT,
+                ThemeVariant::dawn(),
+                ThemeVariant::dusk(),
+                ThemeVariant::noon(),
+                ThemeVariant::night(),
             ],
         }
     }

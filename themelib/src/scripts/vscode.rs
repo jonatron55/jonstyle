@@ -6,7 +6,7 @@ use std::{
     process::Command,
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use serde_json::json;
 
 use crate::template::Template;
@@ -180,7 +180,7 @@ pub fn make_vscode_theme(
         let theme_file = output_root.join(format!("themes/{package_name}-{variant_name}-color-theme.json"));
 
         let mut file = BufWriter::new(File::create(theme_file)?);
-        template.render(theme, *variant, &mut file)?;
+        template.render(theme, variant, &mut file)?;
     }
 
     {

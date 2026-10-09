@@ -11,12 +11,12 @@ use serde::{Deserialize, Serialize};
 use crate::theme::{Primary, ThemeMode, ThemeTemperature, ThemeVariant};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Indexer {
+pub enum Indexer<'v, 's> {
     Base(Sat, Temp, Lum),
-    Themed(ThemeVariant, Sat, ThemeHue, Level),
+    Themed(&'v ThemeVariant, Sat, ThemeHue, Level),
     Primary(Sat, Primary, Lum),
-    ThemedPrimary(ThemeVariant, Sat, Primary, Level),
-    Semantic(ThemeVariant, String),
+    ThemedPrimary(&'v ThemeVariant, Sat, Primary, Level),
+    Semantic(&'v ThemeVariant, &'s str),
 }
 
 /// A hue from the base palette, which is unmodified by the theme variant and
@@ -275,8 +275,8 @@ lazy_static! {
     };
 }
 
-impl Indexer {
-    pub fn from_str_with_variant(s: &str, variant: ThemeVariant) -> Result<Self, AnyError> {
+impl<'v, 's> Indexer<'v, 's> {
+    pub fn from_str_with_variant(s: &'s str, variant: &'v ThemeVariant) -> Result<Self, AnyError> {
         let parts = s.split('-').collect::<Vec<_>>();
 
         if let Ok(sat) = Sat::from_str(parts[0]) {
@@ -301,7 +301,7 @@ impl Indexer {
         }
 
         if KNOWN_SEMANTICS.contains(s) {
-            Ok(Indexer::Semantic(variant, s.to_string()))
+            Ok(Indexer::Semantic(variant, s))
         } else {
             Err(anyhow!("{s} is not a valid indexer name"))
         }
@@ -313,7 +313,7 @@ impl Indexer {
         })
     }
 
-    pub fn iter_themed(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+    pub fn iter_themed(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(move |sat| {
             ThemeHue::iter()
                 .flat_map(move |hue| Level::iter().map(move |level| Indexer::Themed(variant, sat, hue, level)))
@@ -326,7 +326,7 @@ impl Indexer {
         })
     }
 
-    pub fn iter_themed_primary(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+    pub fn iter_themed_primary(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(move |sat| {
             Primary::iter().flat_map(move |primary| {
                 Level::iter().map(move |level| Indexer::ThemedPrimary(variant, sat, primary, level))
@@ -334,11 +334,11 @@ impl Indexer {
         })
     }
 
-    pub fn iter_semantic(variant: ThemeVariant) -> impl Iterator<Item = Self> {
-        KNOWN_SEMANTICS.iter().map(move |name| Indexer::Semantic(variant, name.clone()))
+    pub fn iter_semantic(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
+        KNOWN_SEMANTICS.iter().map(move |name| Indexer::Semantic(variant, name))
     }
 
-    pub fn iter(variant: ThemeVariant) -> impl Iterator<Item = Self> {
+    pub fn iter(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
         Self::iter_base()
             .chain(Self::iter_themed(variant))
             .chain(Self::iter_primary())
@@ -361,7 +361,7 @@ impl Temp {
     }
 
     pub fn to_theme_hue(&self, variant: ThemeVariant) -> ThemeHue {
-        match variant.temperature {
+        match variant.temp {
             ThemeTemperature::Cool => match self {
                 Temp::Cold => ThemeHue::Color1,
                 Temp::Cool => ThemeHue::Color2,
@@ -395,8 +395,8 @@ impl ThemeHue {
         .into_iter()
     }
 
-    pub fn to_temp(&self, variant: ThemeVariant) -> Temp {
-        match variant.temperature {
+    pub fn to_temp(&self, variant: &ThemeVariant) -> Temp {
+        match variant.temp {
             ThemeTemperature::Cool => match self {
                 ThemeHue::Color1 => Temp::Cold,
                 ThemeHue::Color2 => Temp::Cool,
@@ -456,7 +456,7 @@ impl Lum {
         .into_iter()
     }
 
-    pub fn to_level(&self, variant: ThemeVariant) -> Level {
+    pub fn to_level(&self, variant: &ThemeVariant) -> Level {
         match variant.mode {
             ThemeMode::Dark => match self {
                 Lum::BrightHigh => Level::HighForeground,
@@ -537,7 +537,7 @@ impl Level {
         .into_iter()
     }
 
-    pub fn to_lum(&self, variant: ThemeVariant) -> Lum {
+    pub fn to_lum(&self, variant: &ThemeVariant) -> Lum {
         match variant.mode {
             ThemeMode::Dark => match self {
                 Level::HighForeground => Lum::BrightHigh,
@@ -569,14 +569,14 @@ impl Level {
     /// Returns the next brighter level, or the same level if it's already the
     /// brightest. This is absolute brightness, which may ne "lower" or "higher"
     /// depending on the theme mode. This is used for things like hover states.
-    pub fn brighter(&self, variant: ThemeVariant) -> Self {
+    pub fn brighter(&self, variant: &ThemeVariant) -> Self {
         self.to_lum(variant).brighter().to_level(variant)
     }
 
     /// Returns the next dimmer level, or the same level if it's already the
     /// dimmest. This is absolute brightness, which may ne "lower" or "higher"
     /// depending on the theme mode. This is used for things like hover states.
-    pub fn dimmer(&self, variant: ThemeVariant) -> Self {
+    pub fn dimmer(&self, variant: &ThemeVariant) -> Self {
         self.to_lum(variant).dimmer().to_level(variant)
     }
 
@@ -621,7 +621,7 @@ impl Sat {
     }
 }
 
-impl Display for Indexer {
+impl<'v, 's> Display for Indexer<'v, 's> {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             Indexer::Base(sat, temp, lum) => write!(f, "{sat}-{temp}-{lum}"),

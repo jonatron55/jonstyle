@@ -1,7 +1,10 @@
 [meta]
 name = "Pugnacious Beachball"
-variants = ["Noon", "Night"]
 version = "0.1.0"
+variants = [
+    { name = "Light", mode = "Light", temp = "Cool", },
+    { name = "Dark", mode = "Dark", temp = "Cool", }
+]
 
 [hue]
 mode = "Analogous"

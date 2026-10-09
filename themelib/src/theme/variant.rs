@@ -3,12 +3,13 @@ use std::{
     str::FromStr,
 };
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as DeError};
+use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ThemeVariant {
+    pub name: String,
     pub mode: ThemeMode,
-    pub temperature: ThemeTemperature,
+    pub temp: ThemeTemperature,
 }
 
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -26,17 +27,28 @@ pub enum ThemeTemperature {
 }
 
 impl ThemeVariant {
-    pub const DAWN: Self = Self::new(ThemeMode::Light, ThemeTemperature::Warm);
-    pub const DUSK: Self = Self::new(ThemeMode::Dark, ThemeTemperature::Warm);
-    pub const NOON: Self = Self::new(ThemeMode::Light, ThemeTemperature::Cool);
-    pub const NIGHT: Self = Self::new(ThemeMode::Dark, ThemeTemperature::Cool);
-
-    pub fn iter() -> impl Iterator<Item = Self> {
-        [Self::DAWN, Self::DUSK, Self::NOON, Self::NIGHT].into_iter()
+    pub fn new(name: impl Into<String>, mode: ThemeMode, temp: ThemeTemperature) -> Self {
+        Self {
+            name: name.into(),
+            mode,
+            temp,
+        }
     }
 
-    pub const fn new(mode: ThemeMode, temperature: ThemeTemperature) -> Self {
-        Self { mode, temperature }
+    pub fn dawn() -> Self {
+        Self::new("Dawn", ThemeMode::Light, ThemeTemperature::Warm)
+    }
+
+    pub fn dusk() -> Self {
+        Self::new("Dusk", ThemeMode::Dark, ThemeTemperature::Warm)
+    }
+
+    pub fn noon() -> Self {
+        Self::new("Noon", ThemeMode::Light, ThemeTemperature::Cool)
+    }
+
+    pub fn night() -> Self {
+        Self::new("Night", ThemeMode::Dark, ThemeTemperature::Cool)
     }
 }
 
@@ -54,7 +66,7 @@ impl ThemeTemperature {
 
 impl Display for ThemeVariant {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        match (self.mode, self.temperature) {
+        match (self.mode, self.temp) {
             (ThemeMode::Light, ThemeTemperature::Warm) => write!(f, "Dawn"),
             (ThemeMode::Dark, ThemeTemperature::Warm) => write!(f, "Dusk"),
             (ThemeMode::Light, ThemeTemperature::Cool) => write!(f, "Noon"),
@@ -86,10 +98,10 @@ impl FromStr for ThemeVariant {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "dawn" => Ok(Self::DAWN),
-            "dusk" => Ok(Self::DUSK),
-            "noon" => Ok(Self::NOON),
-            "night" => Ok(Self::NIGHT),
+            "dawn" => Ok(Self::dawn()),
+            "dusk" => Ok(Self::dusk()),
+            "noon" => Ok(Self::noon()),
+            "night" => Ok(Self::night()),
             _ => Err(format!("Invalid theme variant: {s}")),
         }
     }
@@ -111,10 +123,10 @@ impl<'de> Deserialize<'de> for ThemeVariant {
     {
         let s = String::deserialize(deserializer)?;
         match s.as_str() {
-            "Dawn" => Ok(Self::DAWN),
-            "Dusk" => Ok(Self::DUSK),
-            "Noon" => Ok(Self::NOON),
-            "Night" => Ok(Self::NIGHT),
+            "Dawn" => Ok(Self::dawn()),
+            "Dusk" => Ok(Self::dusk()),
+            "Noon" => Ok(Self::noon()),
+            "Night" => Ok(Self::night()),
             _ => Err(DeError::custom(format!("invalid theme variant: {s}"))),
         }
     }

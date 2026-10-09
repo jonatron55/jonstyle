@@ -1,10 +1,10 @@
 use std::{
     env, fs,
-    io::{Write, stdout},
+    io::{stdout, Write},
     path::{Path, PathBuf},
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use clap::{Parser, Subcommand};
 use crossterm::{
     queue,
@@ -14,7 +14,7 @@ use semver::Version;
 use themelib::{
     sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
-    template::{Template, fmt_string},
+    template::{fmt_string, Template},
     theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder, ThemeVariant},
 };
 
@@ -257,8 +257,8 @@ pub fn main() -> AnyResult<()> {
 
             fs::create_dir_all(&output_path)?;
 
-            for variant in ThemeVariant::iter() {
-                let (output, errors) = output_template.render_to_string(&theme, variant);
+            for variant in &theme.meta.variants {
+                let (output, errors) = output_template.render_to_string(&theme, &variant);
                 if !errors.is_empty() {
                     for error in errors {
                         eprintln!("{}: {error}", pattern);
@@ -274,7 +274,7 @@ pub fn main() -> AnyResult<()> {
 
                 let mut file = fs::OpenOptions::new().write(true).create(true).truncate(true).open(&output)?;
 
-                let errors = template.render(&theme, variant, &mut file)?;
+                let errors = template.render(&theme, &variant, &mut file)?;
 
                 for error in errors {
                     eprintln!("{}: {error}", template_file.display());
@@ -476,7 +476,7 @@ pub fn main() -> AnyResult<()> {
         }
         Command::List { config, variant } => {
             let theme = load_config(&config)?;
-            for indexer in Indexer::iter(variant) {
+            for indexer in Indexer::iter(&variant) {
                 let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
             }

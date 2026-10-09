@@ -73,7 +73,7 @@ pub fn Toolbar(
                     on:change=move |ev| {
                         let input = ev.target().unwrap().unchecked_into::<HtmlInputElement>();
                         if input.checked() {
-                            on_variant_changed.run(ThemeVariant::DAWN);
+                            on_variant_changed.run(ThemeVariant::dawn());
                         }
                     }
                 />
@@ -88,7 +88,7 @@ pub fn Toolbar(
                     on:change=move |ev| {
                         let input = ev.target().unwrap().unchecked_into::<HtmlInputElement>();
                         if input.checked() {
-                            on_variant_changed.run(ThemeVariant::NOON);
+                            on_variant_changed.run(ThemeVariant::noon());
                         }
                     }
                 />
@@ -103,7 +103,7 @@ pub fn Toolbar(
                     on:change=move |ev| {
                         let input = ev.target().unwrap().unchecked_into::<HtmlInputElement>();
                         if input.checked() {
-                            on_variant_changed.run(ThemeVariant::DUSK);
+                            on_variant_changed.run(ThemeVariant::dusk());
                         }
                     }
                 />
@@ -119,7 +119,7 @@ pub fn Toolbar(
                     on:change=move |ev| {
                         let input = ev.target().unwrap().unchecked_into::<HtmlInputElement>();
                         if input.checked() {
-                            on_variant_changed.run(ThemeVariant::NIGHT);
+                            on_variant_changed.run(ThemeVariant::night());
                         }
                     }
                 />

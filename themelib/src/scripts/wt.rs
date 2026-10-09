@@ -47,38 +47,38 @@ pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
         new.insert("name".to_string(), json!(name));
         new.insert(
             "foreground".to_string(),
-            json_color(&theme, *variant, "primary-foreground"),
+            json_color(&theme, variant, "primary-foreground"),
         );
         new.insert(
             "background".to_string(),
-            json_color(&theme, *variant, "page-background"),
+            json_color(&theme, variant, "page-background"),
         );
         new.insert(
             "selectionBackground".to_string(),
-            json_color(&theme, *variant, "selection-background"),
+            json_color(&theme, variant, "selection-background"),
         );
-        new.insert("red".to_string(), json_color(&theme, *variant, "dark-red"));
-        new.insert("green".to_string(), json_color(&theme, *variant, "dark-green"));
-        new.insert("blue".to_string(), json_color(&theme, *variant, "dark-blue"));
-        new.insert("cyan".to_string(), json_color(&theme, *variant, "dark-cyan"));
-        new.insert("purple".to_string(), json_color(&theme, *variant, "dark-magenta"));
-        new.insert("yellow".to_string(), json_color(&theme, *variant, "dark-yellow"));
-        new.insert("brightRed".to_string(), json_color(&theme, *variant, "bright-red"));
-        new.insert("brightGreen".to_string(), json_color(&theme, *variant, "bright-green"));
-        new.insert("brightBlue".to_string(), json_color(&theme, *variant, "bright-blue"));
-        new.insert("brightCyan".to_string(), json_color(&theme, *variant, "bright-cyan"));
+        new.insert("red".to_string(), json_color(&theme, variant, "dark-red"));
+        new.insert("green".to_string(), json_color(&theme, variant, "dark-green"));
+        new.insert("blue".to_string(), json_color(&theme, variant, "dark-blue"));
+        new.insert("cyan".to_string(), json_color(&theme, variant, "dark-cyan"));
+        new.insert("purple".to_string(), json_color(&theme, variant, "dark-magenta"));
+        new.insert("yellow".to_string(), json_color(&theme, variant, "dark-yellow"));
+        new.insert("brightRed".to_string(), json_color(&theme, variant, "bright-red"));
+        new.insert("brightGreen".to_string(), json_color(&theme, variant, "bright-green"));
+        new.insert("brightBlue".to_string(), json_color(&theme, variant, "bright-blue"));
+        new.insert("brightCyan".to_string(), json_color(&theme, variant, "bright-cyan"));
         new.insert(
             "brightPurple".to_string(),
-            json_color(&theme, *variant, "bright-magenta"),
+            json_color(&theme, variant, "bright-magenta"),
         );
         new.insert(
             "brightYellow".to_string(),
-            json_color(&theme, *variant, "bright-yellow"),
+            json_color(&theme, variant, "bright-yellow"),
         );
-        new.insert("black".to_string(), json_color(&theme, *variant, "dark-black"));
-        new.insert("brightBlack".to_string(), json_color(&theme, *variant, "bright-black"));
-        new.insert("white".to_string(), json_color(&theme, *variant, "dark-white"));
-        new.insert("brightWhite".to_string(), json_color(&theme, *variant, "bright-white"));
+        new.insert("black".to_string(), json_color(&theme, variant, "dark-black"));
+        new.insert("brightBlack".to_string(), json_color(&theme, variant, "bright-black"));
+        new.insert("white".to_string(), json_color(&theme, variant, "dark-white"));
+        new.insert("brightWhite".to_string(), json_color(&theme, variant, "bright-white"));
 
         if let Some(existing) = existing {
             *existing = new;
@@ -102,9 +102,9 @@ pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
     Ok(())
 }
 
-fn json_color(theme: &Theme, variant: ThemeVariant, semantic: impl Into<String>) -> serde_json::Value {
+fn json_color(theme: &Theme, variant: &ThemeVariant, semantic: &str) -> serde_json::Value {
     json!(format!(
         "#{:X}",
-        theme.get(&Indexer::Semantic(variant, semantic.into())).without_a().to_srgb()
+        theme.get(&Indexer::Semantic(variant, semantic)).without_a().to_srgb()
     ))
 }
