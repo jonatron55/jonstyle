@@ -12,18 +12,23 @@ use crate::{
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ThemeBuilder {
     /// Metadata for the theme.
+    #[serde(default)]
     pub meta: Metadata,
 
     /// The hue configuration for the theme.
+    #[serde(default)]
     pub hue: HueBuilder,
 
     /// The luminance configuration for the theme.
+    #[serde(default)]
     pub lum: LumBuilder,
 
     /// The saturation configuration for the theme.
+    #[serde(default)]
     pub sat: SatBuilder,
 
     /// The code style configuration for the theme.
+    #[serde(default)]
     pub code: CodeStyle,
 }
 
@@ -54,10 +59,12 @@ pub enum HueBuilder {
 
         /// Angle in degrees to offset the complementary hue from the primary
         /// hue.
+        #[serde(default = "default_complementary_offset")]
         offset: f64,
 
         /// If set, the complementary hues will spread in the opposite direction
         /// to the primary.
+        #[serde(default)]
         reverse: bool,
     },
 
@@ -100,6 +107,7 @@ pub enum HueBuilder {
         hot: f64,
 
         /// Amount to offset all hues by in degrees.
+        #[serde(default)]
         offset: f64,
     },
 }
@@ -231,7 +239,7 @@ impl HueBuilder {
         Self::Complementary {
             primary: 0.0,
             spread: 45.0,
-            offset: 180.0,
+            offset: default_complementary_offset(),
             reverse: false,
         }
     }
@@ -401,4 +409,8 @@ impl Default for SatBuilder {
             intense_range: (80.0, 95.0),
         }
     }
+}
+
+fn default_complementary_offset() -> f64 {
+    180.0
 }

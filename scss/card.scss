@@ -49,6 +49,7 @@ $tooltip-delay: 500ms;
   border-style: solid;
   border-width: var(--panel-border-width);
   border-radius: var(--panel-border-radius);
+  padding: 0;
   margin: 0 auto;
   background-clip: border-box;
   overflow: clip;
@@ -147,7 +148,21 @@ $tooltip-delay: 500ms;
 .panel>.content,
 .card>.content,
 .tooltip>.content {
-  margin: var(--vertical-gap) var(--horizontal-gap);
+  margin: calc(2.0 * var(--vertical-gap)) calc(2.0 * var(--horizontal-gap));
+}
+
+.panel>.buttons,
+.card>.buttons,
+.tooltip>.buttons {
+  background-color: var(--chrome);
+  color: var(--caption-foreground);
+  background-clip: border-box;
+  margin-top: 0px;
+  display: flex;
+  gap: var(--horizontal-gap);
+  margin: 0;
+  padding: var(--vertical-gap) calc(2.0 * var(--horizontal-gap));
+  width: auto;
 }
 
 @keyframes tooltip-hydrate {

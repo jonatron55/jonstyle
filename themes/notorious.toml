@@ -1,0 +1,29 @@
+[meta]
+name = "Notorious"
+variants = ["Dawn", "Dusk", "Noon", "Night"]
+author = "Jonathon Cobb"
+version = "1.0.0"
+
+[hue]
+mode = "Complementary"
+primary = 240.0
+spread = -70.0
+offset = 180.0
+reverse = false
+
+[lum]
+range = [4.0, 90.0]
+alpha = 1.28
+gamma = 0.94
+
+[sat]
+muted_range = [0.0, 5.0]
+base_range = [5.0, 15.0]
+intense_range = [70.0, 85.0]
+
+[code]
+vocab = "JonStyle"
+bold_keywords = true
+bold_punctuation = true
+italic_comments = true
+italic_strings = true

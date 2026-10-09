@@ -4,7 +4,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{Error as AnyError, anyhow};
+use anyhow::{anyhow, Error as AnyError};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -97,6 +97,7 @@ pub enum Level {
     LowBackground = 0,
 }
 
+/// Options related to generating code syntax themes.
 #[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
 pub struct CodeStyle {
     pub vocab: ColorVocabulary,
@@ -106,13 +107,45 @@ pub struct CodeStyle {
     pub italic_strings: bool,
 }
 
+/// Opinionated color vocabularies for code syntax highlighting.
+///
+/// These are inexact: the overall feel of the theme depends heavily on the
+/// specific hue choices and combinations. These options decide how the themed
+/// primaries map to syntax roles (for example, [`VisualStudio`] maps blue to
+/// keywords whereas [`Vim`] maps yellow).
+///
+/// The [`JonStyle`] option is not modelled after any particular existing
+/// scheme: it's designed specifically for this style library.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ColorVocabulary {
+    /// A color vocabulary created for this style library. Keywords are cyan and
+    /// blue, comments match Visual Studio's green, and literals are styled
+    /// distinctly.
     #[default]
     JonStyle,
+
+    /// A color vocabulary resembling Visual Studio and Visual Studio Code,
+    /// which color keywords in blue and pink, comments in green, strings in
+    /// pale red, and types in shades of teal.
+    ///
+    /// In 2026, Visual Studio Code switched its default color scheme to
+    /// [`Primer`].
     VisualStudio,
-    Monokai,
+
+    /// A color vocabulary resembling the original Vim defaults: yellow
+    /// keywords, blue comments, magenta literals, cyan variables, and green
+    /// types etc.
     Vim,
+
+    /// A vocabulary base loosely on the Monokai color scheme.
+    ///
+    /// This scheme originally uses intense pink for keywords, a muted grey for
+    /// comments, purple for strings, and yellow for other literals. These are
+    /// mapped as closely as possible to the primaries of this style library.
+    Monokai,
+
+    /// A vocabulary based on GitHub's Primer color scheme.
+    Primer,
 }
 
 lazy_static! {

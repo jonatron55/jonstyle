@@ -548,11 +548,27 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, Level::HigherMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HigherMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HigherMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "comment-symbol" => match self.code.vocab {
                         ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::HighMidground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -566,6 +582,14 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "control-keyword" => match self.code.vocab {
@@ -575,6 +599,14 @@ impl Theme {
                         ),
                         ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Magenta, Level::HighMidground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -588,6 +620,14 @@ impl Theme {
                             Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "operator" => match self.code.vocab {
@@ -599,11 +639,27 @@ impl Theme {
                             Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HigherMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HigherMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HigherMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "variable" => match self.code.vocab {
                         ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::LowForeground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -617,6 +673,14 @@ impl Theme {
                             Indexer::Themed(*variant, Sat::Base, ThemeHue::Color5, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::LowForeground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "literal" => match self.code.vocab {
@@ -626,6 +690,14 @@ impl Theme {
                         ),
                         ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -639,6 +711,14 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HigherMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "string" => match self.code.vocab {
@@ -648,6 +728,14 @@ impl Theme {
                         ),
                         ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowForeground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -661,6 +749,14 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "escape" => match self.code.vocab {
@@ -672,11 +768,27 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "function" => match self.code.vocab {
                         ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::Foreground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::Foreground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowForeground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -690,6 +802,14 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::LowForeground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HigherMidground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "namespace" => match self.code.vocab {
@@ -699,6 +819,10 @@ impl Theme {
                         ),
                         ColorVocabulary::VisualStudio => (
                             Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HigherMidground),
                             1.0,
                         ),
                         _ => todo!(),
@@ -712,11 +836,27 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
                             1.0,
                         ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::LowForeground),
+                            1.0,
+                        ),
                         _ => todo!(),
                     },
                     "markup" => match self.code.vocab {
                         ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Vim => (
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowForeground),
+                            1.0,
+                        ),
+                        ColorVocabulary::Monokai => (
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::LowForeground),
                             1.0,
                         ),
                         _ => todo!(),

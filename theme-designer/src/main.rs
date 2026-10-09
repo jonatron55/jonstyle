@@ -11,6 +11,7 @@ mod slider;
 mod toolbar;
 
 use anyhow::Error as AnyError;
+use components::{Dialog, Severity};
 use leptos::prelude::*;
 use themelib::theme::{Indexer, Theme, ThemeBuilder, ThemeVariant};
 use wasm_bindgen::JsCast;
@@ -61,9 +62,25 @@ fn App() -> impl IntoView {
         set_preview_variant.set(variant);
     });
 
-    let on_error = Callback::new(move |_err: AnyError| {});
+    let (load_error, set_load_error) = signal_local(None::<String>);
+    let on_error = Callback::new(move |_err: AnyError| set_load_error.set(Some(_err.to_string())));
 
     view! {
+        {move || {
+            load_error
+                .get()
+                .map(|load_error| {
+                    view! {
+                        <Dialog
+                            title="Error parsing configuration"
+                            content=load_error
+                            yes_caption="OK"
+                            severity=Severity::Danger
+                            on_yes=move || set_load_error.set(None)
+                        />
+                    }
+                })
+        }}
         <div class="app">
             <div class="top">
                 <Toolbar
