@@ -1,8 +1,13 @@
 [meta]
 name = "Notorious"
-variants = ["Dawn", "Dusk", "Noon", "Night"]
 author = "Jonathon Cobb"
 version = "1.0.0"
+variants = [
+    { name = "Dawn", mode = "Light", temp = "Warm", },
+    { name = "Dusk", mode = "Dark", temp = "Warm", },
+    { name = "Noon", mode = "Light", temp = "Cool", },
+    { name = "Night", mode = "Dark", temp = "Cool", }
+]
 
 [hue]
 mode = "Complementary"

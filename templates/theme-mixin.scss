@@ -4,4 +4,8 @@
 @mixin theme {
 {{#each}}  --{{$key:k}}: #{{$value.rgba:X}};
 {{/each}}
+  --keyword-weight: {{keyword-weight}};
+  --punctuation-weight: {{punctuation-weight}};
+  --comment-style: {{comment-style}};
+  --string-style: {{string-style}};
 }

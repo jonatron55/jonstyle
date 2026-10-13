@@ -3,23 +3,23 @@ use std::{
     str::FromStr,
 };
 
-use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ThemeVariant {
     pub name: String,
     pub mode: ThemeMode,
     pub temp: ThemeTemperature,
 }
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ThemeMode {
     #[default]
     Dark,
     Light,
 }
 
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ThemeTemperature {
     #[default]
     Cool,
@@ -103,31 +103,6 @@ impl FromStr for ThemeVariant {
             "noon" => Ok(Self::noon()),
             "night" => Ok(Self::night()),
             _ => Err(format!("Invalid theme variant: {s}")),
-        }
-    }
-}
-
-impl Serialize for ThemeVariant {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-impl<'de> Deserialize<'de> for ThemeVariant {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        match s.as_str() {
-            "Dawn" => Ok(Self::dawn()),
-            "Dusk" => Ok(Self::dusk()),
-            "Noon" => Ok(Self::noon()),
-            "Night" => Ok(Self::night()),
-            _ => Err(DeError::custom(format!("invalid theme variant: {s}"))),
         }
     }
 }

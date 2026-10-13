@@ -1,0 +1,102 @@
+code,
+pre,
+div.listing {
+  color: var(--primary-foreground);
+  background: var(--background);
+
+  .keyword {
+    color: var(--keyword);
+    font-weight: var(--keyword-weight);
+  }
+
+  .control-keyword {
+    color: var(--control-keyword);
+    font-weight: var(--keyword-weight);
+  }
+
+  .comment {
+    color: var(--comment);
+    font-style: var(--comment-style);
+  }
+
+  .comment-symbol {
+    color: var(--comment-symbol);
+    font-weight: var(--punctuation-weight);
+  }
+
+  .directive {
+    color: var(--directive);
+    font-weight: var(--keyword-weight);
+  }
+
+  .operator {
+    color: var(--operator);
+    font-weight: var(--punctuation-weight);
+  }
+
+  .variable {
+    color: var(--variable);
+  }
+
+  .argument {
+    color: var(--argument);
+  }
+
+  .literal {
+    color: var(--literal);
+  }
+
+  .unit {
+    color: var(--unit);
+    font-style: var(--string-style);
+    font-weight: var(--keyword-weight);
+  }
+
+  .string {
+    color: var(--string);
+    font-style: var(--string-style);
+  }
+
+  .string-delimiter {
+    color: var(--string-delimiter);
+    font-weight: var(--punctuation-weight);
+  }
+
+  .escape {
+    color: var(--escape);
+    font-weight: var(--punctuation-weight);
+  }
+
+  .function {
+    color: var(--function);
+  }
+
+  .type {
+    color: var(--type);
+  }
+
+  .namespace {
+    color: var(--namespace);
+  }
+
+  .macro {
+    color: var(--macro);
+  }
+
+  .markup {
+    color: var(--markup);
+  }
+}
+
+pre,
+div.listing {
+  border-left: 2px solid var(--dim-foreground);
+  border-right: 2px solid var(--dim-foreground);
+  border-radius: var(--ui-border-radius);
+  padding: 0.5rem 1rem;
+}
+
+code {
+  display: inline-block;
+  padding: 0rem 0.25rem;
+}

@@ -13,6 +13,11 @@
 
 }
 
+pre,
+code {
+  font-family: Arcane, monospace;
+}
+
 body {
   padding: var(--vertical-gap) var(--horizontal-gap);
   margin: 0;

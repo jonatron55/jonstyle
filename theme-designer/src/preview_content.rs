@@ -102,6 +102,51 @@ pub fn PreviewContent() -> impl IntoView {
             <p>
                 "Donec eleifend arcu nec lacus ultricies hendrerit. Aliquam fringilla odio risus, nec efficitur enim scelerisque sit amet. Integer tempor dui in nisi scelerisque, et consectetur velit eleifend. Integer porttitor tincidunt est id auctor. Maecenas sit amet hendrerit est. Phasellus in hendrerit enim. Fusce imperdiet viverra erat, et condimentum turpis ultricies non. Pellentesque blandit imperdiet mollis. Suspendisse metus dui, blandit ac purus eget, dignissim molestie dolor. Fusce dignissim ligula augue, et tristique nulla efficitur id."
             </p>
+            <pre>
+                <span class="comment-symbol">"//"</span>
+                <span class="comment">" Some example code."</span>
+                <br />
+                <span class="keyword">"use "</span>
+                <span class="namespace">"std"</span>
+                <span class="operator">"::"</span>
+                <span class="namespace">"io"</span>
+                <span class="operator">"::*;"</span>
+                <br />
+                <br />
+                <span class="keyword">"fn "</span>
+                <span class="function">"main"</span>
+                <span class="operator">"() -> "</span>
+                <span class="type">"Result"</span>
+                <span class="operator">"<(), ()> {"</span>
+                <br />
+                <span>"    "</span>
+                <span class="control-keyword">"for "</span>
+                <span class="variable">"i"</span>
+                <span class="control-keyword">" in "</span>
+                <span class="operator">"("</span>
+                <span class="literal">"0"</span>
+                <span class="operator">".."</span>
+                <span class="literal">"100"</span>
+                <span class="operator">")."</span>
+                <span class="function">"rev"</span>
+                <span class="operator">"() {"</span>
+                <br />
+                <span>"        "</span>
+                <span class="macro">"print!("</span>
+                <span class="string-delimiter">"\""</span>
+                <span class="operator">"{"</span>
+                <span class="variable">"i"</span>
+                <span class="operator">"}"</span>
+                <span class="string">" bottles of beer on the wall!"</span>
+                <span class="escape">"\\n"</span>
+                <span class="string-delimiter">"\""</span>
+                <span class="operator">");"</span>
+                <br />
+                <span>"    "</span>
+                <span class="operator">"}"</span>
+                <br />
+                <span class="operator">"}"</span>
+            </pre>
             <div class="card">
                 <h1 class="caption">Card with Caption</h1>
                 <p>

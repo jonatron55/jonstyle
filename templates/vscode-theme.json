@@ -166,7 +166,7 @@
         "comment"
       ],
       "settings": {
-        "fontStyle": "italic",
+        "fontStyle": "{{comment-style}}",
         "foreground": "#{{comment.rgb:X}}"
       }
     },
@@ -176,7 +176,7 @@
         "punctuation.definition.comment"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{punctuation-weight}}",
         "foreground": "#{{comment-symbol.rgb:X}}"
       }
     },
@@ -198,7 +198,7 @@
         "entity.name.type.lifetime.rust"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{keyword-weight}}",
         "foreground": "#{{keyword.rgb:X}}"
       }
     },
@@ -209,7 +209,7 @@
         "keyword.other.substitution"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{keyword-weight}}",
         "foreground": "#{{control-keyword.rgb:X}}"
       }
     },
@@ -224,7 +224,7 @@
         "entity.name.function.macro"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{keyword-weight}}",
         "foreground": "#{{directive.rgb:X}}"
       }
     },
@@ -245,7 +245,7 @@
         "punctuation.separator.table.markdown"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{punctuation-weight}}",
         "foreground": "#{{operator.rgb:X}}"
       }
     },
@@ -329,7 +329,7 @@
         "keyword.other.unit"
       ],
       "settings": {
-        "fontStyle": "bold italic",
+        "fontStyle": "{{unit-style}}",
         "foreground": "#{{unit.rgb:X}}"
       }
     },
@@ -347,7 +347,7 @@
         "markup.inline.raw.string"
       ],
       "settings": {
-        "fontStyle": "italic",
+        "fontStyle": "{{string-style}}",
         "foreground": "#{{string.rgb:X}}"
       }
     },
@@ -361,7 +361,7 @@
         "punctuation.definition.interpolation"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{punctuation-weight}}",
         "foreground": "#{{string-delimiter.rgb:X}}"
       }
     },
@@ -372,7 +372,7 @@
         "constant.character.character-class.escape"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{keyword-weight}}",
         "foreground": "#{{escape.rgb:X}}"
       }
     },
@@ -427,7 +427,7 @@
         "entity.name.function.preprocessor"
       ],
       "settings": {
-        "fontStyle": "bold",
+        "fontStyle": "{{keyword-weight}}",
         "foreground": "#{{macro.rgb:X}}"
       }
     },

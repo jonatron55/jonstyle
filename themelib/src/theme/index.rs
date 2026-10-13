@@ -98,7 +98,7 @@ pub enum Level {
 }
 
 /// Options related to generating code syntax themes.
-#[derive(Debug, Default, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct CodeStyle {
     pub vocab: ColorVocabulary,
     pub bold_keywords: bool,
@@ -861,6 +861,18 @@ impl From<usize> for Level {
             8 => Level::Foreground,
             9 => Level::HighForeground,
             _ => panic!("Invalid value for Level: {value}"),
+        }
+    }
+}
+
+impl Default for CodeStyle {
+    fn default() -> Self {
+        CodeStyle {
+            vocab: ColorVocabulary::JonStyle,
+            bold_keywords: true,
+            bold_punctuation: true,
+            italic_comments: true,
+            italic_strings: true,
         }
     }
 }

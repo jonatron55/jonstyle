@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::HashSet,
     error::Error as StdError,
     f64::consts::TAU,
@@ -21,7 +22,10 @@ use crate::{
 /// Defines a template for generating theme variants. A template is a  plain
 /// text file containing placeholders for theme values in the format
 /// "{{<field>}}", with optional formatting options. The formatting options
-/// depend on the type of the field, which may be a string or a color.
+/// depend on the type of the field, which may be a string, Boolean, or a color.
+///
+/// String fields
+/// -------------
 ///
 /// String fields take the format "{{<field>[:<format>]}}", where <field> is one
 /// of the following:
@@ -32,6 +36,16 @@ use crate::{
 /// - "author": the author of the theme.
 /// - "description": the description of the theme.
 /// - "version": the version of the theme.
+/// - "keyword-weight": if "bold-keywords" is enabled, then this will be the
+///   string "bold"; otherwise, it will be an empty string.
+/// - "punctuation-weight": if "bold-punctuation" is enabled, then this will be
+///   the string "bold"; otherwise, it will be an empty string.
+/// - "comment-style": if "italic-comments" is enabled, then this will be the
+///   string "italic"; otherwise, it will be an empty string.
+/// - "string-style": if "italic-strings" is enabled, then this will be the
+///   string "italic"; otherwise, it will be an empty string.
+/// - "unit-style": the combination of "keyword-weight" and "string-style". One
+///   of "bold italic", "bold", "italic", or an empty string.
 ///
 /// And <format> is an optional format specifier for the field, which can be one
 /// of:
@@ -50,9 +64,27 @@ use crate::{
 /// - "l": lowercasesingleword.
 /// - "V", "v", or absent: the original value verbatim.
 ///
+/// Boolean fields
+/// --------------
+///
+/// Boolean fields take the format "{{<field>[:<true_value>[:<false_value>]]}}",
+/// where <field> is the name of the Boolean field, <true_value> is the value to
+/// use when the field is true, and <false_value> is the value to use when the
+/// field is false. If both are omitted, they default to "true" and "false",
+/// respectively. If only the true value is provided, the false value defaults
+/// to an empty string. The <field> my be one of the following:
+///
+/// - "bold-keywords": code style setting.
+/// - "bold-punctuation": code style setting.
+/// - "italic-comments": code style setting.
+/// - "italic-strings": code style setting.
+///
+/// Color fields
+/// ------------
+///
 /// Color fields take the format
 /// `{{<field>[.<swizzle>[/<colorspace]][:<format>]}}`. The field name may be
-/// any of the options documented in [`themelib::theme::Indexer`]. The optional
+/// any of the options documented in [`crate::theme::Indexer`]. The optional
 /// <swizzle> is a string of the characters 'r', 'g', 'b', 'h', 's', and 'l' in
 /// any order, which specifies the order of color components in the output. The
 /// optional <colorspace> is either 'G' for gamma-corrected (sRGB) values or 'L'
@@ -81,15 +113,48 @@ use crate::{
 /// replaced with "80%" or "{{base-color-1-high-medium.rgb:X}}" might be
 /// replaced with "A0C8FF".
 ///
-/// Finally, the sequences "{{left}}" and "{{right}}" can be used to insert
-/// literal "{{" and "}}" sequences, respectively.
+/// Loops
+/// -----
+///
+/// To begin iterating over multiple colors as a category, use
+/// `{{#each [<category>]}}`. All content until the closing `{{/each}}` will be
+/// repeated for each item in the category. Within this block, you can use the
+/// placeholders `{{$key}}` and `{{$value}}` to access the name and color of
+/// each item. `{{$key}}` will map to one of the [`crate::theme::Indexer`]
+/// names and may include any of the string formats above. `{{$value}}` may
+/// include any of the color swizzle, colorspace, and format options described
+/// above.
+///
+/// The category may be absent to loop over every possible theme indexer, or it
+/// may be one of the following:
+///
+/// - "base": indexes that use an absolute luminace from 'dim-low' to
+///   'bright-high' and an absolute temperature from 'cold' to 'hot'.
+/// - "themed": indexes that use a relative luminace level from 'low-background'
+///   to 'high-foreground' and a relative hue from 'color-1' to 'color-6'.
+/// - "primary": indexes that use absolute luminace and a named primary hue
+///   ('red', 'green', 'blue', 'cyan', 'magenta', or 'yellow').
+/// - "themed-primary": indexes that use a relative luminace level and a named
+///   primary hue.
+/// - "semantic": all semantic color names. See
+///   [`crate::theme::KNOWN_SEMANTICS`].
+///
+/// Loops cannot be nested. It is an error to include a second
+/// `{{#each <category>}}` before the previous loop has been closed with
+/// `{{/each}}`.
+///
+/// Special sequences
+/// -----------------
+///
+/// The sequences "{{left}}" and "{{right}}" can be used to insert literal "{{"
+/// and "}}" sequences, respectively.
 pub struct Template {
     source: String,
 }
 
 lazy_static! {
     static ref TEMPLATE_REGEX: Regex =
-        Regex::new(r"\{\{([\$A-Za-z0-9\-_]+)(?:\.([A-Za-z]+))?(?:/([A-Za-z]+))?(?::([A-Za-z]+))?\}\}").unwrap();
+        Regex::new(r"\{\{([\$A-Za-z0-9\-_]+)(?:\.([A-Za-z]+))?(?:/([A-Za-z]+))?(?::([A-Za-z:]+))?\}\}").unwrap();
     static ref LOOP_REGEX: Regex = Regex::new(r"(?s)\{\{#each(\s+[A-Za-z0-9\-_]+)?\}\}(.*)\{\{\/each\}\}").unwrap();
     static ref PREPS: HashSet<&'static str> = {
         let mut set = HashSet::new();
@@ -138,12 +203,27 @@ impl Template {
         Self::read(file)
     }
 
+    /// Renders the template to a `String`, collecting any errors encountered.
+    ///
+    /// Syntactic and semantic errors in the template itself are collected and
+    /// returned in the `Vec<Error>`. Such errors do not halt rendering: if
+    /// syntactic or semantic errors are encountered, the function will continue
+    /// rendering  and the rendered output will contain placeholders where the
+    /// errors were encountered.
     pub fn render_to_string(&self, context: &Theme, variant: &ThemeVariant) -> (String, Vec<Error>) {
         let mut output = Vec::with_capacity(self.source.len());
         let errors = self.render(context, variant, &mut output).unwrap();
         (String::from_utf8(output).unwrap(), errors)
     }
 
+    /// Renders the template to the given writer.
+    ///
+    /// Syntactic and semantic errors in the template itself are collected and
+    /// returned in the `Vec<Error>`. Such errors do not halt rendering: if
+    /// syntactic or semantic errors are encountered, the function will return
+    /// `Ok(..)` and the rendered output will contain placeholders where the
+    /// errors were encountered. The function will only return an `Err` if an
+    /// I/O error occurs while writing to the output.
     pub fn render(&self, context: &Theme, variant: &ThemeVariant, writer: &mut impl Write) -> IoResult<Vec<Error>> {
         let Self { source } = self;
         let mut errors = Vec::new();
@@ -266,6 +346,47 @@ impl Template {
                 "temperature" => {
                     write_string(writer, &variant.temp.to_string(), fmt, errors)?;
                 }
+                "bold-keywords" => {
+                    write_boolean(writer, context.code.bold_keywords, fmt, errors)?;
+                }
+                "bold-punctuation" => {
+                    write_boolean(writer, context.code.bold_punctuation, fmt, errors)?;
+                }
+                "italic-comments" => {
+                    write_boolean(writer, context.code.italic_comments, fmt, errors)?;
+                }
+                "italic-strings" => {
+                    write_boolean(writer, context.code.italic_strings, fmt, errors)?;
+                }
+                "keyword-weight" => {
+                    if context.code.bold_keywords {
+                        write_string(writer, "bold", fmt, errors)?;
+                    }
+                }
+                "punctuation-weight" => {
+                    if context.code.bold_punctuation {
+                        write_string(writer, "bold", fmt, errors)?;
+                    }
+                }
+                "comment-style" => {
+                    if context.code.italic_comments {
+                        write_string(writer, "italic", fmt, errors)?;
+                    }
+                }
+                "string-style" => {
+                    if context.code.italic_strings {
+                        write_string(writer, "italic", fmt, errors)?;
+                    }
+                }
+                "unit-style" => {
+                    if context.code.bold_keywords && context.code.italic_strings {
+                        write_string(writer, "bold italic", fmt, errors)?;
+                    } else if context.code.bold_keywords {
+                        write_string(writer, "bold", fmt, errors)?;
+                    } else if context.code.italic_strings {
+                        write_string(writer, "italic", fmt, errors)?;
+                    }
+                }
                 "$key" => {
                     if let Some(key) = key {
                         write_string(writer, key, fmt, errors)?;
@@ -299,6 +420,35 @@ impl Template {
 
         Ok(())
     }
+}
+
+pub fn write_boolean(writer: &mut impl Write, value: bool, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {
+    let (true_str, false_str): (Cow<str>, Cow<str>) = match fmt {
+        Some(s) => {
+            let mut parts = s.split(':');
+
+            let Some(true_str) = parts.next().map(|s| Cow::Borrowed(s)) else {
+                errors.push(Error::BadFormat(s.to_string()));
+                write!(writer, "<<BAD FORMAT: '{s}'>>")?;
+                return Ok(());
+            };
+
+            let false_str = match parts.next() {
+                Some(s) => Cow::Borrowed(s),
+                None => Cow::Borrowed(""),
+            };
+
+            (true_str, false_str)
+        }
+        None => (Cow::Owned("true".to_string()), Cow::Owned("false".to_string())),
+    };
+
+    if value {
+        write!(writer, "{true_str}")?;
+    } else {
+        write!(writer, "{false_str}")?;
+    }
+    Ok(())
 }
 
 pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, errors: &mut Vec<Error>) -> IoResult<()> {

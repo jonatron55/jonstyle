@@ -1,7 +1,7 @@
 [meta]
-name = "Intrigue"
+name = "Eldritch"
 author = "Jonathon Cobb"
-version = "0.1.0"
+version = "4.0.0"
 variants = [
     { name = "Dawn", mode = "Light", temp = "Warm", },
     { name = "Dusk", mode = "Dark", temp = "Warm", },
@@ -10,21 +10,24 @@ variants = [
 ]
 
 [hue]
-mode = "Complementary"
-primary = 240.0
-spread = -70.0
-offset = 200.0
-reverse = false
+mode = "Custom"
+cold = 285.0
+cool = 210.0
+coolish = 135.0
+warmish = 90.0
+warm = 60.0
+hot = 30.0
+offset = 0.0
 
 [lum]
-range = [5.0, 95.0]
-alpha = 1.28
-gamma = 0.94
+range = [8.0, 96.0]
+alpha = 1.1
+gamma = 1.1
 
 [sat]
-muted_range = [20.0, 25.0]
-base_range = [33.0, 66.0]
-intense_range = [85.0, 95.0]
+muted_range = [10.0, 15.0]
+base_range = [65.0, 80.0]
+intense_range = [88.0, 96.0]
 
 [code]
 vocab = "JonStyle"
