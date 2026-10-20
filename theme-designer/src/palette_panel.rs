@@ -33,7 +33,7 @@ pub fn PalettePanel(
         <div class="palette panel">
             <div class="caption split-caption toolbar">
                 <h1 class="primary">"Base Palette"</h1>
-                <div class="secondary">
+                <div class="accent">
                     <ExportButton
                         caption="Export PAL"
                         name=name

@@ -1,7 +1,4 @@
-use std::{
-    fmt::{Display, Formatter, Result as FmtResult},
-    str::FromStr,
-};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use serde::{Deserialize, Serialize};
 
@@ -66,12 +63,7 @@ impl ThemeTemperature {
 
 impl Display for ThemeVariant {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        match (self.mode, self.temp) {
-            (ThemeMode::Light, ThemeTemperature::Warm) => write!(f, "Dawn"),
-            (ThemeMode::Dark, ThemeTemperature::Warm) => write!(f, "Dusk"),
-            (ThemeMode::Light, ThemeTemperature::Cool) => write!(f, "Noon"),
-            (ThemeMode::Dark, ThemeTemperature::Cool) => write!(f, "Night"),
-        }
+        write!(f, "{}", self.name)
     }
 }
 
@@ -89,20 +81,6 @@ impl Display for ThemeTemperature {
         match self {
             ThemeTemperature::Cool => write!(f, "Cool"),
             ThemeTemperature::Warm => write!(f, "Warm"),
-        }
-    }
-}
-
-impl FromStr for ThemeVariant {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "dawn" => Ok(Self::dawn()),
-            "dusk" => Ok(Self::dusk()),
-            "noon" => Ok(Self::noon()),
-            "night" => Ok(Self::night()),
-            _ => Err(format!("Invalid theme variant: {s}")),
         }
     }
 }

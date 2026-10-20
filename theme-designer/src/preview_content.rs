@@ -44,8 +44,8 @@ pub fn PreviewContent() -> impl IntoView {
             <hr />
             <button type="button">Button</button>
             "\u{00A0}"
-            <button type="button" class="secondary">
-                Secondary
+            <button type="button" class="accent">
+                Accent
             </button>
             "\u{00A0}"
             <button type="button" disabled>
@@ -110,42 +110,44 @@ pub fn PreviewContent() -> impl IntoView {
                 <span class="namespace">"std"</span>
                 <span class="operator">"::"</span>
                 <span class="namespace">"io"</span>
-                <span class="operator">"::*;"</span>
+                <span class="operator">"::*"</span>
+                <span class="punctuation">";"</span>
                 <br />
                 <br />
                 <span class="keyword">"fn "</span>
                 <span class="function">"main"</span>
-                <span class="operator">"() -> "</span>
+                <span class="punctuation">"() -> "</span>
                 <span class="type">"Result"</span>
-                <span class="operator">"<(), ()> {"</span>
+                <span class="punctuation">"<(), ()> {"</span>
                 <br />
                 <span>"    "</span>
                 <span class="control-keyword">"for "</span>
                 <span class="variable">"i"</span>
                 <span class="control-keyword">" in "</span>
-                <span class="operator">"("</span>
+                <span class="punctuation">"("</span>
                 <span class="literal">"0"</span>
                 <span class="operator">".."</span>
                 <span class="literal">"100"</span>
-                <span class="operator">")."</span>
+                <span class="punctuation">")."</span>
                 <span class="function">"rev"</span>
-                <span class="operator">"() {"</span>
+                <span class="punctuation">"() {"</span>
                 <br />
                 <span>"        "</span>
-                <span class="macro">"print!("</span>
+                <span class="macro">"print!"</span>
+                <span class="punctuation">"("</span>
                 <span class="string-delimiter">"\""</span>
-                <span class="operator">"{"</span>
+                <span class="punctuation">"{"</span>
                 <span class="variable">"i"</span>
-                <span class="operator">"}"</span>
+                <span class="punctuation">"}"</span>
                 <span class="string">" bottles of beer on the wall!"</span>
                 <span class="escape">"\\n"</span>
                 <span class="string-delimiter">"\""</span>
-                <span class="operator">");"</span>
+                <span class="punctuation">");"</span>
                 <br />
                 <span>"    "</span>
-                <span class="operator">"}"</span>
+                <span class="punctuation">"}"</span>
                 <br />
-                <span class="operator">"}"</span>
+                <span class="punctuation">"}"</span>
             </pre>
             <div class="card">
                 <h1 class="caption">Card with Caption</h1>
@@ -154,9 +156,9 @@ pub fn PreviewContent() -> impl IntoView {
                     could have provoked such a question."
                 </p>
                 <div class="buttons-container">
-                    <button class="secondary-button">Retry</button>
+                    <button class="accent-button">Retry</button>
                     "\u{00A0}"
-                    <button class="secondary-button">Cancel</button>
+                    <button class="accent-button">Cancel</button>
                 </div>
             </div>
             <p>

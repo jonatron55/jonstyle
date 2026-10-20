@@ -7,7 +7,7 @@ use std::{
 #[cfg(feature = "image")]
 use std::{
     fs::File,
-    io::{stdout, BufRead, BufReader, Seek},
+    io::{BufRead, BufReader, Seek, stdout},
     path::Path,
 };
 
@@ -25,10 +25,10 @@ use glam::FloatExt;
 use image::{DynamicImage, GenericImageView, ImageReader};
 use itertools::Itertools;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::color::okhsl;
 #[cfg(feature = "image")]
 use crate::color::SRgba;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::color::okhsl;
 use crate::{
     color::{OkHsl, SRgb},
     theme::HueBuilder,

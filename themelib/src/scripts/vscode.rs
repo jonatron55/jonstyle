@@ -6,7 +6,7 @@ use std::{
     process::Command,
 };
 
-use anyhow::{bail, Result as AnyResult};
+use anyhow::{Result as AnyResult, bail};
 use serde_json::json;
 
 use crate::template::Template;

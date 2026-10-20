@@ -193,9 +193,9 @@ impl ThemeBuilder {
 
         Theme {
             meta: self.meta.clone(),
+            code: self.code.clone(),
             base_palette,
             primaries,
-            code: self.code.clone(),
         }
     }
 

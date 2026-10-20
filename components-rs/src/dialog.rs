@@ -36,23 +36,18 @@ pub fn Dialog(
                     <p>{content}</p>
                 </div>
                 <div class="buttons">
-                    <button class="primary" on:click=move |_| on_yes.run(())>
+                    <button class="accent" on:click=move |_| on_yes.run(())>
                         {yes_caption}
                     </button>
                     {move || {
                         if let Some(no_caption) = no_caption.clone() {
                             let on_no = on_no.clone();
                             view! {
-                                <button
-                                    class="secondary"
-                                    on:click=move |_| {
-                                        if let Some(on_no) = &on_no {
-                                            on_no.run(());
-                                        }
+                                <button on:click=move |_| {
+                                    if let Some(on_no) = &on_no {
+                                        on_no.run(());
                                     }
-                                >
-                                    {no_caption}
-                                </button>
+                                }>{no_caption}</button>
                             }
                                 .into_any()
                         } else {

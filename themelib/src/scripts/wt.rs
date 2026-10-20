@@ -49,10 +49,7 @@ pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
             "foreground".to_string(),
             json_color(&theme, variant, "primary-foreground"),
         );
-        new.insert(
-            "background".to_string(),
-            json_color(&theme, variant, "page-background"),
-        );
+        new.insert("background".to_string(), json_color(&theme, variant, "page-background"));
         new.insert(
             "selectionBackground".to_string(),
             json_color(&theme, variant, "selection-background"),
@@ -71,10 +68,7 @@ pub fn make_wt_theme(theme: &Theme, force: bool) -> AnyResult<()> {
             "brightPurple".to_string(),
             json_color(&theme, variant, "bright-magenta"),
         );
-        new.insert(
-            "brightYellow".to_string(),
-            json_color(&theme, variant, "bright-yellow"),
-        );
+        new.insert("brightYellow".to_string(), json_color(&theme, variant, "bright-yellow"));
         new.insert("black".to_string(), json_color(&theme, variant, "dark-black"));
         new.insert("brightBlack".to_string(), json_color(&theme, variant, "bright-black"));
         new.insert("white".to_string(), json_color(&theme, variant, "dark-white"));

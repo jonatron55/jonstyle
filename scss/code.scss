@@ -34,6 +34,11 @@ div.listing {
     font-weight: var(--punctuation-weight);
   }
 
+  .punctuation {
+    color: var(--punctuation);
+    font-weight: var(--punctuation-weight);
+  }
+
   .variable {
     color: var(--variable);
   }

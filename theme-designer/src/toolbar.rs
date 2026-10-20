@@ -64,7 +64,7 @@ pub fn Toolbar(
             <div class="title">
                 <h1 class="title">"Theme Designer"</h1>
             </div>
-            <div class="secondary">
+            <div class="accent">
                 <input
                     type="radio"
                     name="variant"

@@ -1,17 +1,17 @@
 // Copyright (c) 2025 Jonathon B. Cobb
 // Licensed under the MIT License
 
-.secondary {
-  --chrome: var(--secondary-control-background);
-  --chrome-shadow: mix(var(--secondary-control-background), transparent, 50%);
-  --control-background: var(--secondary-control-background);
-  --control-foreground: var(--secondary-control-foreground);
-  --control-hover-background: var(--secondary-control-hover-background);
-  --control-hover-foreground: var(--secondary-control-hover-foreground);
-  --control-active-background: var(--secondary-control-active-background);
-  --control-active-foreground: var(--secondary-control-active-foreground);
-  --control-disabled-background: var(--secondary-control-disabled-background);
-  --control-disabled-foreground: var(--secondary-control-disabled-foreground);
+.accent {
+  --chrome: var(--accent-control-background);
+  --chrome-shadow: mix(var(--accent-control-background), transparent, 50%);
+  --control-background: var(--accent-control-background);
+  --control-foreground: var(--accent-control-foreground);
+  --control-hover-background: var(--accent-control-hover-background);
+  --control-hover-foreground: var(--accent-control-hover-foreground);
+  --control-active-background: var(--accent-control-active-background);
+  --control-active-foreground: var(--accent-control-active-foreground);
+  --control-disabled-background: var(--accent-control-disabled-background);
+  --control-disabled-foreground: var(--accent-control-disabled-foreground);
 }
 
 .ok {

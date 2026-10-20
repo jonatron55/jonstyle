@@ -227,14 +227,14 @@ lazy_static! {
         set.insert("ok-shadow".to_string());
         set.insert("page-background".to_string());
         set.insert("primary-foreground".to_string());
-        set.insert("secondary-control-active-background".to_string());
-        set.insert("secondary-control-active-foreground".to_string());
-        set.insert("secondary-control-background".to_string());
-        set.insert("secondary-control-disabled-background".to_string());
-        set.insert("secondary-control-disabled-foreground".to_string());
-        set.insert("secondary-control-foreground".to_string());
-        set.insert("secondary-control-hover-background".to_string());
-        set.insert("secondary-control-hover-foreground".to_string());
+        set.insert("accent-control-active-background".to_string());
+        set.insert("accent-control-active-foreground".to_string());
+        set.insert("accent-control-background".to_string());
+        set.insert("accent-control-disabled-background".to_string());
+        set.insert("accent-control-disabled-foreground".to_string());
+        set.insert("accent-control-foreground".to_string());
+        set.insert("accent-control-hover-background".to_string());
+        set.insert("accent-control-hover-foreground".to_string());
         set.insert("selection-background".to_string());
         set.insert("dark-black".to_string());
         set.insert("bright-black".to_string());
@@ -258,6 +258,7 @@ lazy_static! {
         set.insert("control-keyword".to_string());
         set.insert("directive".to_string());
         set.insert("operator".to_string());
+        set.insert("punctuation".to_string());
         set.insert("variable".to_string());
         set.insert("argument".to_string());
         set.insert("literal".to_string());
@@ -360,7 +361,7 @@ impl Temp {
         .into_iter()
     }
 
-    pub fn to_theme_hue(&self, variant: ThemeVariant) -> ThemeHue {
+    pub fn to_theme_hue(&self, variant: &ThemeVariant) -> ThemeHue {
         match variant.temp {
             ThemeTemperature::Cool => match self {
                 Temp::Cold => ThemeHue::Color1,

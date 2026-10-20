@@ -25,14 +25,14 @@ pub struct Theme {
     /// Theme metadata.
     pub meta: Metadata,
 
+    /// The code style configuration for the theme.
+    pub code: CodeStyle,
+
     /// The hue range in degrees for the theme's cool colors.
     base_palette: BasePalette,
 
     /// Mapping of primary colors to their associated temperatures.
     primaries: PrimaryMap,
-
-    /// The code style configuration for the theme.
-    pub code: CodeStyle,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,23 +75,34 @@ impl Theme {
                 self.base_palette[*sat as usize][temp as usize][lum as usize].with_a(1.0)
             }
             Indexer::Semantic(variant, name) => {
-                let mut ctrl_hue = ThemeHue::Color1;
+                let red = self.primaries[&Primary::Red].to_theme_hue(*variant);
+                let green = self.primaries[&Primary::Green].to_theme_hue(*variant);
+                let blue = self.primaries[&Primary::Blue].to_theme_hue(*variant);
+                let cyan = self.primaries[&Primary::Cyan].to_theme_hue(*variant);
+                let magenta = self.primaries[&Primary::Magenta].to_theme_hue(*variant);
+                let yellow = self.primaries[&Primary::Yellow].to_theme_hue(*variant);
 
-                while ctrl_hue.to_temp(*variant) == self.primaries[&Primary::Red]
-                    || ctrl_hue.to_temp(*variant) == self.primaries[&Primary::Yellow]
-                    || ctrl_hue.to_temp(*variant) == self.primaries[&Primary::Green]
+                let ctrl_hue = ThemeHue::Color1;
+
+                let danger_hue = if ctrl_hue != red { red } else { magenta };
+
+                let caution_hue = if ctrl_hue != yellow {
+                    yellow
+                } else if danger_hue != magenta {
+                    magenta
+                } else {
+                    cyan
+                };
+
+                let ok_hue = if ctrl_hue != green { green } else { blue };
+
+                let mut accent_hue = ThemeHue::Color6;
+                while accent_hue == danger_hue
+                    || accent_hue == caution_hue
+                    || accent_hue == ok_hue
+                    || accent_hue == ctrl_hue
                 {
-                    ctrl_hue = ctrl_hue.next();
-                }
-
-                let mut secondary_hue = ctrl_hue.next();
-
-                while secondary_hue.to_temp(*variant) == self.primaries[&Primary::Red]
-                    || secondary_hue.to_temp(*variant) == self.primaries[&Primary::Blue]
-                    || secondary_hue.to_temp(*variant) == self.primaries[&Primary::Green]
-                    || secondary_hue == ctrl_hue
-                {
-                    secondary_hue = secondary_hue.next();
+                    accent_hue = accent_hue.next();
                 }
 
                 let accent_level = Level::HigherMidground;
@@ -100,7 +111,7 @@ impl Theme {
                 let link_level = Level::HighMidground;
                 let disabled_fg_level = Level::HighMidground;
                 let disabled_bg_level = Level::HighBackground;
-                let dsabled_link_level = Level::LowMidground;
+                let disabled_link_level = Level::LowMidground;
 
                 let (index, alpha) = match *name {
                     /*
@@ -131,11 +142,11 @@ impl Theme {
                         1.0,
                     ),
                     "selection-background" => (
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::LowerMidground),
+                        Indexer::Themed(*variant, Sat::Base, accent_hue, Level::LowMidground),
                         1.0,
                     ),
                     "dim-selection-background" => (
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, accent_hue, Level::HighBackground),
                         1.0,
                     ),
                     "content-background-transparent" => (
@@ -195,7 +206,7 @@ impl Theme {
                         Indexer::Themed(*variant, Sat::Intense, ctrl_hue, link_level.dimmer(*variant)),
                         1.0,
                     ),
-                    "link-disabled" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, dsabled_link_level), 1.0),
+                    "link-disabled" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, disabled_link_level), 1.0),
 
                     /*
                         Labels
@@ -256,251 +267,191 @@ impl Theme {
                     }
 
                     /*
-                        Secondary controls
+                        Accent controls
                     */
-                    "secondary-control-foreground" => {
-                        (Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level), 1.0)
+                    "accent-control-foreground" => {
+                        (Indexer::Themed(*variant, Sat::Base, accent_hue, ctrl_fg_level), 1.0)
                     }
-                    "secondary-control-background" => {
-                        (Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level), 1.0)
+                    "accent-control-background" => {
+                        (Indexer::Themed(*variant, Sat::Intense, accent_hue, ctrl_bg_level), 1.0)
                     }
-                    "secondary-control-hover-foreground" => (
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.brighter(*variant)),
+                    "accent-control-hover-foreground" => (
+                        Indexer::Themed(*variant, Sat::Base, accent_hue, ctrl_fg_level.brighter(*variant)),
                         1.0,
                     ),
-                    "secondary-control-hover-background" => (
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.brighter(*variant)),
+                    "accent-control-hover-background" => (
+                        Indexer::Themed(*variant, Sat::Intense, accent_hue, ctrl_bg_level.brighter(*variant)),
                         1.0,
                     ),
-                    "secondary-control-active-foreground" => (
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, ctrl_fg_level.dimmer(*variant)),
+                    "accent-control-active-foreground" => (
+                        Indexer::Themed(*variant, Sat::Base, accent_hue, ctrl_fg_level.dimmer(*variant)),
                         1.0,
                     ),
-                    "secondary-control-active-background" => (
-                        Indexer::Themed(*variant, Sat::Base, secondary_hue, ctrl_bg_level.dimmer(*variant)),
+                    "accent-control-active-background" => (
+                        Indexer::Themed(*variant, Sat::Intense, accent_hue, ctrl_bg_level.dimmer(*variant)),
                         1.0,
                     ),
-                    "secondary-control-disabled-foreground" => (
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_fg_level),
+                    "accent-control-disabled-foreground" => (
+                        Indexer::Themed(*variant, Sat::Muted, accent_hue, disabled_fg_level),
                         1.0,
                     ),
-                    "secondary-control-disabled-background" => (
-                        Indexer::Themed(*variant, Sat::Muted, secondary_hue, disabled_bg_level),
+                    "accent-control-disabled-background" => (
+                        Indexer::Themed(*variant, Sat::Muted, accent_hue, disabled_bg_level),
                         1.0,
                     ),
 
                     /*
                         Affirmative/success colors
                     */
-                    "ok-control-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level),
-                        1.0,
-                    ),
-                    "ok-control-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, ctrl_bg_level),
-                        1.0,
-                    ),
+                    "ok-control-foreground" => (Indexer::Themed(*variant, Sat::Base, ok_hue, ctrl_fg_level), 1.0),
+                    "ok-control-background" => (Indexer::Themed(*variant, Sat::Intense, ok_hue, ctrl_bg_level), 1.0),
                     "ok-control-hover-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.brighter(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, ok_hue, ctrl_fg_level.brighter(*variant)),
                         1.0,
                     ),
                     "ok-control-hover-background" => (
-                        Indexer::ThemedPrimary(
-                            *variant,
-                            Sat::Intense,
-                            Primary::Green,
-                            ctrl_bg_level.brighter(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Intense, ok_hue, ctrl_bg_level.brighter(*variant)),
                         1.0,
                     ),
                     "ok-control-active-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_fg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, ok_hue, ctrl_fg_level.dimmer(*variant)),
                         1.0,
                     ),
                     "ok-control-active-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, ctrl_bg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, ok_hue, ctrl_bg_level.dimmer(*variant)),
                         1.0,
                     ),
-                    "ok-control-disabled-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_fg_level),
-                        1.0,
-                    ),
-                    "ok-control-disabled-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Green, disabled_bg_level),
-                        1.0,
-                    ),
+                    "ok-control-disabled-foreground" => {
+                        (Indexer::Themed(*variant, Sat::Muted, ok_hue, disabled_fg_level), 1.0)
+                    }
+                    "ok-control-disabled-background" => {
+                        (Indexer::Themed(*variant, Sat::Muted, ok_hue, disabled_bg_level), 1.0)
+                    }
 
-                    "ok-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Green, accent_level),
-                        1.0,
-                    ),
-                    "ok-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
-                        1.0,
-                    ),
+                    "ok-foreground" => (Indexer::Themed(*variant, Sat::Intense, ok_hue, accent_level), 1.0),
+                    "ok-background" => (Indexer::Themed(*variant, Sat::Base, ok_hue, Level::HighBackground), 1.0),
                     "ok-background-transparent" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, ok_hue, Level::HighBackground),
                         BACKGROUND_ALPHA,
                     ),
                     "ok-shadow" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Lum::DimHigh.to_level(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, ok_hue, Lum::DimHigh.to_level(*variant)),
                         SHADOW_ALPHA,
                     ),
 
                     /*
                         Cautionary/warning colors
                     */
-                    "caution-control-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level),
-                        1.0,
-                    ),
-                    "caution-control-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, ctrl_bg_level),
-                        1.0,
-                    ),
+                    "caution-control-foreground" => {
+                        (Indexer::Themed(*variant, Sat::Base, caution_hue, ctrl_fg_level), 1.0)
+                    }
+                    "caution-control-background" => {
+                        (Indexer::Themed(*variant, Sat::Intense, caution_hue, ctrl_bg_level), 1.0)
+                    }
                     "caution-control-hover-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.brighter(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, ctrl_fg_level.brighter(*variant)),
                         1.0,
                     ),
                     "caution-control-hover-background" => (
-                        Indexer::ThemedPrimary(
-                            *variant,
-                            Sat::Intense,
-                            Primary::Yellow,
-                            ctrl_bg_level.brighter(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Intense, caution_hue, ctrl_bg_level.brighter(*variant)),
                         1.0,
                     ),
                     "caution-control-active-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_fg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, ctrl_fg_level.dimmer(*variant)),
                         1.0,
                     ),
                     "caution-control-active-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, ctrl_bg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, ctrl_bg_level.dimmer(*variant)),
                         1.0,
                     ),
                     "caution-control-disabled-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_fg_level),
+                        Indexer::Themed(*variant, Sat::Muted, caution_hue, disabled_fg_level),
                         1.0,
                     ),
                     "caution-control-disabled-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Yellow, disabled_bg_level),
+                        Indexer::Themed(*variant, Sat::Muted, caution_hue, disabled_bg_level),
                         1.0,
                     ),
-                    "caution-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Yellow, accent_level),
-                        1.0,
-                    ),
+                    "caution-foreground" => (Indexer::Themed(*variant, Sat::Intense, caution_hue, accent_level), 1.0),
                     "caution-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, Level::HighBackground),
                         1.0,
                     ),
                     "caution-background-transparent" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, Level::HighBackground),
                         BACKGROUND_ALPHA,
                     ),
                     "caution-shadow" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Lum::DimHigh.to_level(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, caution_hue, Lum::DimHigh.to_level(*variant)),
                         SHADOW_ALPHA,
                     ),
 
                     /*
                         Danger/error colors
                     */
-                    "danger-control-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level),
-                        1.0,
-                    ),
-                    "danger-control-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level),
-                        1.0,
-                    ),
+                    "danger-control-foreground" => {
+                        (Indexer::Themed(*variant, Sat::Base, danger_hue, ctrl_fg_level), 1.0)
+                    }
+                    "danger-control-background" => {
+                        (Indexer::Themed(*variant, Sat::Intense, danger_hue, ctrl_bg_level), 1.0)
+                    }
                     "danger-control-hover-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.brighter(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, ctrl_fg_level.brighter(*variant)),
                         1.0,
                     ),
                     "danger-control-hover-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, ctrl_bg_level.brighter(*variant)),
+                        Indexer::Themed(*variant, Sat::Intense, danger_hue, ctrl_bg_level.brighter(*variant)),
                         1.0,
                     ),
                     "danger-control-active-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_fg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, ctrl_fg_level.dimmer(*variant)),
                         1.0,
                     ),
                     "danger-control-active-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, ctrl_bg_level.dimmer(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, ctrl_bg_level.dimmer(*variant)),
                         1.0,
                     ),
                     "danger-control-disabled-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_fg_level),
+                        Indexer::Themed(*variant, Sat::Muted, danger_hue, disabled_fg_level),
                         1.0,
                     ),
                     "danger-control-disabled-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Red, disabled_bg_level),
+                        Indexer::Themed(*variant, Sat::Muted, danger_hue, disabled_bg_level),
                         1.0,
                     ),
-                    "danger-foreground" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, accent_level),
-                        1.0,
-                    ),
+                    "danger-foreground" => (Indexer::Themed(*variant, Sat::Intense, danger_hue, accent_level), 1.0),
                     "danger-background" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, Level::HighBackground),
                         1.0,
                     ),
                     "danger-background-transparent" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighBackground),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, Level::HighBackground),
                         BACKGROUND_ALPHA,
                     ),
                     "danger-shadow" => (
-                        Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Lum::DimHigh.to_level(*variant)),
+                        Indexer::Themed(*variant, Sat::Base, danger_hue, Lum::DimHigh.to_level(*variant)),
                         SHADOW_ALPHA,
                     ),
 
                     /*
                         Input and text fields
                     */
-                    "input-background" => (
-                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::Background),
-                        1.0,
-                    ),
-                    "input-border" => (
-                        Indexer::Themed(*variant, Sat::Base, ThemeHue::Color1, Level::LowMidground),
-                        1.0,
-                    ),
+                    "input-background" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, Level::Background), 1.0),
+                    "input-border" => (Indexer::Themed(*variant, Sat::Base, ctrl_hue, Level::LowMidground), 1.0),
                     "input-hover-background" => (
-                        Indexer::Themed(
-                            *variant,
-                            Sat::Base,
-                            ThemeHue::Color1,
-                            Level::Background.brighter(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, Level::Background.brighter(*variant)),
                         1.0,
                     ),
                     "input-hover-border" => (
-                        Indexer::Themed(
-                            *variant,
-                            Sat::Base,
-                            ThemeHue::Color1,
-                            Level::LowMidground.brighter(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, Level::LowMidground.brighter(*variant)),
                         1.0,
                     ),
                     "input-active-background" => (
-                        Indexer::Themed(
-                            *variant,
-                            Sat::Base,
-                            ThemeHue::Color1,
-                            Level::Background.dimmer(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Base, ctrl_hue, Level::Background.dimmer(*variant)),
                         1.0,
                     ),
                     "input-active-border" => (
-                        Indexer::Themed(
-                            *variant,
-                            Sat::Intense,
-                            ThemeHue::Color1,
-                            Level::LowMidground.dimmer(*variant),
-                        ),
+                        Indexer::Themed(*variant, Sat::Intense, ctrl_hue, Level::LowMidground.dimmer(*variant)),
                         1.0,
                     ),
 
@@ -649,7 +600,7 @@ impl Theme {
                     },
                     "directive" => match self.code.vocab {
                         ColorVocabulary::JonStyle => (
-                            Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Blue, Level::HigherMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Muted, Primary::Blue, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
@@ -691,6 +642,10 @@ impl Theme {
                             1.0,
                         ),
                     },
+                    "punctuation" => (
+                        Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::LowForeground),
+                        1.0,
+                    ),
                     "variable" => match self.code.vocab {
                         ColorVocabulary::JonStyle | ColorVocabulary::VisualStudio => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
@@ -711,7 +666,7 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
-                            Indexer::Themed(*variant, Sat::Base, ThemeHue::Color5, Level::HighMidground),
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color5, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
@@ -729,19 +684,19 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Monokai => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Primer => (
-                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Blue, Level::LowForeground),
                             1.0,
                         ),
                     },
@@ -751,11 +706,11 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Green, Level::HigherMidground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HigherMidground),
                             1.0,
                         ),
                         ColorVocabulary::Monokai => (
@@ -763,7 +718,7 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::Primer => (
-                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::LowForeground),
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::HigherMidground),
                             1.0,
                         ),
                     },
@@ -773,11 +728,11 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Monokai => (
@@ -791,29 +746,29 @@ impl Theme {
                     },
                     "string-delimiter" => match self.code.vocab {
                         ColorVocabulary::JonStyle => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::LowMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Red, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::LowMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::Monokai => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::LowMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Yellow, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::Primer => (
-                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::HigherMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::HighMidground),
                             1.0,
                         ),
                     },
                     "escape" => match self.code.vocab {
                         ColorVocabulary::JonStyle => (
-                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::LowForeground),
+                            Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Blue, Level::HighMidground),
                             1.0,
                         ),
                         ColorVocabulary::VisualStudio => (
@@ -829,7 +784,7 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::Primer => (
-                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::HigherMidground),
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Cyan, Level::LowerMidground),
                             1.0,
                         ),
                     },
@@ -878,16 +833,12 @@ impl Theme {
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Magenta, Level::HigherMidground),
                             1.0,
                         ),
-                        ColorVocabulary::VisualStudio => (
-                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::LowForeground),
+                        ColorVocabulary::VisualStudio | ColorVocabulary::Monokai => (
+                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color1, Level::Foreground),
                             1.0,
                         ),
                         ColorVocabulary::Vim => (
                             Indexer::ThemedPrimary(*variant, Sat::Base, Primary::Cyan, Level::HigherMidground),
-                            1.0,
-                        ),
-                        ColorVocabulary::Monokai => (
-                            Indexer::Themed(*variant, Sat::Muted, ThemeHue::Color6, Level::LowForeground),
                             1.0,
                         ),
                         ColorVocabulary::Primer => (
@@ -927,7 +878,7 @@ impl Theme {
                             1.0,
                         ),
                         ColorVocabulary::Monokai => (
-                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::LowForeground),
+                            Indexer::ThemedPrimary(*variant, Sat::Intense, Primary::Red, Level::HigherMidground),
                             1.0,
                         ),
                         ColorVocabulary::Primer => (

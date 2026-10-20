@@ -11,12 +11,12 @@
     "breadcrumb.background": "#{{content-background.rgb:X}}",
     "breadcrumb.focusForeground": "#{{chrome-foreground.rgb:X}}",
     "breadcrumb.foreground": "#{{primary-foreground.rgb:X}}",
-    "button.background": "#{{control-background.rgb:X}}",
-    "button.foreground": "#{{control-foreground.rgb:X}}",
-    "button.hoverBackground": "#{{control-hover-background.rgb:X}}",
-    "button.secondaryBackground": "#{{secondary-control-background.rgb:X}}",
-    "button.secondaryForeground": "#{{secondary-control-foreground.rgb:X}}",
-    "button.secondaryHoverBackground": "#{{secondary-control-hover-background.rgb:X}}",
+    "button.background": "#{{accent-control-background.rgb:X}}",
+    "button.foreground": "#{{accent-control-foreground.rgb:X}}",
+    "button.hoverBackground": "#{{accent-control-hover-background.rgb:X}}",
+    "button.secondaryBackground": "#{{control-background.rgb:X}}",
+    "button.secondaryForeground": "#{{control-foreground.rgb:X}}",
+    "button.secondaryHoverBackground": "#{{control-hover-background.rgb:X}}",
     "diffEditor.border": "#{{chrome-background.rgb:X}}",
     "diffEditor.insertedTextBackground": "#{{base-green-low-midground.rgb:X}}66",
     "dropdown.background": "#{{input-background.rgb:X}}FF",
@@ -231,6 +231,17 @@
     {
       "name": "Punctuation, Operator",
       "scope": [
+        "operator",
+        "keyword.operator"
+      ],
+      "settings": {
+        "fontStyle": "{{punctuation-weight}}",
+        "foreground": "#{{operator.rgb:X}}"
+      }
+    },
+    {
+      "name": "Punctuation, General",
+      "scope": [
         "punctuation",
         "meta.tag",
         "punctuation.definition.tag",
@@ -240,7 +251,6 @@
         "punctuation.definition.tag.end.html",
         "punctuation.section.embedded",
         "meta.separator",
-        "keyword.operator",
         "punctuation.definition.table.markdown",
         "punctuation.separator.table.markdown"
       ],

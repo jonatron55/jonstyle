@@ -15,7 +15,7 @@ use themelib::{
     sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
     template::{fmt_string, Template},
-    theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder, ThemeVariant},
+    theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder},
 };
 
 /// Generates six-colour themes from a given configuration file and applies them
@@ -206,7 +206,7 @@ pub enum Command {
         config: PathBuf,
 
         #[arg(short, long, alias = "var")]
-        variant: ThemeVariant,
+        variant: String,
     },
 
     /// Add the given theme to Windows Terminal.
@@ -476,6 +476,15 @@ pub fn main() -> AnyResult<()> {
         }
         Command::List { config, variant } => {
             let theme = load_config(&config)?;
+            let Some(variant) = theme
+                .meta
+                .variants
+                .iter()
+                .find(|v| v.name.to_uppercase() == variant.to_uppercase())
+            else {
+                bail!("Theme does not contain a variant named: '{variant}'");
+            };
+
             for indexer in Indexer::iter(&variant) {
                 let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
