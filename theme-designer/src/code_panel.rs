@@ -1,3 +1,4 @@
+use components::Expander;
 use leptos::prelude::*;
 use themelib::theme::{ColorVocabulary, ThemeBuilder};
 
@@ -44,8 +45,7 @@ pub fn CodePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
     };
 
     view! {
-        <div class="panel">
-            <h1 class="caption">"Code style"</h1>
+        <Expander title="Code Style">
             <div class="meta content">
                 <label>"Vocabulary"</label>
                 <select prop:value=vocab on:change=vocab_changed>
@@ -104,6 +104,6 @@ pub fn CodePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     <label for="italic-strings">"Italic Strings"</label>
                 </div>
             </div>
-        </div>
+        </Expander>
     }
 }

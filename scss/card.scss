@@ -145,6 +145,17 @@ $tooltip-delay: 500ms;
   }
 }
 
+.expander {
+  &>.caption {
+    display: grid;
+    grid-template-columns: 1fr auto;
+
+    button:first-child {
+      min-width: 16rem;
+    }
+  }
+}
+
 .panel>.content,
 .card>.content,
 .tooltip>.content {

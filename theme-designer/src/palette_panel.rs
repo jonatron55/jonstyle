@@ -1,5 +1,5 @@
 use anyhow::{Error as AnyError, Result as AnyResult};
-use components::ExportButton;
+use components::{Expander, ExportButton, SecondaryCommands};
 use leptos::prelude::*;
 use themelib::{
     scripts::pal::write_pal,
@@ -12,6 +12,8 @@ pub fn PalettePanel(
     theme: Signal<Theme, LocalStorage>,
     on_error: impl Callable<AnyError, ()> + Clone + 'static,
 ) -> impl IntoView {
+    let on_error = UnsyncCallback::new(move |err: AnyError| on_error.run(err));
+
     let name = Signal::derive_local({
         let theme = theme.clone();
         move || theme.with(|theme| fmt_string(&theme.meta.name, "k"))
@@ -30,21 +32,18 @@ pub fn PalettePanel(
     });
 
     view! {
-        <div class="palette panel">
-            <div class="caption split-caption toolbar">
-                <h1 class="primary">"Base Palette"</h1>
-                <div class="accent">
-                    <ExportButton
-                        caption="Export PAL"
-                        name=name
-                        extension="pal"
-                        on_write=export_pal.clone()
-                        on_error=on_error.clone()
-                        {..}
-                        class="toolbar"
-                    />
-                </div>
-            </div>
+        <Expander title="Base Palette" expanded_by_default=true>
+            <SecondaryCommands slot>
+                <ExportButton
+                    caption="Export PAL"
+                    name=name
+                    extension="pal"
+                    on_write=export_pal.clone()
+                    on_error=on_error.clone()
+                    {..}
+                    class="toolbar"
+                />
+            </SecondaryCommands>
             <div class="content palette-grid">
                 {Lum::iter()
                     .map(|lum| {
@@ -80,6 +79,6 @@ pub fn PalettePanel(
                     })
                     .collect::<Vec<_>>()}
             </div>
-        </div>
+        </Expander>
     }
 }

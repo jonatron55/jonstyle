@@ -12,6 +12,7 @@ mod slider;
 mod toolbar;
 
 use anyhow::Error as AnyError;
+use components::Expander;
 use components::{Dialog, Severity};
 use leptos::prelude::*;
 use themelib::theme::{Indexer, Theme, ThemeBuilder, ThemeVariant};
@@ -92,11 +93,12 @@ fn App() -> impl IntoView {
                     view! {
                         <Dialog
                             title="Error parsing configuration"
-                            content=load_error
                             yes_caption="OK"
                             severity=Severity::Danger
                             on_yes=move || set_load_error.set(None)
-                        />
+                        >
+                            {load_error}
+                        </Dialog>
                     }
                 })
         }}
@@ -117,10 +119,9 @@ fn App() -> impl IntoView {
             </div>
             <div class="right">
                 <PalettePanel theme on_error=on_error.clone() />
-                <div class="panel">
-                    <h1 class="caption">"Preview"</h1>
+                <Expander title="Preview" expanded_by_default=true>
                     <PreviewContent />
-                </div>
+                </Expander>
             </div>
         </div>
     }

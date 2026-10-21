@@ -1,3 +1,4 @@
+use components::{Expander, SecondaryCommands};
 use leptos::prelude::*;
 use themelib::theme::{HueBuilder, ThemeBuilder};
 use wasm_bindgen::JsCast;
@@ -67,70 +68,67 @@ pub fn HuePanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
     });
 
     view! {
-        <div class="panel">
-            <div class="caption split-caption toolbar">
-                <h1 class="primary">"Hues"</h1>
-                <div>
-                    <input
-                        type="radio"
-                        class="toolbar button"
-                        name="hue-mode"
-                        value="analogous"
-                        id="analogous"
-                        prop:checked=move || mode.get() == PanelMode::Analogous
-                        on:change:target=move |ev| {
-                            if ev.target().checked() {
-                                on_mode_selected.run(PanelMode::Analogous);
-                            }
+        <Expander title="Hues" expanded_by_default=true>
+            <SecondaryCommands slot>
+                <input
+                    type="radio"
+                    class="toolbar button"
+                    name="hue-mode"
+                    value="analogous"
+                    id="analogous"
+                    prop:checked=move || mode.get() == PanelMode::Analogous
+                    on:change:target=move |ev| {
+                        if ev.target().checked() {
+                            on_mode_selected.run(PanelMode::Analogous);
                         }
-                    />
-                    <label for="analogous">"Analogous"</label>
-                    <input
-                        type="radio"
-                        class="toolbar button"
-                        name="hue-mode"
-                        value="complementary"
-                        id="complementary"
-                        prop:checked=move || mode.get() == PanelMode::Complementary
-                        on:change:target=move |ev| {
-                            if ev.target().checked() {
-                                on_mode_selected.run(PanelMode::Complementary);
-                            }
+                    }
+                />
+                <label for="analogous">"Analogous"</label>
+                <input
+                    type="radio"
+                    class="toolbar button"
+                    name="hue-mode"
+                    value="complementary"
+                    id="complementary"
+                    prop:checked=move || mode.get() == PanelMode::Complementary
+                    on:change:target=move |ev| {
+                        if ev.target().checked() {
+                            on_mode_selected.run(PanelMode::Complementary);
                         }
-                    />
-                    <label for="complementary">"Complementary"</label>
-                    <input
-                        type="radio"
-                        class="toolbar button"
-                        name="hue-mode"
-                        value="triadic"
-                        id="triadic"
-                        prop:checked=move || mode.get() == PanelMode::Triadic
-                        on:change:target=move |ev| {
-                            if ev.target().checked() {
-                                on_mode_selected.run(PanelMode::Triadic);
-                            }
+                    }
+                />
+                <label for="complementary">"Complementary"</label>
+                <input
+                    type="radio"
+                    class="toolbar button"
+                    name="hue-mode"
+                    value="triadic"
+                    id="triadic"
+                    prop:checked=move || mode.get() == PanelMode::Triadic
+                    on:change:target=move |ev| {
+                        if ev.target().checked() {
+                            on_mode_selected.run(PanelMode::Triadic);
                         }
-                    />
-                    <label for="triadic">"Triadic"</label>
-                    <input
-                        type="radio"
-                        class="toolbar button"
-                        name="hue-mode"
-                        value="custom"
-                        id="custom"
-                        prop:checked=move || mode.get() == PanelMode::Custom
-                        on:change:target=move |ev| {
-                            if ev.target().checked() {
-                                on_mode_selected.run(PanelMode::Custom);
-                            }
+                    }
+                />
+                <label for="triadic">"Triadic"</label>
+                <input
+                    type="radio"
+                    class="toolbar button"
+                    name="hue-mode"
+                    value="custom"
+                    id="custom"
+                    prop:checked=move || mode.get() == PanelMode::Custom
+                    on:change:target=move |ev| {
+                        if ev.target().checked() {
+                            on_mode_selected.run(PanelMode::Custom);
                         }
-                    />
-                    <label for="custom">"Custom"</label>
-                </div>
-            </div>
+                    }
+                />
+                <label for="custom">"Custom"</label>
+            </SecondaryCommands>
             <div class="split-2">{ctrls} <ColorWheel hues primary_index /></div>
-        </div>
+        </Expander>
     }
 }
 

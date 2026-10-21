@@ -1,3 +1,4 @@
+use components::Expander;
 use leptos::prelude::*;
 use semver::Version;
 use themelib::theme::ThemeBuilder;
@@ -22,8 +23,7 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
     });
 
     view! {
-        <div class="panel">
-            <h1 class="caption">"Metadata"</h1>
+        <Expander title="Metadata" expanded_by_default=true>
             <div class="meta content">
                 <label for="theme-name">"Name"</label>
                 <input
@@ -73,6 +73,6 @@ pub fn MetaPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView
                     placeholder="Theme version"
                 />
             </div>
-        </div>
+        </Expander>
     }
 }

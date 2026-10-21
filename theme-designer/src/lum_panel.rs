@@ -2,6 +2,7 @@ use crate::{
     lum_plot::LumPlot,
     slider::{RangeSlider, ValueSlider},
 };
+use components::Expander;
 use leptos::prelude::*;
 use themelib::theme::ThemeBuilder;
 
@@ -21,8 +22,7 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
     });
 
     view! {
-        <div class="panel">
-            <h1 class="caption">"Luminance"</h1>
+        <Expander title="Luminance" expanded_by_default=true>
             <div class="split-2">
                 <div>
                     <RangeSlider
@@ -73,6 +73,6 @@ pub fn LumPanel(builder: RwSignal<ThemeBuilder, LocalStorage>) -> impl IntoView 
                 </div>
                 <LumPlot lum_range=lum_range lum_alpha=lum_alpha lum_gamma=lum_gamma />
             </div>
-        </div>
+        </Expander>
     }
 }

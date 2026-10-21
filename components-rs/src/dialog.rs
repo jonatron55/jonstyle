@@ -9,8 +9,8 @@ pub enum Severity {
 
 #[component]
 pub fn Dialog(
+    children: Children,
     #[prop(into)] title: String,
-    #[prop(into)] content: String,
     #[prop(into)] yes_caption: String,
     severity: Severity,
     #[prop(into, optional)] no_caption: Option<String>,
@@ -32,9 +32,7 @@ pub fn Dialog(
                 <div class="caption">
                     <h2>{title}</h2>
                 </div>
-                <div class="content">
-                    <p>{content}</p>
-                </div>
+                <div class="content">{children()}</div>
                 <div class="buttons">
                     <button class="accent" on:click=move |_| on_yes.run(())>
                         {yes_caption}
