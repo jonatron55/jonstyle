@@ -2,12 +2,12 @@ use std::borrow::Cow;
 #[cfg(not(target_arch = "wasm32"))]
 use std::{
     f64::consts::PI,
-    io::{Result as IoResult, Write},
+    io::{stdout, Result as IoResult, Write},
 };
 #[cfg(feature = "image")]
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Seek, stdout},
+    io::{BufRead, BufReader, Seek},
     path::Path,
 };
 
@@ -25,10 +25,10 @@ use glam::FloatExt;
 use image::{DynamicImage, GenericImageView, ImageReader};
 use itertools::Itertools;
 
-#[cfg(feature = "image")]
-use crate::color::SRgba;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::color::okhsl;
+#[cfg(feature = "image")]
+use crate::color::SRgba;
 use crate::{
     color::{OkHsl, SRgb},
     theme::HueBuilder,
