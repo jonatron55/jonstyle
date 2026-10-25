@@ -29,6 +29,5 @@
     "leptosfmt",
     "--stdin",
     "--rustfmt"
-  ],
-  "sarif-viewer.connectToGithubCodeScanning": "off"
+  ]
 }

@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [features]
 default = []
-image = ["dep:image"]
+image = ["dep:image", "dep:resvg", "dep:tiny-skia", "dep:usvg"]
 
 [dependencies]
 anyhow.workspace = true
@@ -26,10 +26,13 @@ image = { workspace = true, optional = true, features = [
 itertools.workspace = true
 lazy_static.workspace = true
 regex.workspace = true
+resvg = { workspace = true, optional = true }
 semver = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+tiny-skia = { workspace = true, optional = true }
 toml.workspace = true
+usvg = { workspace = true, optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 crossterm.workspace = true

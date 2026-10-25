@@ -280,7 +280,7 @@ impl<'v, 's> Indexer<'v, 's> {
     pub fn from_str_with_variant(s: &'s str, variant: &'v ThemeVariant) -> Result<Self, AnyError> {
         let parts = s.split('-').collect::<Vec<_>>();
 
-        if let Ok(sat) = Sat::from_str(parts[0]) {
+        if parts.len() >= 2 && let Ok(sat) = Sat::from_str(parts[0]) {
             if let Ok(temp) = Temp::from_str(parts[1]) {
                 let rest = parts[2..].join("-");
                 if let Ok(lum) = Lum::from_str(&rest) {
@@ -293,8 +293,8 @@ impl<'v, 's> Indexer<'v, 's> {
                 } else if let Ok(level) = Level::from_str(&rest) {
                     return Ok(Indexer::ThemedPrimary(variant, sat, primary, level));
                 }
-            } else if let Ok(hue) = ThemeHue::from_str(parts[1]) {
-                let rest = parts[2..].join("-");
+            } else if parts.len() >= 3 && let Ok(hue) = ThemeHue::from_str(&parts[1..3].join("-")) {
+                let rest = parts[3..].join("-");
                 if let Ok(level) = Level::from_str(&rest) {
                     return Ok(Indexer::Themed(variant, sat, hue, level));
                 }

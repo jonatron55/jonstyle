@@ -1,13 +1,15 @@
 [meta]
 name = "Arcane"
 author = "Jonathon Cobb"
-version = "4.0.0"
+version = "4.0.1"
 variants = [
-    { name = "Dawn", mode = "Light", temp = "Warm", },
-    { name = "Dusk", mode = "Dark", temp = "Warm", },
-    { name = "Noon", mode = "Light", temp = "Cool", },
-    { name = "Night", mode = "Dark", temp = "Cool", }
+    { name = "Dawn", mode = "Light", temp = "Warm" },
+    { name = "Dusk", mode = "Dark", temp = "Warm" },
+    { name = "Noon", mode = "Light", temp = "Cool" },
+    { name = "Night", mode = "Dark", temp = "Cool" },
 ]
+default_variant = "Night"
+icon = "icons/cowl.svg"
 
 [hue]
 mode = "Complementary"

@@ -272,6 +272,8 @@ pub fn main() -> AnyResult<()> {
                     continue;
                 }
 
+                println!("{}", output.display());
+
                 let mut file = fs::OpenOptions::new().write(true).create(true).truncate(true).open(&output)?;
 
                 let errors = template.render(&theme, &variant, &mut file)?;
@@ -448,6 +450,7 @@ pub fn main() -> AnyResult<()> {
             _ = fs::remove_dir_all(&output);
 
             scripts::vscode::make_vscode_theme(
+                config.parent().unwrap_or_else(|| Path::new(".")),
                 &load_config(&config)?,
                 license.as_deref(),
                 license_id.as_deref(),

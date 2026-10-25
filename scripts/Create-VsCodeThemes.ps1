@@ -4,7 +4,7 @@ param(
     [string]$Source = ".\themes",
 
     [Parameter()]
-    [string]$Out = ".\out\vscode\",
+    [string]$Out = ".\out\vscode",
 
     [Parameter()]
     [switch]$Recurse
@@ -14,17 +14,19 @@ $Root = Split-Path -Path $PSScriptRoot -Parent
 Push-Location -Path $Root
 
 try {
-    cargo build --release
+    cargo build --release --bin mktheme
 
     $themes = if ($Recurse) {
         Get-ChildItem -Path $Source -Recurse -Filter *.toml
-    } else {
+    }
+    else {
         Get-ChildItem -Path $Source -Filter *.toml
     }
 
     $themes | ForEach-Object {
         $name = $_.BaseName
         .\target\release\mktheme.exe vscode $_.FullName --pack --force --output "$Out\$name" --license .\License.txt --license-id "MIT" --repo https://github.com/jonatron55/jonstyle.git
+        Move-Item -Path "$Out\$name\*.vsix" -Destination "$Out\" -Force
     }
 }
 finally {

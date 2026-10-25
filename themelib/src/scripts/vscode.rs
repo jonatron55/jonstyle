@@ -6,13 +6,14 @@ use std::{
     process::Command,
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use serde_json::json;
 
 use crate::template::Template;
 use crate::theme::{Theme, ThemeMode};
 
 pub fn make_vscode_theme(
+    root: impl Into<PathBuf>,
     theme: &Theme,
     license: Option<&Path>,
     license_id: Option<&str>,
@@ -73,6 +74,13 @@ pub fn make_vscode_theme(
         || Cow::Owned(format!("{} theme collection for Visual Studio Code.", theme.meta.name)),
         |desc| Cow::Borrowed(desc),
     );
+
+    let icon = theme.icon_image(root, theme.default_variant())?;
+    let mut icon_path = output_root.join("images");
+    fs::create_dir_all(&icon_path)?;
+    icon_path.push("icon.png");
+
+    icon.save(&icon_path)?;
 
     let package_name = theme
         .meta
@@ -153,6 +161,7 @@ pub fn make_vscode_theme(
             "repository": repository,
             "license": license_id,
             "categories": ["Themes"],
+            "icon": "images/icon.png",
             "contributes": {
                 "themes": theme.meta.variants.iter().map(|variant| {
                     let variant_name = format!("{variant}").to_lowercase();

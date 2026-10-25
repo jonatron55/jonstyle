@@ -3,8 +3,9 @@ mod index;
 mod primary;
 mod variant;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fs::File, io, path::PathBuf};
 
+use anyhow::Result as AnyResult;
 use semver::Version;
 
 pub use builder::*;
@@ -13,7 +14,10 @@ pub use primary::*;
 use serde::{Deserialize, Serialize};
 pub use variant::*;
 
-use crate::color::{OkHsl, OkHsla};
+use crate::{
+    color::{OkHsl, OkHsla},
+    template::Template,
+};
 
 pub type BasePalette = [[[OkHsl; LUM_COUNT]; TEMP_COUNT]; SAT_COUNT];
 pub type PrimaryMap = HashMap<Primary, Temp>;
@@ -44,10 +48,24 @@ pub struct Metadata {
     /// The variants to include in the theme.
     pub variants: Vec<ThemeVariant>,
 
+    /// The variant to use if none is specified.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_variant: Option<String>,
+
+    /// Path to theme icon.
+    ///
+    /// This may be a standard image format or an SVG file. If an SVG file is
+    /// used, it will be treated as a [`Template`] and may include substitutions
+    /// that will be replaced by the theme colors.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+
     /// The author of the theme.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub author: Option<String>,
 
     /// An optional description of the theme.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
     /// The version of the theme, following semantic versioning.
@@ -55,6 +73,64 @@ pub struct Metadata {
 }
 
 impl Theme {
+    /// Returns the default theme variant.
+    pub fn default_variant(&self) -> &'_ ThemeVariant {
+        if let Some(default) = &self
+            .meta
+            .default_variant
+            .as_ref()
+            .and_then(|d| self.meta.variants.iter().find(|v| &v.name == d))
+        {
+            return default;
+        }
+
+        &self.meta.variants[0]
+    }
+
+    /// Returns the icon for the given theme variant.
+    ///
+    /// The result may be either a path to an image file or an SVG string. A
+    /// default icon will be used if the metadata does not specify one.
+    pub fn icon(&self, root: impl Into<PathBuf>, variant: &ThemeVariant) -> AnyResult<Icon> {
+        if let Some(icon) = &self.meta.icon {
+            let path = root.into().join(icon);
+
+            if path.extension().map_or(false, |ext| ext == "svg") {
+                let svg = File::open(&path)?;
+                let svg = Template::new(io::read_to_string(svg)?);
+                Ok(Icon::Svg(svg.render_to_string(&self, variant).0))
+            } else {
+                Ok(Icon::Path(path))
+            }
+        } else {
+            let svg = Template::new(include_str!("../../templates/colorwheel.svg"));
+            Ok(Icon::Svg(svg.render_to_string(&self, variant).0))
+        }
+    }
+
+    #[cfg(feature = "image")]
+    pub fn icon_image(&self, root: impl Into<PathBuf>, variant: &ThemeVariant) -> AnyResult<image::DynamicImage> {
+        match self.icon(root, variant)? {
+            Icon::Path(path) => Ok(image::open(path)?),
+            Icon::Svg(svg) => {
+                let mut data = vec![0u8; 256 * 256 * 4];
+                let mut pixmap = tiny_skia::PixmapMut::from_bytes(&mut data, 256, 256)
+                    .ok_or_else(|| anyhow::anyhow!("Failed to create pixmap"))?;
+
+                resvg::render(
+                    &usvg::Tree::from_str(&svg, &usvg::Options::default())?,
+                    tiny_skia::Transform::identity(),
+                    &mut pixmap,
+                );
+                Ok(image::DynamicImage::ImageRgba8(
+                    image::RgbaImage::from_raw(256, 256, data)
+                        .ok_or_else(|| anyhow::anyhow!("Failed to create image from pixmap"))?,
+                ))
+            }
+        }
+    }
+
+    /// Gets the color corresponding to the given indexer.
     pub fn get(&self, index: &Indexer) -> OkHsla {
         match index {
             Indexer::Base(sat, temp, lum) => {
@@ -897,6 +973,11 @@ impl Theme {
     }
 }
 
+pub enum Icon {
+    Path(PathBuf),
+    Svg(String),
+}
+
 impl Default for Metadata {
     fn default() -> Self {
         Self {
@@ -904,12 +985,14 @@ impl Default for Metadata {
             author: None,
             version: Version::new(0, 1, 0),
             description: None,
+            icon: None,
             variants: vec![
                 ThemeVariant::dawn(),
                 ThemeVariant::dusk(),
                 ThemeVariant::noon(),
                 ThemeVariant::night(),
             ],
+            default_variant: Some("Night".to_string()),
         }
     }
 }

@@ -524,8 +524,12 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
         }
         Some("T") => {
             // Title Case
+            let mut parts = parts.peekable();
             if let Some(first) = parts.next() {
                 writer.write_all(capitalize(first).as_bytes())?;
+            }
+
+            if parts.peek().is_some() {
                 writer.write_all(b" ")?;
             }
 
@@ -544,8 +548,14 @@ pub fn write_string(writer: &mut impl Write, name: &str, fmt: Option<&str>, erro
         }
         Some("t") => {
             // Title case
+            let mut parts = parts.peekable();
+
             if let Some(first) = parts.next() {
                 writer.write_all(capitalize(first).as_bytes())?;
+            }
+
+            if parts.peek().is_some() {
+                writer.write_all(b" ")?;
             }
 
             for part in parts.map(|part| part.to_lowercase()).intersperse(" ".to_string()) {

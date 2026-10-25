@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Jonathon B. Cobb
-// Licensed under the MIT License
+// {{name:T}} {{variant:T}} color theme
+// Version {{version}}
 
 @mixin theme {
 {{#each}}  --{{$key:k}}: #{{$value.rgba:X}};

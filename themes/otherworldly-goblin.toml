@@ -1,11 +1,11 @@
 [meta]
 name = "Otherworldly Goblin"
-version = "0.1.0"
+version = "1.0.0"
 variants = [
-    { name = "Light", mode = "Light", temp = "Warm", },
-    { name = "Dark", mode = "Dark", temp = "Warm", }
+    { name = "Light", mode = "Light", temp = "Warm" },
+    { name = "Dark", mode = "Dark", temp = "Warm" },
 ]
-
+default_variant = "Dark"
 
 [hue]
 mode = "Analogous"
