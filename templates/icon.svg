@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <path id="chrome" d="M240,24L240,232C240,236.415 236.415,240 232,240L24,240C19.585,240 16,236.415 16,232L16,24C16,19.585 19.585,16 24,16L232,16C236.415,16 240,19.585 240,24Z" style="fill:#{{chrome.rgb:X}};"/>
+    <path id="content-background" d="M232,40L232,216C232,220.415 228.415,224 224,224L32,224C27.585,224 24,220.415 24,216L24,40C24,35.585 27.585,32 32,32L224,32C228.415,32 232,35.585 232,40Z" style="fill:#{{content-background.rgb:X}};"/>
+    <path id="primary-foreground" d="M224,48L224,56L32,56L32,48L224,48ZM224,68L224,76L32,76L32,68L224,68ZM224,88L224,96L32,96L32,88L224,88ZM224,108L224,116L32,116L32,108L224,108Z" style="fill:#{{primary-foreground.rgb:X}};"/>
+    <path id="base-color-1-low-midground" d="M97.906,212L53.906,212C53.906,201.468 56.679,191.121 61.945,182L100.05,204C98.687,206.354 97.906,209.087 97.906,212Z" style="fill:#{{base-color-1-low-midground.rgb:X}};"/>
+    <path id="intense-color-1-higher-midground" d="M30,208C30.581,195.609 33.846,183.921 39.228,173.503L86.151,200.594C85.19,202.929 84.516,205.413 84.171,208L30,208Z" style="fill:#{{intense-color-1-higher-midground.rgb:X}};"/>
+    <path id="base-color-2-low-midground" d="M106.816,204L68.711,182C73.977,172.879 81.551,165.305 90.672,160.038L112.672,198.143C110.245,199.549 108.221,201.573 106.816,204Z" style="fill:#{{base-color-2-low-midground.rgb:X}};"/>
+    <path id="intense-color-2-higher-midground" d="M50,166.578C56.513,156.465 65.138,147.841 75.251,141.328L102.342,188.25C100.313,189.818 98.491,191.64 96.922,193.669L50,166.578Z" style="fill:#{{intense-color-2-higher-midground.rgb:X}};"/>
+    <path id="base-color-3-low-midground" d="M118,198.143L96,160.038C105.121,154.772 115.468,152 126,152L126,196C123.087,196 120.354,196.78 118,198.143Z" style="fill:#{{base-color-3-low-midground.rgb:X}};"/>
+    <path id="intense-color-3-higher-midground" d="M87.503,137.321C97.921,131.94 109.609,128.674 122,128.094L122,182.264C119.413,182.609 116.929,183.284 114.594,184.244L87.503,137.321Z" style="fill:#{{intense-color-3-higher-midground.rgb:X}};"/>
+    <path id="base-color-4-low-midground" d="M130,144.094L130,188.094C140.532,188.094 150.879,185.321 160,180.055L138,141.95C135.646,143.313 132.913,144.094 130,144.094Z" style="fill:#{{base-color-4-low-midground.rgb:X}};"/>
+    <path id="intense-color-4-higher-midground" d="M134,212C146.391,211.419 158.079,208.154 168.497,202.772L141.406,155.849C139.071,156.81 136.587,157.484 134,157.829L134,212Z" style="fill:#{{intense-color-4-higher-midground.rgb:X}};"/>
+    <path id="base-color-5-low-midground" d="M143.328,141.95L165.328,180.055C174.449,174.789 182.023,167.215 187.289,158.094L149.184,136.094C147.779,138.521 145.755,140.545 143.328,141.95Z" style="fill:#{{base-color-5-low-midground.rgb:X}};"/>
+    <path id="intense-color-5-higher-midground" d="M180.749,198.766C190.862,192.253 199.487,183.628 206,173.515L159.078,146.424C157.509,148.453 155.687,150.275 153.658,151.844L180.749,198.766Z" style="fill:#{{intense-color-5-higher-midground.rgb:X}};"/>
+    <path id="base-color-6-low-midground" d="M155.95,136.094L194.055,158.094C199.321,148.972 202.094,138.626 202.094,128.094L158.094,128.094C158.094,131.007 157.313,133.74 155.95,136.094Z" style="fill:#{{base-color-6-low-midground.rgb:X}};"/>
+    <path id="intense-color-6-higher-midground" d="M216.772,166.591C222.154,156.173 225.419,144.484 226,132.094L171.829,132.094C171.484,134.681 170.81,137.164 169.849,139.5L216.772,166.591Z" style="fill:#{{intense-color-6-higher-midground.rgb:X}};"/>
+</svg>

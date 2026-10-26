@@ -366,7 +366,7 @@ impl HueBuilder {
     }
 
     pub fn temp(hue: f64) -> f64 {
-        let hue = hue % 360.0;
+        let hue = (hue - 20.0).rem_euclid(360.0);
         if hue > 180.0 {
             (hue - 180.0) / 90.0 - 1.0
         } else {

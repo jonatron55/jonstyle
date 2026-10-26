@@ -103,7 +103,7 @@ impl Theme {
                 Ok(Icon::Path(path))
             }
         } else {
-            let svg = Template::new(include_str!("../../templates/colorwheel.svg"));
+            let svg = Template::new(include_str!("../../templates/icon.svg"));
             Ok(Icon::Svg(svg.render_to_string(&self, variant).0))
         }
     }
