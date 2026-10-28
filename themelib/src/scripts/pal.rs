@@ -5,12 +5,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{Result as AnyResult, bail};
+use anyhow::{bail, Result as AnyResult};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use crate::{
     template::fmt_string,
-    theme::{Indexer, Theme},
+    theme::{ColorRef, Theme},
 };
 
 pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<()> {
@@ -43,7 +43,7 @@ pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<
 }
 
 pub fn write_pal(theme: &Theme, w: &mut impl Write) -> AnyResult<()> {
-    let color_count = Indexer::iter_base().count();
+    let color_count = ColorRef::iter_base().count();
     let filesize = 24 + 4 * color_count;
 
     w.write_all(b"RIFF")?;
@@ -53,7 +53,7 @@ pub fn write_pal(theme: &Theme, w: &mut impl Write) -> AnyResult<()> {
     w.write_u16::<LittleEndian>(0x0300)?;
     w.write_u16::<LittleEndian>(color_count as u16)?;
 
-    for i in Indexer::iter_base() {
+    for i in ColorRef::iter_base() {
         let bytes = theme.get(&i).to_srgba().to_bytes();
         w.write_all(&bytes)?;
     }

@@ -42,7 +42,7 @@ pub const fn srgba_u8(r: u8, g: u8, b: u8, a: u8) -> SRgba {
 }
 
 pub fn srgb_u24(packed: u32) -> SRgb {
-    SRgba::unpack_be(packed).without_a()
+    SRgba::unpack_be(packed << 8).without_a()
 }
 
 pub fn srgba_u32(packed: u32) -> SRgba {
@@ -108,8 +108,8 @@ impl SRgb {
     }
 
     /// Add an alpha channel to the color.
-    pub fn with_a(&self, a: f64) -> Rgba {
-        Rgba::new(self.r, self.g, self.b, a)
+    pub fn with_a(&self, a: f64) -> SRgba {
+        SRgba::new(self.r, self.g, self.b, a)
     }
 
     /// Convert the color to a array of bytes in the format (R, G, B).

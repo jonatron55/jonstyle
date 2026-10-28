@@ -1,9 +1,261 @@
 use lazy_static::lazy_static;
 
-use crate::color::{OkHsl, OkLuv, SRgb, SRgba, okhsl, okluv, srgb_u24, srgba_u8};
+use crate::color::{
+    ciexyz, gamma, inv_gamma, okhsl, okluv, rgb, rgb_u24, rgba, rgba_u32, rgba_u8, srgb, srgb_u24, srgba, srgba_u32,
+    srgba_u8, CieXyz, OkHsl, OkLuv, Rgb, Rgba, SRgb, SRgba,
+};
 
 trait ApproxEq {
     fn approx_eq(&self, other: &Self) -> bool;
+}
+
+#[test]
+fn test_packed_color_layouts() {
+    let bytes = [0x12, 0x34, 0x56, 0x78];
+    let encoded = srgba_u8(0x12, 0x34, 0x56, 0x78);
+    assert_eq!(encoded.pack_be(), 0x12345678);
+    assert_eq!(encoded.pack_le(), 0x78563412);
+    assert_eq!(SRgba::unpack_be(0x12345678).to_bytes(), bytes);
+    assert_eq!(SRgba::unpack_le(0x78563412).to_bytes(), bytes);
+    assert_eq!(srgba_u32(0x12345678).to_bytes(), bytes);
+    assert_eq!(srgb_u24(0x123456).to_bytes(), [0x12, 0x34, 0x56]);
+
+    let linear = rgba_u8(0x12, 0x34, 0x56, 0x78);
+    assert_eq!(linear.pack_be(), 0x12345678);
+    assert_eq!(linear.pack_le(), 0x78563412);
+    assert_eq!(Rgba::unpack_be(0x12345678).to_bytes(), bytes);
+    assert_eq!(Rgba::unpack_le(0x78563412).to_bytes(), bytes);
+    assert_eq!(rgba_u32(0x12345678).to_bytes(), bytes);
+    assert_eq!(rgb_u24(0x123456).to_bytes(), [0x12, 0x34, 0x56]);
+}
+
+fn assert_channels_close<const CHANNELS: usize>(actual: [f64; CHANNELS], expected: [f64; CHANNELS], tolerance: f64) {
+    for (channel, (actual, expected)) in actual.into_iter().zip(expected).enumerate() {
+        assert!(
+            (actual - expected).abs() <= tolerance,
+            "channel {channel}: expected {expected:?}, got {actual:?}, tolerance {tolerance}"
+        );
+    }
+}
+
+fn xyz_reference_colors() -> [(Rgb, CieXyz); 5] {
+    [
+        (Rgb::BLACK, ciexyz(0.0, 0.0, 0.0)),
+        (Rgb::RED, ciexyz(0.412390799, 0.212639006, 0.019330819)),
+        (Rgb::GREEN, ciexyz(0.357584339, 0.715168679, 0.119194780)),
+        (Rgb::BLUE, ciexyz(0.180480788, 0.072192315, 0.950532152)),
+        (Rgb::WHITE, ciexyz(0.950455926, 1.0, 1.089057751)),
+    ]
+}
+
+#[test]
+fn test_rgb_to_xyz_reference() {
+    for (linear, expected) in xyz_reference_colors() {
+        assert_channels_close(linear.to_xyz().as_array(), expected.as_array(), 1e-8);
+        assert_channels_close(
+            linear.with_a(0.123456789).to_xyza().without_a().as_array(),
+            expected.as_array(),
+            1e-8,
+        );
+    }
+}
+
+#[test]
+fn test_xyz_to_rgb_reference() {
+    for (expected, xyz) in xyz_reference_colors() {
+        assert_channels_close(xyz.to_rgb().as_array(), expected.as_array(), 1e-8);
+        assert_channels_close(
+            xyz.with_a(0.123456789).to_rgba().without_a().as_array(),
+            expected.as_array(),
+            1e-8,
+        );
+    }
+}
+
+#[test]
+fn test_xyz_to_srgb_matches_conversion_chain() {
+    let xyz = ciexyz(0.2, 0.3, 0.4);
+    assert_channels_close(xyz.to_srgb().as_array(), xyz.to_rgb().to_srgb().as_array(), 1e-12);
+}
+
+#[test]
+fn test_xyza_to_srgba_matches_conversion_chain() {
+    let xyza = ciexyz(0.2, 0.3, 0.4).with_a(0.123456789);
+    assert_channels_close(xyza.to_srgba().as_array(), xyza.to_rgba().to_srgba().as_array(), 1e-12);
+}
+
+#[test]
+fn test_srgb_with_alpha_preserves_colorspace() {
+    let encoded = srgb(0.2, 0.5, 0.8);
+    let expected = srgba(0.2, 0.5, 0.8, 0.123456789).to_rgba();
+    assert_channels_close(
+        encoded.with_a(0.123456789).to_rgba().as_array(),
+        expected.as_array(),
+        1e-12,
+    );
+}
+
+#[test]
+fn test_gamma_reference_values() {
+    for (encoded, linear) in [(0.0, 0.0), (0.5, 0.21404114048223255), (1.0, 1.0)] {
+        assert_channels_close([inv_gamma(encoded)], [linear], 1e-14);
+        assert_channels_close([gamma(linear)], [encoded], 1e-14);
+    }
+    assert_channels_close([gamma(0.5)], [0.7353569830524495], 1e-14);
+    assert_channels_close(srgb(0.5, 0.5, 0.5).to_rgb().as_array(), [0.21404114048223255; 3], 1e-14);
+    assert_channels_close(rgb(0.5, 0.5, 0.5).to_srgb().as_array(), [0.7353569830524495; 3], 1e-14);
+}
+
+#[test]
+fn test_gamma_breakpoints() {
+    for linear in [0.0031308 - 1e-8, 0.0031308, 0.0031308 + 1e-8] {
+        let expected = if linear <= 0.0031308 {
+            12.92 * linear
+        } else {
+            1.055 * f64::powf(linear, 1.0 / 2.4) - 0.055
+        };
+        assert_channels_close([gamma(linear)], [expected], 1e-14);
+    }
+    for encoded in [0.04045 - 1e-8, 0.04045, 0.04045 + 1e-8] {
+        let expected = if encoded <= 0.04045 {
+            encoded / 12.92
+        } else {
+            f64::powf((encoded + 0.055) / 1.055, 2.4)
+        };
+        assert_channels_close([inv_gamma(encoded)], [expected], 1e-14);
+    }
+}
+
+#[test]
+fn test_all_byte_values_roundtrip() {
+    for byte in 0..=u8::MAX {
+        let bytes = [byte, byte.wrapping_add(85), byte.wrapping_add(170), 255 - byte];
+        assert_eq!(SRgb::from_bytes(&[bytes[0], bytes[1], bytes[2]]).to_bytes(), bytes[..3]);
+        assert_eq!(Rgb::from_bytes(&[bytes[0], bytes[1], bytes[2]]).to_bytes(), bytes[..3]);
+        let encoded = SRgba::from_bytes(&bytes);
+        let linear = Rgba::from_bytes(&bytes);
+        assert_eq!(encoded.to_bytes(), bytes);
+        assert_eq!(linear.to_bytes(), bytes);
+        assert_eq!(encoded.to_rgba().to_srgba().to_bytes(), bytes);
+        assert_eq!(SRgba::unpack_be(encoded.pack_be()).to_bytes(), bytes);
+        assert_eq!(SRgba::unpack_le(encoded.pack_le()).to_bytes(), bytes);
+        assert_eq!(Rgba::unpack_be(linear.pack_be()).to_bytes(), bytes);
+        assert_eq!(Rgba::unpack_le(linear.pack_le()).to_bytes(), bytes);
+    }
+}
+
+#[test]
+fn test_byte_rounding_and_clipping() {
+    for (value, expected) in [
+        (-0.1, 0),
+        (0.0, 0),
+        (0.49 / 255.0, 0),
+        (0.5 / 255.0, 1),
+        (127.49 / 255.0, 127),
+        (0.5, 128),
+        (1.0, 255),
+        (1.1, 255),
+    ] {
+        let encoded = srgba(value, value, value, value);
+        let linear = rgba(value, value, value, value);
+        let bytes = [expected; 4];
+        assert_eq!(encoded.to_bytes(), bytes, "sRGBA value {value}");
+        assert_eq!(linear.to_bytes(), bytes, "RGBA value {value}");
+        assert_eq!(encoded.without_a().to_bytes(), [expected; 3]);
+        assert_eq!(linear.without_a().to_bytes(), [expected; 3]);
+        assert_eq!(encoded.pack_be(), u32::from_be_bytes(bytes));
+        assert_eq!(encoded.pack_le(), u32::from_le_bytes(bytes));
+        assert_eq!(linear.pack_be(), u32::from_be_bytes(bytes));
+        assert_eq!(linear.pack_le(), u32::from_le_bytes(bytes));
+    }
+}
+
+#[test]
+fn test_float_alpha_preserved() {
+    for alpha in [0.0, 0.123456789, 0.5, 1.0] {
+        let encoded = srgba(0.2, 0.5, 0.8, alpha);
+        let linear = encoded.to_rgba();
+        let xyz = encoded.to_xyza();
+        let luv = encoded.to_luva();
+        let hsl = encoded.to_hsla();
+        let results = [
+            linear.a,
+            xyz.a,
+            luv.a,
+            hsl.a,
+            linear.to_xyza().a,
+            linear.to_luva().a,
+            linear.to_hsla().a,
+            xyz.to_rgba().a,
+            xyz.to_srgba().a,
+            xyz.to_luva().a,
+            xyz.to_hsla().a,
+            luv.to_xyza().a,
+            luv.to_rgba().a,
+            luv.to_srgba().a,
+            luv.to_hsla().a,
+            hsl.to_xyza().a,
+            hsl.to_luva().a,
+            hsl.to_rgba().a,
+            hsl.to_srgba().a,
+            linear.to_srgba().a,
+        ];
+        for actual in results {
+            assert_eq!(actual, alpha);
+        }
+    }
+}
+
+#[test]
+fn test_okhsl_endpoints_and_neutral() {
+    for hue in [0.0, 1.0, 3.0, 6.0] {
+        for saturation in [0.0, 0.5, 1.0] {
+            for lightness in [0.0, 1.0] {
+                let color = okhsl(hue, saturation, lightness);
+                assert_eq!(color.to_luv().as_array(), [lightness, 0.0, 0.0]);
+                assert_channels_close(color.to_srgb().as_array(), [lightness; 3], 1e-6);
+            }
+        }
+        let neutral = okhsl(hue, 0.0, 0.5).to_srgb();
+        assert_channels_close(neutral.as_array(), [neutral.r; 3], 1e-6);
+    }
+}
+
+#[test]
+fn test_okhsl_near_endpoints_finite() {
+    for hue in [0.0, 1.0, 3.0, 6.0] {
+        for saturation in [0.0, 0.5, 1.0] {
+            for lightness in [1e-8, 1.0 - 1e-8] {
+                let color = okhsl(hue, saturation, lightness);
+                let luv = color.to_luv();
+                let linear = color.to_rgb();
+                let encoded = color.to_srgb();
+                let recovered = encoded.to_hsl();
+                for channels in [
+                    luv.as_array(),
+                    linear.as_array(),
+                    encoded.as_array(),
+                    recovered.as_array(),
+                ] {
+                    assert!(
+                        channels.into_iter().all(f64::is_finite),
+                        "non-finite result for {color:?}: {channels:?}"
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn test_okhsl_hue_periodicity() {
+    for hue in [0.0, 0.7, 3.0, 6.0] {
+        let expected = okhsl(hue, 0.75, 0.5).to_srgb();
+        for turns in [-2.0, -1.0, 1.0, 2.0] {
+            let actual = okhsl(hue + turns * std::f64::consts::TAU, 0.75, 0.5).to_srgb();
+            assert_channels_close(actual.as_array(), expected.as_array(), 1e-12);
+        }
+    }
 }
 
 impl ApproxEq for OkLuv {
@@ -48,12 +300,10 @@ impl ApproxEq for SRgba {
 }
 
 macro_rules! assert_approx_eq {
-    ($left:expr, $right:expr) => {
+    ($left:expr, $right:expr, $($arg:tt)*) => {
         assert!(
             $left.approx_eq(&$right),
-            "Expected {} to be approximately equal to {}",
-            $left,
-            $right
+            $($arg)*
         );
     };
 }
@@ -80,28 +330,48 @@ lazy_static! {
 #[test]
 pub fn test_srgb_to_okluv() {
     for (srgb, luv, _) in TEST_COLORS.iter() {
-        assert_approx_eq!(srgb.to_luv(), *luv);
+        let actual = srgb.to_luv();
+        assert_approx_eq!(
+            actual,
+            *luv,
+            "Expected SRGB #{srgb:X} to convert to {luv}, actual {actual}"
+        );
     }
 }
 
 #[test]
 pub fn test_okluv_to_srgb() {
     for (srgb, luv, _) in TEST_COLORS.iter() {
-        assert_approx_eq!(luv.to_srgb(), *srgb);
+        let actual = luv.to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected OkLuv {luv} to convert to SRGB #{srgb:X}, actual #{actual:X}"
+        );
     }
 }
 
 #[test]
 pub fn test_srgb_to_okhsl() {
     for (srgb, _, okhsl) in TEST_COLORS.iter() {
-        assert_approx_eq!(srgb.to_hsl(), *okhsl);
+        let actual = srgb.to_hsl();
+        assert_approx_eq!(
+            actual,
+            *okhsl,
+            "Expected SRGB #{srgb:X} to convert to OkHsl {okhsl}, actual {actual}"
+        );
     }
 }
 
 #[test]
 pub fn test_okhsl_to_srgb() {
     for (srgb, _, okhsl) in TEST_COLORS.iter() {
-        assert_approx_eq!(okhsl.to_srgb(), *srgb);
+        let actual = okhsl.to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected OkHsl {okhsl} to convert to SRGB #{srgb:X}, actual #{actual:X}"
+        );
     }
 }
 
@@ -109,13 +379,38 @@ pub fn test_okhsl_to_srgb() {
 pub fn test_roundtrip() {
     for (srgb, _, okhsl) in TEST_COLORS.iter() {
         // OkHsl -> * -> OkHsl
-        assert_approx_eq!(okhsl.to_luv().to_hsl(), *okhsl);
-        assert_approx_eq!(okhsl.to_rgb().to_hsl(), *okhsl);
+        let actual = okhsl.to_luv().to_hsl();
+        assert_approx_eq!(
+            actual,
+            *okhsl,
+            "Expected OkHsl {okhsl} to round-trip through OkLuv, got {actual}"
+        );
+        let actual = okhsl.to_rgb().to_hsl();
+        assert_approx_eq!(
+            actual,
+            *okhsl,
+            "Expected OkHsl {okhsl} to round-trip through RGB, got {actual}"
+        );
 
         // sRGB -> * -> sRGB
-        assert_approx_eq!(srgb.to_rgb().to_srgb(), *srgb);
-        assert_approx_eq!(srgb.to_luv().to_srgb(), *srgb);
-        assert_approx_eq!(srgb.to_hsl().to_srgb(), *srgb);
+        let actual = srgb.to_rgb().to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected SRGB #{srgb:X} to round-trip through RGB, got #{actual:X}"
+        );
+        let actual = srgb.to_luv().to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected SRGB #{srgb:X} to round-trip through OkLuv, got #{actual:X}"
+        );
+        let actual = srgb.to_hsl().to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected SRGB #{srgb:X} to round-trip through OkHsl, got #{actual:X}"
+        );
     }
 }
 
@@ -125,9 +420,20 @@ pub fn test_roundtrip() {
 pub fn test_xyz_roundtrip() {
     for (srgb, luv, _) in TEST_COLORS.iter() {
         // linear RGB <-> XYZ
-        assert_approx_eq!(srgb.to_rgb().to_xyz().to_rgb().to_srgb(), *srgb);
+        let actual = srgb.to_rgb().to_xyz().to_rgb().to_srgb();
+        assert_approx_eq!(
+            actual,
+            *srgb,
+            "Expected SRGB #{srgb:X} to round-trip through XYZ, got #{actual:X}"
+        );
+
         // OkLuv <-> XYZ
-        assert_approx_eq!(luv.to_xyz().to_luv(), *luv);
+        let actual = luv.to_xyz().to_luv();
+        assert_approx_eq!(
+            actual,
+            *luv,
+            "Expected OkLuv {luv} to round-trip through XYZ, got {actual}"
+        );
     }
 }
 
@@ -138,12 +444,30 @@ pub fn test_alpha_preserved() {
     for alpha in [0x00u8, 0x66, 0xC0, 0xFF] {
         let srgba = srgba_u8(0xC7, 0x3B, 0x4A, alpha);
 
-        assert_approx_eq!(srgba.to_luva().to_srgba(), srgba);
-        assert_approx_eq!(srgba.to_hsla().to_srgba(), srgba);
+        let actual = srgba.to_luva().to_srgba();
+        assert_approx_eq!(
+            actual,
+            srgba,
+            "Expected SRGBA #{srgba:X} to round-trip through OkLuva, got #{actual:X}"
+        );
+        let actual = srgba.to_hsla().to_srgba();
+        assert_approx_eq!(
+            actual,
+            srgba,
+            "Expected SRGBA #{srgba:X} to round-trip through OkHsla, got #{actual:X}"
+        );
 
         // The alpha byte must be preserved exactly, not merely approximately.
-        assert_eq!(srgba.to_luva().to_srgba().to_bytes()[3], alpha);
-        assert_eq!(srgba.to_hsla().to_srgba().to_bytes()[3], alpha);
+        assert_eq!(
+            srgba.to_luva().to_srgba().to_bytes()[3],
+            alpha,
+            "Expected alpha to be preserved through OkLuva"
+        );
+        assert_eq!(
+            srgba.to_hsla().to_srgba().to_bytes()[3],
+            alpha,
+            "Expected alpha to be preserved through OkHsla"
+        );
     }
 }
 
@@ -152,15 +476,11 @@ pub fn test_alpha_preserved() {
 /// early-return paths.
 #[test]
 pub fn test_achromatic() {
-    for gray in [0x101010u32, 0x808080, 0xC0C0C0] {
-        let hsl = srgb_u24(gray).to_hsl();
-        assert!(hsl.h.is_finite(), "hue must be finite for gray {gray:#08X}");
-        assert!(hsl.s.is_finite(), "saturation must be finite for gray {gray:#08X}");
-        assert!(
-            hsl.s < 1e-2,
-            "gray {gray:#08X} should be unsaturated, got s = {}",
-            hsl.s
-        );
+    for grey in [srgb_u24(0x101010), srgb_u24(0x808080), srgb_u24(0xC0C0C0)] {
+        let hsl = grey.to_hsl();
+        assert!(hsl.h.is_finite(), "hue must be finite for gray #{grey:X}");
+        assert!(hsl.s.is_finite(), "saturation must be finite for gray #{grey:X}");
+        assert!(hsl.s < 1e-2, "gray #{grey:X} should be unsaturated, got s = {}", hsl.s);
     }
 }
 
@@ -174,7 +494,12 @@ pub fn test_srgb_hsl_grid_roundtrip() {
             for &b in &steps {
                 let original = SRgb::from_bytes(&[r, g, b]);
                 let hsl = original.to_hsl();
-                assert_approx_eq!(hsl.to_srgb(), original);
+                let actual = hsl.to_srgb();
+                assert_approx_eq!(
+                    actual,
+                    original,
+                    "Expected SRGB #{original:X} to round-trip through HSL, got #{actual:X}"
+                );
             }
         }
     }

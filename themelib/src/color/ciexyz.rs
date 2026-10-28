@@ -5,15 +5,15 @@ use glam::*;
 use super::*;
 
 const TO_RGB: DMat3 = dmat3(
-    dvec3(3.240969942, -1.537383178, -0.498610760),
-    dvec3(-0.969243636, 1.875967502, 0.041555057),
-    dvec3(0.055630080, -0.203976959, 1.056971514),
+    dvec3(3.240969942, -0.969243636, 0.055630080),
+    dvec3(-1.537383178, 1.875967502, -0.203976959),
+    dvec3(-0.498610760, 0.041555057, 1.056971514),
 );
 
 const FROM_RGB: DMat3 = dmat3(
-    dvec3(0.412390799, 0.357584339, 0.180480788),
-    dvec3(0.212639006, 0.715168679, 0.072192315),
-    dvec3(0.019330819, 0.119194780, 0.950532152),
+    dvec3(0.412390799, 0.212639006, 0.019330819),
+    dvec3(0.357584339, 0.715168679, 0.119194780),
+    dvec3(0.180480788, 0.072192315, 0.950532152),
 );
 
 /// A color in the CIE XYZ color space.
@@ -52,7 +52,7 @@ impl CieXyz {
     }
 
     /// Convert the color to linear RGB.
-    pub fn to_srgb(&self) -> Rgb {
+    pub fn to_srgb(&self) -> SRgb {
         self.clone().into()
     }
 
@@ -88,7 +88,7 @@ impl CieXyz {
 impl From<Rgb> for CieXyz {
     fn from(rgb: Rgb) -> Self {
         let rgb = rgb.as_vec3();
-        let xyz = TO_RGB * rgb;
+        let xyz = FROM_RGB * rgb;
         Self::from(xyz)
     }
 }
@@ -96,7 +96,7 @@ impl From<Rgb> for CieXyz {
 impl Into<Rgb> for CieXyz {
     fn into(self) -> Rgb {
         let xyz = self.as_vec3();
-        let rgb = FROM_RGB * xyz;
+        let rgb = TO_RGB * xyz;
         Rgb::from(rgb)
     }
 }
@@ -136,7 +136,7 @@ impl CieXyza {
     }
 
     /// Convert the color to gamma corrected sRGBA.
-    pub fn to_srgba(&self) -> Rgba {
+    pub fn to_srgba(&self) -> SRgba {
         self.clone().into()
     }
 
@@ -172,7 +172,7 @@ impl CieXyza {
 impl From<Rgba> for CieXyza {
     fn from(rgba: Rgba) -> Self {
         let rgb = rgba.without_a().as_vec3();
-        let xyz = TO_RGB * rgb;
+        let xyz = FROM_RGB * rgb;
         Self::new(xyz.x, xyz.y, xyz.z, rgba.a)
     }
 }
@@ -180,7 +180,7 @@ impl From<Rgba> for CieXyza {
 impl Into<Rgba> for CieXyza {
     fn into(self) -> Rgba {
         let xyz = self.without_a().as_vec3();
-        let rgb = FROM_RGB * xyz;
+        let rgb = TO_RGB * xyz;
         Rgb::from(rgb).with_a(self.a)
     }
 }

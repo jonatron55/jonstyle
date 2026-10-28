@@ -1,7 +1,5 @@
 use std::{
-    collections::HashSet,
-    fmt::{Display, Formatter, Result as FmtResult},
-    str::FromStr,
+    collections::HashSet, fmt::{Display, Formatter, Result as FmtResult}, str::FromStr,
 };
 
 use anyhow::{anyhow, Error as AnyError};
@@ -10,13 +8,22 @@ use serde::{Deserialize, Serialize};
 
 use crate::theme::{Primary, ThemeMode, ThemeTemperature, ThemeVariant};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Indexer<'v, 's> {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ColorRef<'v, 's> {
     Base(Sat, Temp, Lum),
     Themed(&'v ThemeVariant, Sat, ThemeHue, Level),
     Primary(Sat, Primary, Lum),
     ThemedPrimary(&'v ThemeVariant, Sat, Primary, Level),
     Semantic(&'v ThemeVariant, &'s str),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ColorIndex {
+    Base(Sat, Temp, Lum),
+    Themed(ThemeVariant, Sat, ThemeHue, Level),
+    Primary(Sat, Primary, Lum),
+    ThemedPrimary(ThemeVariant, Sat, Primary, Level),
+    Semantic(ThemeVariant, String),
 }
 
 /// A hue from the base palette, which is unmodified by the theme variant and
@@ -276,7 +283,7 @@ lazy_static! {
     };
 }
 
-impl<'v, 's> Indexer<'v, 's> {
+impl<'v, 's> ColorRef<'v, 's> {
     pub fn from_str_with_variant(s: &'s str, variant: &'v ThemeVariant) -> Result<Self, AnyError> {
         let parts = s.split('-').collect::<Vec<_>>();
 
@@ -284,25 +291,25 @@ impl<'v, 's> Indexer<'v, 's> {
             if let Ok(temp) = Temp::from_str(parts[1]) {
                 let rest = parts[2..].join("-");
                 if let Ok(lum) = Lum::from_str(&rest) {
-                    return Ok(Indexer::Base(sat, temp, lum));
+                    return Ok(ColorRef::Base(sat, temp, lum));
                 }
             } else if let Ok(primary) = Primary::from_str(parts[1]) {
                 let rest = parts[2..].join("-");
                 if let Ok(lum) = Lum::from_str(&rest) {
-                    return Ok(Indexer::Primary(sat, primary, lum));
+                    return Ok(ColorRef::Primary(sat, primary, lum));
                 } else if let Ok(level) = Level::from_str(&rest) {
-                    return Ok(Indexer::ThemedPrimary(variant, sat, primary, level));
+                    return Ok(ColorRef::ThemedPrimary(variant, sat, primary, level));
                 }
             } else if parts.len() >= 3 && let Ok(hue) = ThemeHue::from_str(&parts[1..3].join("-")) {
                 let rest = parts[3..].join("-");
                 if let Ok(level) = Level::from_str(&rest) {
-                    return Ok(Indexer::Themed(variant, sat, hue, level));
+                    return Ok(ColorRef::Themed(variant, sat, hue, level));
                 }
             }
         }
 
         if KNOWN_SEMANTICS.contains(s) {
-            Ok(Indexer::Semantic(variant, s))
+            Ok(ColorRef::Semantic(variant, s))
         } else {
             Err(anyhow!("{s} is not a valid indexer name"))
         }
@@ -310,33 +317,33 @@ impl<'v, 's> Indexer<'v, 's> {
 
     pub fn iter_base() -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(|sat| {
-            Temp::iter().flat_map(move |temp| Lum::iter().map(move |lum| Indexer::Base(sat, temp, lum)))
+            Temp::iter().flat_map(move |temp| Lum::iter().map(move |lum| ColorRef::Base(sat, temp, lum)))
         })
     }
 
     pub fn iter_themed(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(move |sat| {
             ThemeHue::iter()
-                .flat_map(move |hue| Level::iter().map(move |level| Indexer::Themed(variant, sat, hue, level)))
+                .flat_map(move |hue| Level::iter().map(move |level| ColorRef::Themed(variant, sat, hue, level)))
         })
     }
 
     pub fn iter_primary() -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(|sat| {
-            Primary::iter().flat_map(move |primary| Lum::iter().map(move |lum| Indexer::Primary(sat, primary, lum)))
+            Primary::iter().flat_map(move |primary| Lum::iter().map(move |lum| ColorRef::Primary(sat, primary, lum)))
         })
     }
 
     pub fn iter_themed_primary(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
         Sat::iter().flat_map(move |sat| {
             Primary::iter().flat_map(move |primary| {
-                Level::iter().map(move |level| Indexer::ThemedPrimary(variant, sat, primary, level))
+                Level::iter().map(move |level| ColorRef::ThemedPrimary(variant, sat, primary, level))
             })
         })
     }
 
     pub fn iter_semantic(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
-        KNOWN_SEMANTICS.iter().map(move |name| Indexer::Semantic(variant, name))
+        KNOWN_SEMANTICS.iter().map(move |name| ColorRef::Semantic(variant, name))
     }
 
     pub fn iter(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
@@ -345,6 +352,48 @@ impl<'v, 's> Indexer<'v, 's> {
             .chain(Self::iter_primary())
             .chain(Self::iter_themed_primary(variant))
             .chain(Self::iter_semantic(variant))
+    }
+}
+
+impl<'v, 's> ColorRef<'v, 's> {
+    pub fn to_owned(&self) -> ColorIndex {
+        match self {
+            ColorRef::Base(sat, temp, lum) => ColorIndex::Base(*sat, *temp, *lum),
+            ColorRef::Themed(variant, sat, hue, level) => ColorIndex::Themed((*variant).clone(), *sat, *hue, *level),
+            ColorRef::Primary(sat, primary, lum) => ColorIndex::Primary(*sat, *primary, *lum),
+            ColorRef::ThemedPrimary(variant, sat, primary, level) => ColorIndex::ThemedPrimary((*variant).clone(), *sat, *primary, *level),
+            ColorRef::Semantic(variant, name) => ColorIndex::Semantic((*variant).clone(), name.to_string()),
+        }
+    }
+}
+
+impl ColorIndex {
+    pub fn as_ref(&self) -> ColorRef<'_, '_> {
+        match self {
+            ColorIndex::Base(sat, temp, lum) => ColorRef::Base(*sat, *temp, *lum),
+            ColorIndex::Themed(variant, sat, hue, level) => ColorRef::Themed(variant, *sat, *hue, *level),
+            ColorIndex::Primary(sat, primary, lum) => ColorRef::Primary(*sat, *primary, *lum),
+            ColorIndex::ThemedPrimary(variant, sat, primary, level) => ColorRef::ThemedPrimary(variant, *sat, *primary, *level),
+            ColorIndex::Semantic(variant, name) => ColorRef::Semantic(variant, name),
+        }
+    }
+}
+
+impl<'a> From<&'a ColorIndex> for ColorRef<'a, 'a> {
+    fn from(index: &'a ColorIndex) -> Self {
+        index.as_ref()
+    }
+}
+
+impl<'v, 's> From<&ColorRef<'v, 's>> for ColorRef<'v, 's> {
+    fn from(index: &ColorRef<'v, 's>) -> Self {
+        *index
+    }
+}
+
+impl From<ColorRef<'_, '_>> for ColorIndex {
+    fn from(index: ColorRef<'_, '_>) -> Self {
+        index.to_owned()
     }
 }
 
@@ -622,17 +671,23 @@ impl Sat {
     }
 }
 
-impl<'v, 's> Display for Indexer<'v, 's> {
+impl<'v, 's> Display for ColorRef<'v, 's> {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
-            Indexer::Base(sat, temp, lum) => write!(f, "{sat}-{temp}-{lum}"),
-            Indexer::Themed(_, sat, hue, level) => write!(f, "{sat}-{hue}-{level}",),
-            Indexer::Primary(sat, primary, lum) => write!(f, "{sat}-{primary}-{lum}"),
-            Indexer::ThemedPrimary(_, sat, primary, level) => {
+            ColorRef::Base(sat, temp, lum) => write!(f, "{sat}-{temp}-{lum}"),
+            ColorRef::Themed(_, sat, hue, level) => write!(f, "{sat}-{hue}-{level}",),
+            ColorRef::Primary(sat, primary, lum) => write!(f, "{sat}-{primary}-{lum}"),
+            ColorRef::ThemedPrimary(_, sat, primary, level) => {
                 write!(f, "{sat}-{primary}-{level}")
             }
-            Indexer::Semantic(_, role) => write!(f, "{role}"),
+            ColorRef::Semantic(_, role) => write!(f, "{role}"),
         }
+    }
+}
+
+impl Display for ColorIndex {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        self.as_ref().fmt(f)
     }
 }
 

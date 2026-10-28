@@ -15,7 +15,7 @@ use anyhow::Error as AnyError;
 use components::Expander;
 use components::{Dialog, Severity};
 use leptos::prelude::*;
-use themelib::theme::{Indexer, Theme, ThemeBuilder, ThemeVariant};
+use themelib::theme::{ColorRef, Theme, ThemeBuilder, ThemeVariant};
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
@@ -33,7 +33,7 @@ fn apply_theme_to_root(theme: &Theme, variant: &ThemeVariant) {
         return;
     };
     let style = root.style();
-    for indexer in Indexer::iter(variant) {
+    for indexer in ColorRef::iter(variant) {
         let color = theme.get(&indexer).to_srgba();
         _ = style.set_property(&format!("--{indexer}"), &format!("#{color:X}"));
     }

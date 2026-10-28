@@ -15,7 +15,7 @@ use themelib::{
     sampler::{self, HueMode},
     scripts::{self, pal::make_pal},
     template::{fmt_string, Template},
-    theme::{Indexer, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder},
+    theme::{ColorRef, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder},
 };
 
 /// Generates six-colour themes from a given configuration file and applies them
@@ -345,27 +345,27 @@ pub fn main() -> AnyResult<()> {
             let theme = builder.into_theme();
 
             let cold = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Cold, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Cold, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
             let cool = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Cool, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Cool, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
             let coolish = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Coolish, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Coolish, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
             let warmish = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Warmish, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Warmish, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
             let warm = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Warm, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Warm, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
             let hot = theme
-                .get(&Indexer::Base(Sat::Intense, Temp::Hot, Lum::MediumHigh))
+                .get(&ColorRef::Base(Sat::Intense, Temp::Hot, Lum::MediumHigh))
                 .to_srgba()
                 .to_bytes();
 
@@ -488,7 +488,7 @@ pub fn main() -> AnyResult<()> {
                 bail!("Theme does not contain a variant named: '{variant}'");
             };
 
-            for indexer in Indexer::iter(&variant) {
+            for indexer in ColorRef::iter(&variant) {
                 let color = theme.get(&indexer).to_srgba();
                 println!("{indexer}: #{color:X}");
             }

@@ -54,7 +54,7 @@ pub const fn rgba_u8(r: u8, g: u8, b: u8, a: u8) -> Rgba {
 }
 
 pub fn rgb_u24(packed: u32) -> Rgb {
-    Rgba::unpack_be(packed).without_a()
+    Rgba::unpack_be(packed << 8).without_a()
 }
 
 pub fn rgba_u32(packed: u32) -> Rgba {

@@ -16,7 +16,7 @@ use regex::Regex;
 
 use crate::{
     color::OkHsla,
-    theme::{Indexer, Theme, ThemeVariant},
+    theme::{ColorRef, Theme, ThemeVariant},
 };
 
 /// Defines a template for generating theme variants. A template is a  plain
@@ -31,8 +31,7 @@ use crate::{
 /// of the following:
 ///
 /// - "name": the name of the theme.
-/// - "variant": the name of the theme variant, ("dawn", "dusk", "noon", or
-///   "night").
+/// - "variant": the name of the theme variant.
 /// - "author": the author of the theme.
 /// - "description": the description of the theme.
 /// - "version": the version of the theme.
@@ -83,13 +82,20 @@ use crate::{
 /// ------------
 ///
 /// Color fields take the format
-/// `{{<field>[.<swizzle>[/<colorspace]][:<format>]}}`. The field name may be
+/// `{{<field>[.<swizzle>[/<flags]][:<format>]}}`. The field name may be
 /// any of the options documented in [`crate::theme::Indexer`]. The optional
-/// <swizzle> is a string of the characters 'r', 'g', 'b', 'h', 's', and 'l' in
-/// any order, which specifies the order of color components in the output. The
-/// optional <colorspace> is either 'G' for gamma-corrected (sRGB) values or 'L'
-/// for linear values, which affects the output values for 'r', 'g', and 'b'
-/// components. The optional <format> may be one of the following:
+/// <swizzle> is a string of the characters 'r', 'g', 'b', 'a', 'h', 's', and
+/// 'l' in any order, which specifies the order of color components in the
+/// output.
+///
+/// The optional <flags> may include multiple of:
+///
+/// - "G": output "rgb" components as gamma-corrected (sRGB) values.
+/// - "L": output "rgb" components as linear values.
+/// - "D": output the "h" component in degrees.
+/// - "R": output the "h" component in radians.
+///
+/// The optional <format> may be one of the following:
 ///
 /// - "X": hexadecimal RGB format, with uppercase letters and no prefix. This is
 ///   the default format if none is specified.
@@ -104,10 +110,6 @@ use crate::{
 ///   255.
 /// - "P": a comma-separated list of percentage components with a '%' symbol.
 /// - "p": a comma-separated list of percentage components without a symbol.
-/// - "D" or "d": a comma-separated list of degree components in the range 0 to
-///   360.
-/// - "R" or "r": a comma-separated list of radian components in the range 0 to
-///   2π.
 ///
 /// For example, the placeholder "{{primary-foreground.hsl.s:P}}" might be
 /// replaced with "80%" or "{{base-color-1-high-medium.rgb:X}}" might be
@@ -186,6 +188,11 @@ pub enum Error {
     InvalidContext(String),
 }
 
+enum AngleUnit {
+    Degrees,
+    Radians,
+}
+
 impl Template {
     pub fn new(source: impl Into<String>) -> Self {
         let source = source.into();
@@ -255,18 +262,18 @@ impl Template {
                 errors,
             )?;
 
-            let iter: Box<dyn Iterator<Item = Indexer>> = match cap.get(1).map(|m| m.as_str().trim()) {
-                Some("base") => Box::new(Indexer::iter_base()),
-                Some("themed") => Box::new(Indexer::iter_themed(variant)),
-                Some("primary") => Box::new(Indexer::iter_primary()),
-                Some("themed-primary") => Box::new(Indexer::iter_themed_primary(variant)),
-                Some("semantic") => Box::new(Indexer::iter_semantic(variant)),
-                Some(other) if other.is_empty() => Box::new(Indexer::iter(variant)),
+            let iter: Box<dyn Iterator<Item = ColorRef>> = match cap.get(1).map(|m| m.as_str().trim()) {
+                Some("base") => Box::new(ColorRef::iter_base()),
+                Some("themed") => Box::new(ColorRef::iter_themed(variant)),
+                Some("primary") => Box::new(ColorRef::iter_primary()),
+                Some("themed-primary") => Box::new(ColorRef::iter_themed_primary(variant)),
+                Some("semantic") => Box::new(ColorRef::iter_semantic(variant)),
+                Some(other) if other.is_empty() => Box::new(ColorRef::iter(variant)),
                 Some(other) => {
                     write!(std::io::stderr(), "<<INVALID ITERATOR: '{other}'>>").unwrap();
                     Box::new(iter::empty())
                 }
-                None => Box::new(Indexer::iter(variant)),
+                None => Box::new(ColorRef::iter(variant)),
             };
 
             let inner_source = cap.get(2).unwrap().as_str();
@@ -404,7 +411,7 @@ impl Template {
                     }
                 }
                 other => {
-                    if let Ok(indexer) = Indexer::from_str_with_variant(other, variant) {
+                    if let Ok(indexer) = ColorRef::from_str_with_variant(other, variant) {
                         write_color(writer, &context.get(&indexer), swizzle, space, fmt, errors)?
                     } else {
                         errors.push(Error::NotFound(other.to_string()));
@@ -586,21 +593,27 @@ pub fn write_color<W: Write>(
     writer: &mut W,
     value: &OkHsla,
     order: Option<&str>,
-    space: Option<&str>,
+    flags: Option<&str>,
     fmt: Option<&str>,
     errors: &mut Vec<Error>,
 ) -> IoResult<()> {
-    let gamma = match space {
-        Some("G") | Some("g") | None => true,
-        Some("L") | Some("l") => false,
-        Some(other) => {
-            errors.push(Error::BadColorSpace(other.to_string()));
-            write!(writer, "<<BAD COLOR SPACE: '{other}'>>")?;
-            false
-        }
-    };
+    let mut angle_unit = None;
+    let mut gamma = false;
 
-    let Ok(components) = swizzle(*value, order, gamma) else {
+    for ch in flags.unwrap_or("").chars() {
+        match ch {
+            'G' | 'g' => gamma = true,
+            'L' | 'l' => gamma = false,
+            'D' | 'd' => angle_unit = Some(AngleUnit::Degrees),
+            'R' | 'r' => angle_unit = Some(AngleUnit::Radians),
+            other => {
+                errors.push(Error::BadColorSpace(other.to_string()));
+                write!(writer, "<<BAD COLOR FLAG: '{other}'>>")?;
+            }
+        }
+    }
+
+    let Ok(components) = swizzle(*value, order, gamma, angle_unit) else {
         errors.push(Error::BadSwizzle(order.unwrap().to_string()));
         return write!(writer, "<<BAD SWIZZLE: '{}'>>", order.unwrap());
     };
@@ -682,26 +695,6 @@ pub fn write_color<W: Write>(
             }
         }
 
-        // Degrees
-        Some("D") | Some("d") => {
-            for (i, &c) in components.iter().enumerate() {
-                if i > 0 {
-                    write!(writer, ", ")?;
-                }
-                write!(writer, "{}", (c * 360.0).round())?;
-            }
-        }
-
-        // Radians
-        Some("R") | Some("r") => {
-            for (i, &c) in components.iter().enumerate() {
-                if i > 0 {
-                    write!(writer, ", ")?;
-                }
-                write!(writer, "{}", c * TAU)?;
-            }
-        }
-
         Some(other) => {
             errors.push(Error::BadFormat(other.to_string()));
             write!(writer, "<<BAD FORMAT: '{other}'>>")?;
@@ -739,7 +732,7 @@ pub fn fmt_color(value: &OkHsla, fmt: &str, order: &str, linear: bool) -> String
     }
 }
 
-fn swizzle(color: OkHsla, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, ()> {
+fn swizzle(color: OkHsla, order: Option<&str>, gamma: bool, angle_unit: Option<AngleUnit>) -> Result<Vec<f64>, ()> {
     let OkHsla { h, s, l, a } = color;
     let [r, g, b, _] = if gamma {
         color.to_srgba().as_array()
@@ -756,7 +749,11 @@ fn swizzle(color: OkHsla, order: Option<&str>, gamma: bool) -> Result<Vec<f64>, 
 
     for ch in order.chars() {
         match ch {
-            'h' | 'H' => result.push(h / TAU),
+            'h' | 'H' => match angle_unit {
+                Some(AngleUnit::Degrees) => result.push((h / TAU * 360.0).round()),
+                Some(AngleUnit::Radians) => result.push(h),
+                None => result.push(h / TAU),
+            },
             's' | 'S' => result.push(s),
             'l' | 'L' => result.push(l),
             'r' | 'R' => result.push(r),
