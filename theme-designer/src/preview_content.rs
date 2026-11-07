@@ -203,7 +203,7 @@ pub fn PreviewContent() -> impl IntoView {
                     <tr>
                         <td>Praesent ac mauris</td>
                         <td>Phasellus bibendum suscipit metus eu porttitor.</td>
-                        <td class="purple">Purple</td>
+                        <td class="magenta">Magenta</td>
                         <td style="text-align: right">42.00000</td>
                     </tr>
                     <tr>

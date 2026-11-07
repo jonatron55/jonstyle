@@ -1,8 +1,10 @@
 use std::{
-    collections::HashSet, fmt::{Display, Formatter, Result as FmtResult}, str::FromStr,
+    collections::HashSet,
+    fmt::{Display, Formatter, Result as FmtResult},
+    str::FromStr,
 };
 
-use anyhow::{anyhow, Error as AnyError};
+use anyhow::{Error as AnyError, anyhow};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -287,7 +289,9 @@ impl<'v, 's> ColorRef<'v, 's> {
     pub fn from_str_with_variant(s: &'s str, variant: &'v ThemeVariant) -> Result<Self, AnyError> {
         let parts = s.split('-').collect::<Vec<_>>();
 
-        if parts.len() >= 2 && let Ok(sat) = Sat::from_str(parts[0]) {
+        if parts.len() >= 2
+            && let Ok(sat) = Sat::from_str(parts[0])
+        {
             if let Ok(temp) = Temp::from_str(parts[1]) {
                 let rest = parts[2..].join("-");
                 if let Ok(lum) = Lum::from_str(&rest) {
@@ -300,7 +304,9 @@ impl<'v, 's> ColorRef<'v, 's> {
                 } else if let Ok(level) = Level::from_str(&rest) {
                     return Ok(ColorRef::ThemedPrimary(variant, sat, primary, level));
                 }
-            } else if parts.len() >= 3 && let Ok(hue) = ThemeHue::from_str(&parts[1..3].join("-")) {
+            } else if parts.len() >= 3
+                && let Ok(hue) = ThemeHue::from_str(&parts[1..3].join("-"))
+            {
                 let rest = parts[3..].join("-");
                 if let Ok(level) = Level::from_str(&rest) {
                     return Ok(ColorRef::Themed(variant, sat, hue, level));
@@ -316,27 +322,26 @@ impl<'v, 's> ColorRef<'v, 's> {
     }
 
     pub fn iter_base() -> impl Iterator<Item = Self> {
-        Sat::iter().flat_map(|sat| {
-            Temp::iter().flat_map(move |temp| Lum::iter().map(move |lum| ColorRef::Base(sat, temp, lum)))
+        Temp::iter().flat_map(|temp| {
+            Sat::iter().flat_map(move |sat| Lum::iter().map(move |lum| ColorRef::Base(sat, temp, lum)))
         })
     }
 
     pub fn iter_themed(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
-        Sat::iter().flat_map(move |sat| {
-            ThemeHue::iter()
-                .flat_map(move |hue| Level::iter().map(move |level| ColorRef::Themed(variant, sat, hue, level)))
+        ThemeHue::iter().flat_map(move |hue| {
+            Sat::iter().flat_map(move |sat| Level::iter().map(move |level| ColorRef::Themed(variant, sat, hue, level)))
         })
     }
 
     pub fn iter_primary() -> impl Iterator<Item = Self> {
-        Sat::iter().flat_map(|sat| {
-            Primary::iter().flat_map(move |primary| Lum::iter().map(move |lum| ColorRef::Primary(sat, primary, lum)))
+        Primary::iter().flat_map(|primary| {
+            Sat::iter().flat_map(move |sat| Lum::iter().map(move |lum| ColorRef::Primary(sat, primary, lum)))
         })
     }
 
     pub fn iter_themed_primary(variant: &'v ThemeVariant) -> impl Iterator<Item = Self> {
-        Sat::iter().flat_map(move |sat| {
-            Primary::iter().flat_map(move |primary| {
+        Primary::iter().flat_map(move |primary| {
+            Sat::iter().flat_map(move |sat| {
                 Level::iter().map(move |level| ColorRef::ThemedPrimary(variant, sat, primary, level))
             })
         })
@@ -361,7 +366,9 @@ impl<'v, 's> ColorRef<'v, 's> {
             ColorRef::Base(sat, temp, lum) => ColorIndex::Base(*sat, *temp, *lum),
             ColorRef::Themed(variant, sat, hue, level) => ColorIndex::Themed((*variant).clone(), *sat, *hue, *level),
             ColorRef::Primary(sat, primary, lum) => ColorIndex::Primary(*sat, *primary, *lum),
-            ColorRef::ThemedPrimary(variant, sat, primary, level) => ColorIndex::ThemedPrimary((*variant).clone(), *sat, *primary, *level),
+            ColorRef::ThemedPrimary(variant, sat, primary, level) => {
+                ColorIndex::ThemedPrimary((*variant).clone(), *sat, *primary, *level)
+            }
             ColorRef::Semantic(variant, name) => ColorIndex::Semantic((*variant).clone(), name.to_string()),
         }
     }
@@ -373,7 +380,9 @@ impl ColorIndex {
             ColorIndex::Base(sat, temp, lum) => ColorRef::Base(*sat, *temp, *lum),
             ColorIndex::Themed(variant, sat, hue, level) => ColorRef::Themed(variant, *sat, *hue, *level),
             ColorIndex::Primary(sat, primary, lum) => ColorRef::Primary(*sat, *primary, *lum),
-            ColorIndex::ThemedPrimary(variant, sat, primary, level) => ColorRef::ThemedPrimary(variant, *sat, *primary, *level),
+            ColorIndex::ThemedPrimary(variant, sat, primary, level) => {
+                ColorRef::ThemedPrimary(variant, *sat, *primary, *level)
+            }
             ColorIndex::Semantic(variant, name) => ColorRef::Semantic(variant, name),
         }
     }

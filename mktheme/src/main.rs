@@ -1,10 +1,10 @@
 use std::{
     env, fs,
-    io::{stdout, Write},
+    io::{Write, stdout},
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Result as AnyResult};
+use anyhow::{Result as AnyResult, bail};
 use clap::{Parser, Subcommand};
 use crossterm::{
     queue,
@@ -13,8 +13,8 @@ use crossterm::{
 use semver::Version;
 use themelib::{
     sampler::{self, HueMode},
-    scripts::{self, pal::make_pal},
-    template::{fmt_string, Template},
+    scripts::{self, ase::make_ase, pal::make_pal},
+    template::{Template, fmt_string},
     theme::{ColorRef, Lum, Metadata, Sat, Temp, Theme, ThemeBuilder},
 };
 
@@ -190,7 +190,7 @@ pub enum Command {
 
         /// Output path to write the generated '.ase' file to.
         #[arg(short, long, alias = "out")]
-        output: PathBuf,
+        output: Option<PathBuf>,
 
         /// Whether to overwrite existing files at the output path.
         #[arg(short, long)]
@@ -469,13 +469,8 @@ pub fn main() -> AnyResult<()> {
         Command::Pal { config, output, force } => {
             make_pal(&load_config(&config)?, output.as_deref(), force)?;
         }
-        Command::Ase {
-            config,
-            output: _,
-            force: _,
-        } => {
-            let _ = load_config(&config)?;
-            todo!()
+        Command::Ase { config, output, force } => {
+            make_ase(&load_config(&config)?, output.as_deref(), force)?;
         }
         Command::List { config, variant } => {
             let theme = load_config(&config)?;

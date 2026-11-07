@@ -1,11 +1,11 @@
 use std::{
     borrow::Cow,
     fs::File,
-    io::Write,
+    io::{Result as IoResult, Write},
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Result as AnyResult};
+use anyhow::{Result as AnyResult, bail};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use crate::{
@@ -39,10 +39,12 @@ pub fn make_pal(theme: &Theme, output: Option<&Path>, force: bool) -> AnyResult<
     }
 
     let mut w = File::create(&output)?;
-    write_pal(theme, &mut w)
+    write_pal(theme, &mut w)?;
+
+    Ok(())
 }
 
-pub fn write_pal(theme: &Theme, w: &mut impl Write) -> AnyResult<()> {
+pub fn write_pal(theme: &Theme, w: &mut impl Write) -> IoResult<()> {
     let color_count = ColorRef::iter_base().count();
     let filesize = 24 + 4 * color_count;
 

@@ -150,7 +150,7 @@ $tooltip-delay: 500ms;
     display: grid;
     grid-template-columns: 1fr auto;
 
-    button:first-child {
+    button.expand-button {
       min-width: 16rem;
     }
   }

@@ -91,8 +91,9 @@ h3 {
 
 h1 {
   text-align: center;
+
   &:not(.caption) {
-  color: var(--chrome-foreground);
+    color: var(--chrome-foreground);
   }
 }
 
@@ -219,20 +220,20 @@ tr {
 
 table.banded-rows {
   border: 1px solid var(--dim-foreground);
-  background: var(--content-background);
+  background: var(--muted-color-1-background);
   border-collapse: collapse;
 
-
   tr:nth-child(even) {
-    background-color: var(--card-background);
+    background: var(--card-background);
+
+    &:hover {
+      background: var(--muted-color-6-high-background);
+    }
   }
 
   tr:hover {
-    border-color: var(--dim-foreground);
-    border-width: 1px 0;
-    border-style: dashed none;
-    border-spacing: 1px;
-    padding: 0;
+    color: var(--muted-color-1-foreground);
+    background: var(--muted-color-6-background);
   }
 
   th {

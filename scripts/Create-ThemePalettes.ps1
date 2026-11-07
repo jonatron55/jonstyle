@@ -24,6 +24,7 @@ try {
 
     $themes | ForEach-Object {
         .\target\release\mktheme.exe pal $_.FullName --force --output $Out
+        .\target\release\mktheme.exe ase $_.FullName --force --output $Out
     }
 }
 finally {

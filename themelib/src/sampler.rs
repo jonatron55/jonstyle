@@ -2,7 +2,7 @@ use std::borrow::Cow;
 #[cfg(not(target_arch = "wasm32"))]
 use std::{
     f64::consts::PI,
-    io::{stdout, Result as IoResult, Write},
+    io::{Result as IoResult, Write, stdout},
 };
 #[cfg(feature = "image")]
 use std::{
@@ -25,10 +25,10 @@ use glam::FloatExt;
 use image::{DynamicImage, GenericImageView, ImageReader};
 use itertools::Itertools;
 
-#[cfg(not(target_arch = "wasm32"))]
-use crate::color::okhsl;
 #[cfg(feature = "image")]
 use crate::color::SRgba;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::color::okhsl;
 use crate::{
     color::{OkHsl, SRgb},
     theme::HueBuilder,

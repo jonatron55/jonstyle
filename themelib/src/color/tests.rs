@@ -1,8 +1,8 @@
 use lazy_static::lazy_static;
 
 use crate::color::{
-    ciexyz, gamma, inv_gamma, okhsl, okluv, rgb, rgb_u24, rgba, rgba_u32, rgba_u8, srgb, srgb_u24, srgba, srgba_u32,
-    srgba_u8, CieXyz, OkHsl, OkLuv, Rgb, Rgba, SRgb, SRgba,
+    CieXyz, OkHsl, OkLuv, Rgb, Rgba, SRgb, SRgba, ciexyz, gamma, inv_gamma, okhsl, okluv, rgb, rgb_u24, rgba, rgba_u8,
+    rgba_u32, srgb, srgb_u24, srgba, srgba_u8, srgba_u32,
 };
 
 trait ApproxEq {

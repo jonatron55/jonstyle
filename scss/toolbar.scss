@@ -120,7 +120,7 @@ input[type="file"].button.toolbar+label {
   input[type="radio"].button.toolbar+label,
   input[type="file"].button.toolbar+label {
     color: var(--caption-foreground);
-    min-width: 2rem;
+    min-width: 3rem;
     padding: var(--vertical-gap) var(--horizontal-gap);
 
     &:hover:not(.ok, .danger, .caution) {

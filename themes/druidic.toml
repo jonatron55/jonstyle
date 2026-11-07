@@ -1,0 +1,34 @@
+[meta]
+name = "Druidic"
+author = "Jonathon Cobb"
+version = "1.0.0"
+variants = [
+    { name = "Dawn", mode = "Light", temp = "Warm" },
+    { name = "Dusk", mode = "Dark", temp = "Warm" },
+    { name = "Noon", mode = "Light", temp = "Cool" },
+    { name = "Night", mode = "Dark", temp = "Cool" },
+]
+default_variant = "Dusk"
+icon = "icons/cowl.svg"
+
+[hue]
+mode = "Triadic"
+primary = 55.0
+spread = 15.0
+
+[lum]
+range = [4.0, 90.0]
+alpha = 1.28
+gamma = 0.94
+
+[sat]
+muted_range = [0.0, 5.0]
+base_range = [10.0, 20.0]
+intense_range = [70.0, 85.0]
+
+[code]
+vocab = "JonStyle"
+bold_keywords = true
+bold_punctuation = true
+italic_comments = true
+italic_strings = true

@@ -2,7 +2,7 @@ use anyhow::{Error as AnyError, Result as AnyResult};
 use components::{Expander, ExportButton, SecondaryCommands};
 use leptos::prelude::*;
 use themelib::{
-    scripts::pal::write_pal,
+    scripts::{ase::write_ase, pal::write_pal},
     template::{fmt_string, write_color},
     theme::{ColorIndex, Lum, Sat, Temp, Theme},
 };
@@ -58,6 +58,18 @@ pub fn PalettePanel(
         }
     });
 
+    let export_ase = Callback::new({
+        let theme = theme.clone();
+        move |_| -> AnyResult<(Vec<u8>, String)> {
+            let bytes = theme.with(|theme| -> AnyResult<Vec<u8>> {
+                let mut bytes = vec![];
+                write_ase(theme, &mut bytes)?;
+                Ok(bytes)
+            })?;
+            Ok((bytes, "application/octet-stream".to_string()))
+        }
+    });
+
     view! {
         <Expander title="Base Palette" expanded_by_default=true>
             <SecondaryCommands slot>
@@ -66,6 +78,15 @@ pub fn PalettePanel(
                     name=name
                     extension="pal"
                     on_write=export_pal.clone()
+                    on_error=on_error.clone()
+                    {..}
+                    class="toolbar"
+                />
+                <ExportButton
+                    caption="Export ASE"
+                    name=name
+                    extension="ase"
+                    on_write=export_ase.clone()
                     on_error=on_error.clone()
                     {..}
                     class="toolbar"

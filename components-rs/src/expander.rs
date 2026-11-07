@@ -17,11 +17,7 @@ pub fn Expander(
     let icon = Signal::derive_local({
         let is_expanded = is_expanded.clone();
         move || {
-            if is_expanded.get() {
-                "⯆"
-            } else {
-                "⯈"
-            }
+            if is_expanded.get() { "⯆" } else { "⯈" }
         }
     });
 
@@ -33,12 +29,12 @@ pub fn Expander(
         <div class="expander panel">
             <div class="caption">
                 <button
-                    class="toolbar"
+                    class="toolbar expand-button"
                     on:click=move |_| { set_is_expanded.update(|expanded| *expanded = !*expanded) }
                 >
                     <h1>{icon} {title}</h1>
                 </button>
-                {secondary_commands}
+                <div>{secondary_commands}</div>
             </div>
             <Show when=move || is_expanded.get()>{children().into_any()}</Show>
         </div>
